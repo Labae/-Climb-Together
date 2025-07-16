@@ -1,32 +1,24 @@
 ﻿using System;
+using Data.Configs;
+using Systems.Input.Interfaces;
+using VContainer;
 
 namespace Systems.Input
 {
-    public class GlobalInputSystem : IDisposable
+    public class GlobalInputSystem : IGlobalInputSystem, IDisposable
     {
-        private static GlobalInputSystem _instance;
-        private readonly InputSystemActions _inputSystemActions;
+        [Inject]
+        private ProjectConfig _projectConfig;
 
-        public static InputSystemActions Actions => _instance?._inputSystemActions;
+        private readonly InputSystemActions _inputSystemActions = new();
 
-        public GlobalInputSystem()
-        {
-            if (_instance != null)
-            {
-                throw new InvalidOperationException("GlobalInputSystem already exists");
-            }
-        
-            _instance = this;
-            _inputSystemActions = new InputSystemActions();
-        }
+        public InputSystemActions Actions => _inputSystemActions;
+        public float InputBuffer => _projectConfig.InputBuffer;
+
 
         public void Dispose()
         {
             _inputSystemActions?.Dispose();
-            if (_instance == this)
-            {
-                _instance = null;
-            }
         }
     }
 }

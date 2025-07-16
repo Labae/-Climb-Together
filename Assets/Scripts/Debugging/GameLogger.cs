@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Cysharp.Text;
 using Debugging.Enum;
 
 namespace Debugging
 {
     public static class GameLogger
     {
-        private static readonly Queue<StringBuilder> StringBuilderPool = new();
+        private static readonly Queue<Utf16ValueStringBuilder> StringBuilderPool = new();
         private static string _logFilePath;
 
         static GameLogger()
@@ -42,7 +42,7 @@ namespace Debugging
                 return;
             }
 
-            Log($"ASSERTION FAILED: {message}", LogLevel.Assert, category);
+            Log(ZString.Concat("ASSERTION FAILED: ", message), LogLevel.Assert, category);
             UnityEngine.Debug.Break();
 #endif
         }
@@ -50,10 +50,10 @@ namespace Debugging
         private static void Log(string message, LogLevel level, LogCategory category)
         {
             // 메시지 포맷팅
-            var sb = GetStringBuilder();
-            sb.Append($"[{DateTime.Now:HH:mm:ss.fff}]");
-            sb.Append($"[{level}]");
-            sb.Append($"[{category}] ");
+            using var sb = GetStringBuilder();
+            sb.AppendFormat("[{0:HH:mm:ss.fff}]", DateTime.Now);
+            sb.AppendFormat("[{0}]", level);
+            sb.AppendFormat("[{0}] ", category);
             sb.Append(message);
 
             var formattedMessage = sb.ToString();
@@ -81,13 +81,13 @@ namespace Debugging
 #endif
         }
 
-        private static StringBuilder GetStringBuilder()
+        private static Utf16ValueStringBuilder GetStringBuilder()
         {
             lock (StringBuilderPool)
             {
                 if (StringBuilderPool.Count <= 0)
                 {
-                    return new StringBuilder(256);
+                    return ZString.CreateStringBuilder();
                 }
 
                 var sb = StringBuilderPool.Dequeue();
@@ -96,7 +96,7 @@ namespace Debugging
             }
         }
 
-        private static void ReturnStringBuilder(StringBuilder sb)
+        private static void ReturnStringBuilder(Utf16ValueStringBuilder sb)
         {
             lock (StringBuilderPool)
             {

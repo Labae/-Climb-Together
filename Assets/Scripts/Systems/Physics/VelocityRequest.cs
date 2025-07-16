@@ -33,9 +33,9 @@ namespace Systems.Physics
             return new VelocityRequest(
                 VelocityRequestType.Set,
                 velocity,
-                source, 
+                source,
                 priority,
-                0f, 
+                0f,
                 true,
                 true);
         }
@@ -49,7 +49,7 @@ namespace Systems.Physics
                 source,
                 VelocityPriority.Background,
                 duration,
-                true, 
+                true,
                 true);
         }
 
@@ -58,8 +58,8 @@ namespace Systems.Physics
         {
             return new VelocityRequest(
                 VelocityRequestType.Override,
-                velocity, 
-                source, 
+                velocity,
+                source,
                 VelocityPriority.Override,
                 0f,
                 true,
@@ -71,11 +71,11 @@ namespace Systems.Physics
         {
             return new VelocityRequest(
                 VelocityRequestType.Set,
-                new Vector2(x, 0), 
+                Vector2.right * x,
                 ForceType.None,
                 priority,
                 0f,
-                true, 
+                true,
                 false);
         }
 
@@ -84,8 +84,22 @@ namespace Systems.Physics
         {
             return new VelocityRequest(
                 VelocityRequestType.Set,
-                new Vector2(0, y),
+                Vector2.up * y,
                 ForceType.None,
+                priority,
+                0f,
+                false,
+                true);
+        }
+
+        public static VelocityRequest AddVertical(float y,
+            ForceType source = ForceType.Gravity,
+            int priority = VelocityPriority.Background)
+        {
+            return new VelocityRequest(
+                VelocityRequestType.Add,
+                Vector2.up * y,
+                source,
                 priority,
                 0f,
                 false,

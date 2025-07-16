@@ -3,10 +3,8 @@
     public interface IInputSystem
     {
         bool IsInputEnabled { get; }
-        
+
         void EnableInput();
         void DisableInput();
-        
-        void ResetFrameInput();
     }
 }

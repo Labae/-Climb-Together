@@ -1,49 +1,54 @@
-﻿using System;
-using Data.Player;
+﻿using Cysharp.Text;
+using Data.Player.Abilities;
 using Debugging;
+using Debugging.Enum;
 using Gameplay.Common.Interfaces;
+using Gameplay.Physics.Interfaces;
 using Gameplay.Player.Interfaces;
-using UnityEngine;
+using R3;
 
 namespace Gameplay.Player.Actions
 {
     public class AirJumpAction : IPlayerAction
     {
-        private readonly PlayerMovementConfig _movementConfig;
-        private readonly Rigidbody2D _rigidbody2D;
+        private readonly PlayerMovementAbility _movementAbility;
+        private readonly IPhysicsController _physicsController;
         private readonly IGroundChecker _groundChecker;
 
-        private int _airJumpRemaining;
+        private readonly CompositeDisposable _disposables = new();
 
-        public AirJumpAction(PlayerMovementConfig movementConfig, Rigidbody2D rigidbody2D,
+        private int _remainingJumps;
+
+        public AirJumpAction(PlayerMovementAbility movementAbility, IPhysicsController physicsController,
             IGroundChecker groundChecker)
         {
-            _movementConfig = movementConfig;
-            _rigidbody2D = rigidbody2D;
+            _movementAbility = movementAbility;
+            _physicsController = physicsController;
             _groundChecker = groundChecker;
-            _groundChecker.OnGroundEnter += OnGroundEnter;
-        }
-
-        private void OnGroundEnter()
-        {
-            _airJumpRemaining = _movementConfig.MaxAirJumps;
+            _groundChecker.OnGroundEntered.Subscribe(_ =>
+            {
+                _remainingJumps = 1;
+            }).AddTo(_disposables);
         }
 
         public bool CanExecute()
         {
-            return !_groundChecker.IsGrounded && _airJumpRemaining > 0;
+            return !_groundChecker.IsGrounded.CurrentValue && _movementAbility.HasDoubleJump && _remainingJumps > 0;
         }
 
         public void Execute()
         {
-            _rigidbody2D.linearVelocityY = _movementConfig.AirJumpForce;
-            _airJumpRemaining--;
-            GameLogger.Debug($"Player Air Jump: {_movementConfig.AirJumpForce}, Remaining: {_airJumpRemaining}");
+            var airJumpPower = _movementAbility.JumpPower * _movementAbility.DoubleJumpMultiplier;
+            _physicsController.Jump(airJumpPower);
+            _remainingJumps--;
+
+            GameLogger.Debug(ZString.Format("Player Air Jump: {0}",
+                airJumpPower), LogCategory.Player);
         }
 
         public void Dispose()
         {
-            _groundChecker.OnGroundEnter -= OnGroundEnter;
+            _disposables?.Dispose();
         }
     }
 }
