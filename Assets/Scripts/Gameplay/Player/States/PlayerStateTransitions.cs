@@ -6,6 +6,7 @@ using Gameplay.Player.Interfaces;
 using Gameplay.Player.Locomotion;
 using Gameplay.Player.States.Extensions;
 using R3;
+using Systems.Physics.Utilities;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
 
@@ -67,7 +68,7 @@ namespace Gameplay.Player.States
 
         private bool IsMoving()
         {
-            return Mathf.Abs(_physicsController.GetVelocity().x) > 0.1f;
+            return Mathf.Abs(_physicsController.GetVelocity().x) > PhysicsUtility.VelocityThreshold;
         }
 
         #endregion
@@ -95,7 +96,6 @@ namespace Gameplay.Player.States
         {
             return state is PlayerStateType.Idle
                 or PlayerStateType.Run
-                or PlayerStateType.Jump
                 or PlayerStateType.Fall;
         }
 

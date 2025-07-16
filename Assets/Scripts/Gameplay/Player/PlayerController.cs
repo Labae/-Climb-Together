@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Core.Behaviours;
+using Data.Player.Abilities.Data.Player;
 using Data.Player.Animations;
-using Data.Player.Data.Player;
 using Data.Player.Enums;
 using Debugging;
 using Debugging.Enum;
@@ -64,8 +64,13 @@ namespace Gameplay.Player
         private void ValidateComponents()
         {
             _rigidbody2D ??= GetComponent<Rigidbody2D>();
+            GameLogger.Assert(_rigidbody2D != null, "Failed to get rigidbody2D", LogCategory.Player);
+
             _spriteRenderer ??= GetComponentInChildren<SpriteRenderer>();
+            GameLogger.Assert(_spriteRenderer != null, "Failed to get SpriteRenderer", LogCategory.Player);
+
             _groundChecker ??= GetComponentInChildren<GroundChecker>();
+            GameLogger.Assert(_groundChecker != null, "Failed to get GroundChecker", LogCategory.Player);
 
             _playerInputSystem = new PlayerInputSystem(_globalInputSystem);
             _playerPhysicsController =
@@ -78,9 +83,6 @@ namespace Gameplay.Player
                 _groundChecker);
             _spriteAnimator = new SpriteAnimator(_spriteRenderer);
             _stateMachine = new StateMachine<PlayerStateType>();
-
-
-            GameLogger.Assert(_rigidbody2D != null, "Failed to get rigidbody2D", LogCategory.Player);
 
             _playerInputSystem.EnableInput();
         }

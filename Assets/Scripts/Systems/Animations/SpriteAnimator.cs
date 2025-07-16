@@ -83,7 +83,10 @@ namespace Systems.Animations
                 var frame = CurrentAnimation.GetFrame(CurrentFrame);
                 if (frame != null)
                 {
-                    _spriteRenderer.sprite = frame.Sprite;
+                    if (frame.Sprite != null)
+                    {
+                        _spriteRenderer.sprite = frame.Sprite;
+                    }
 
                     if (frame.TriggerEvent && !string.IsNullOrEmpty(frame.EventName))
                     {

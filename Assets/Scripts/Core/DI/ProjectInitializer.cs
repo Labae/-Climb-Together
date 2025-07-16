@@ -34,7 +34,7 @@ namespace Core.DI
 
             // 백그라운드 실행 설정
             Application.runInBackground = _gameConfig.RunInBackground;
-            GameLogger.Info(ZString.Format("Run In Background: ", _gameConfig.RunInBackground));
+            GameLogger.Info(ZString.Format("Run In Background: {0}", _gameConfig.RunInBackground));
 
             // 물리 설정 적용
             _gameConfig.ApplyPhysicsSettings();

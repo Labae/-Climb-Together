@@ -47,7 +47,6 @@ namespace Gameplay.Physics
 
         // 캐시된 값들 (성능 최적화)
         private Vector2 _lastVelocity;
-        private const float VELOCITY_EPSILON = 0.01f;
 
         #endregion
 
@@ -480,7 +479,7 @@ namespace Gameplay.Physics
         public float GetVerticalSpeed() => _rigidbody2D.linearVelocityY;
 
         /// <summary>움직이고 있는지 여부</summary>
-        public bool IsMoving() => _rigidbody2D.linearVelocity.sqrMagnitude > VELOCITY_EPSILON;
+        public bool IsMoving() => _rigidbody2D.linearVelocity.sqrMagnitude > PhysicsUtility.VelocityThreshold;
 
         #endregion
 
@@ -494,14 +493,14 @@ namespace Gameplay.Physics
             var currentVelocity = _rigidbody2D.linearVelocity;
 
             // 속도가 변경되었을 때만 이벤트 발생
-            if (Vector2.SqrMagnitude(currentVelocity - _lastVelocity) > VELOCITY_EPSILON)
+            if (Vector2.SqrMagnitude(currentVelocity - _lastVelocity) > PhysicsUtility.VelocityThreshold)
             {
-                _velocity.Value = currentVelocity;
-                _horizontalVelocity.Value = currentVelocity.x;
-                _verticalVelocity.Value = currentVelocity.y;
+                _velocity.OnNext(currentVelocity);
+                _horizontalVelocity.OnNext(currentVelocity.x);
+                _verticalVelocity.OnNext(currentVelocity.y);
 
-                _isRising.Value = currentVelocity.y > _physicsSettings.RisingThreshold;
-                _isFalling.Value = currentVelocity.y < _physicsSettings.FallingThreshold;
+                _isRising.OnNext(currentVelocity.y > _physicsSettings.RisingThreshold);
+                _isFalling.OnNext(currentVelocity.y < _physicsSettings.FallingThreshold);
 
                 _lastVelocity = currentVelocity;
             }

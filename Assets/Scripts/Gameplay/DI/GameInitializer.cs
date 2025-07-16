@@ -1,5 +1,5 @@
 using System;
-using Data.Player.Data.Player;
+using Data.Player.Abilities.Data.Player;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.Player;
@@ -37,10 +37,6 @@ namespace Gameplay.DI
         private void SetupScene()
         {
             GameLogger.Info("게임 씬 설정 중...");
-
-            // 씬별 물리 설정
-            Physics2D.gravity = new Vector2(0f, _playerAbilities.PhysicsSettings.NormalGravity);
-            GameLogger.Info($"Gravity Scale: {_playerAbilities.PhysicsSettings.NormalGravity}");
 
             // 게임 타임 스케일 설정 (일시정지 등에서 사용)
             Time.timeScale = 1f;

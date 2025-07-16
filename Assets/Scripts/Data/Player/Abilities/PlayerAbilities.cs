@@ -1,11 +1,9 @@
-using Data.Player.Abilities;
 using Data.Player.Settings;
+using NaughtyAttributes;
+using UnityEngine;
 
-namespace Data.Player
+namespace Data.Player.Abilities
 {
-    using NaughtyAttributes;
-    using UnityEngine;
-
     namespace Data.Player
     {
         [CreateAssetMenu(fileName = nameof(PlayerAbilities), menuName = "Gameplay/Player/" + nameof(PlayerAbilities))]
@@ -22,6 +20,7 @@ namespace Data.Player
             public PlayerCombatAbility Combat;
 
             [Header("Settings")]
+            [Required]
             public PlayerPhysicsSettings PhysicsSettings;
 
             [Header("Calculated Values")] [ReadOnly]
@@ -38,10 +37,10 @@ namespace Data.Player
 
             private void CalculateJumpPhysics()
             {
-                if (Movement == null) return;
+                if (Movement == null || PhysicsSettings == null) return;
 
                 // 최대 점프 높이 계산
-                float gravity = Physics2D.gravity.y * PhysicsSettings.NormalGravity;
+                float gravity = PhysicsSettings.NormalGravity;
                 TimeToApex = Movement.JumpPower / Mathf.Abs(gravity);
                 MaxJumpHeight = Movement.JumpPower * TimeToApex + 0.5f * gravity * TimeToApex * TimeToApex;
 

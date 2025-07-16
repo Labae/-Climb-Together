@@ -60,6 +60,7 @@ namespace Systems.StateMachine
             {
                 _currentState.Value = state;
                 state.OnEnter();
+                _onStateTransition.OnNext((default(T), state.StateType));
             }
         }
 
@@ -152,15 +153,28 @@ namespace Systems.StateMachine
         {
             _currentState.Value?.OnExit();
 
+            var exceptions = new List<Exception>();
             foreach (var state in _states.Values)
             {
-                state.Dispose();
+                try
+                {
+                    state.Dispose();
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
             }
             _states.Clear();
             _disposables.Dispose();
             _onStateTransition.Dispose();
             _currentStateType.Dispose();
             _currentState.Dispose();
+
+            if (exceptions.Count > 0)
+            {
+                throw new AggregateException("Error occurred during state disposal", exceptions);
+            }
         }
     }
 }

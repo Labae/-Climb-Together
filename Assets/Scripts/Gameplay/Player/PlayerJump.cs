@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Data.Player;
 using Data.Player.Abilities;
+using Debugging;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
 using Gameplay.Player.Actions;
@@ -24,6 +25,11 @@ namespace Gameplay.Player
             IPhysicsController physicsController,
             IGroundChecker groundChecker)
         {
+            GameLogger.Assert(movementAbility != null, "Movement Ability Null");
+            GameLogger.Assert(jumpPressed != null, "jumpPressed Null");
+            GameLogger.Assert(physicsController != null, "IPhysicsController Null");
+            GameLogger.Assert(groundChecker != null, "IGroundChecker Null");
+
             _jumpActions = new List<IPlayerAction>
             {
                 new GroundJumpAction(movementAbility, physicsController, groundChecker),
@@ -39,6 +45,7 @@ namespace Gameplay.Player
             {
                 jumpAction.Dispose();
             }
+            _onJumpExecuted.Dispose();
             _disposableBag.Dispose();
         }
 

@@ -15,7 +15,6 @@ namespace Gameplay.Physics.Interfaces
         void Knockback(Vector2 direction, float force);
         void Stop();
         Vector2 GetVelocity();
-
         ReadOnlyReactiveProperty<Vector2> Velocity { get; }
         ReadOnlyReactiveProperty<float> HorizontalVelocity { get; }
         ReadOnlyReactiveProperty<float> VerticalVelocity { get; }
