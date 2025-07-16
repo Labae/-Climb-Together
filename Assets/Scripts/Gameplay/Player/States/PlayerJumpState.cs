@@ -1,4 +1,4 @@
-using Data.Player.Enums;
+﻿using Data.Player.Enums;
 
 namespace Gameplay.Player.States
 {

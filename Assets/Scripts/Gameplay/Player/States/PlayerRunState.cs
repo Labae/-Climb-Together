@@ -1,6 +1,4 @@
-using Data.Player.Enums;
-using R3;
-using Systems.Input.Utilities;
+﻿using Data.Player.Enums;
 
 namespace Gameplay.Player.States
 {

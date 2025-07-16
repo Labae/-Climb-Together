@@ -1,7 +1,7 @@
 ﻿using Data.Common;
-using UnityEngine;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics;
+using UnityEngine;
 
 namespace Gameplay.Player
 {

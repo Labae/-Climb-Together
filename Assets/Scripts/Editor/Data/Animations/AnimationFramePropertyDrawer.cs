@@ -1,4 +1,4 @@
-using Data.Animations;
+﻿using Data.Animations;
 using UnityEditor;
 using UnityEngine;
 

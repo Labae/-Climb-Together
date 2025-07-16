@@ -9,7 +9,8 @@ namespace Gameplay.Common
     [Serializable]
     public class GroundChecker : CoreBehaviour, IGroundChecker
     {
-        [Header("Detection Settings")] [SerializeField, Min(0.1f)]
+        [Header("Detection Settings")]
+        [SerializeField, Min(0.1f)]
         private float _width = 1f;
 
         [SerializeField, Min(0.01f)] private float _distance = 0.05f;
@@ -20,7 +21,8 @@ namespace Gameplay.Common
 
         [SerializeField] private LayerMask _groundLayerMask;
 
-        [Header("Detection Accuracy")] [SerializeField, Range(0.1f, 1f), Tooltip("최소 몇 프로의 레이가 땅에 닿아야 접지로 판정할지")]
+        [Header("Detection Accuracy")]
+        [SerializeField, Range(0.1f, 1f), Tooltip("최소 몇 프로의 레이가 땅에 닿아야 접지로 판정할지")]
         private float _groundThreshold = 0.5f;
 
         private ContactFilter2D _contactFilter2D;
@@ -47,7 +49,9 @@ namespace Gameplay.Common
 
             _contactFilter2D = new ContactFilter2D
             {
-                useLayerMask = true, layerMask = _groundLayerMask, useTriggers = false
+                useLayerMask = true,
+                layerMask = _groundLayerMask,
+                useTriggers = false
             };
 
             _hitResults = new RaycastHit2D[_capacity];

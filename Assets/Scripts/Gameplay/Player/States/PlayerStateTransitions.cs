@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Data.Player.Enums;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;

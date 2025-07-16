@@ -1,13 +1,12 @@
-using System;
+﻿using System;
 using Data.Animations;
 using Debugging;
-using Debugging.Enum;
 using Systems.Animations.Interfaces;
 using UnityEngine;
 
 namespace Systems.Animations
 {
-   public class SpriteAnimator : ISpriteAnimator
+    public class SpriteAnimator : ISpriteAnimator
     {
         // Interface Properties
         public AnimationData CurrentAnimation { get; private set; }

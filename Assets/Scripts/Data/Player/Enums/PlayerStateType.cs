@@ -1,4 +1,4 @@
-namespace Data.Player.Enums
+﻿namespace Data.Player.Enums
 {
     public enum PlayerStateType
     {

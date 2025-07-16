@@ -1,6 +1,4 @@
-// Copyright (c) Team STEP.  All Rights Reserved.
-
-namespace Systems.Input.Interfaces
+﻿namespace Systems.Input.Interfaces
 {
     public interface IGlobalInputSystem
     {

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Data.Animations;
 using Data.Player.Enums;
 using UnityEngine;
@@ -45,9 +45,9 @@ namespace Data.Player.Animations
         {
             _cache = new Dictionary<PlayerStateType, AnimationData>();
 
-            foreach(var pair in _animations)
+            foreach (var pair in _animations)
             {
-                if(pair.animation != null)
+                if (pair.animation != null)
                 {
                     _cache[pair.state] = pair.animation;
                 }

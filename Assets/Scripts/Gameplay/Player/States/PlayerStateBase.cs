@@ -1,8 +1,5 @@
-using System;
-using Data.Player.Enums;
-using R3;
+﻿using Data.Player.Enums;
 using Systems.StateMachine.Interfaces;
-using UnityEngine;
 
 namespace Gameplay.Player.States
 {

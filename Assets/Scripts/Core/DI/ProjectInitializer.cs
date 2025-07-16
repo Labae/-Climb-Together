@@ -1,4 +1,4 @@
-using Cysharp.Text;
+﻿using Cysharp.Text;
 using Data.Configs;
 using Debugging;
 using UnityEngine;

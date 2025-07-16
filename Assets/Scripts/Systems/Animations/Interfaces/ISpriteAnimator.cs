@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Data.Animations;
 
 namespace Systems.Animations.Interfaces

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Data.Player.Abilities.Data.Player;
 using Gameplay.Player;
 using UnityEngine;

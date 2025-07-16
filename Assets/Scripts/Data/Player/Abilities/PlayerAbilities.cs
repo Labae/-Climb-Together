@@ -1,4 +1,4 @@
-using Data.Player.Settings;
+﻿using Data.Player.Settings;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -23,7 +23,8 @@ namespace Data.Player.Abilities
             [Required]
             public PlayerPhysicsSettings PhysicsSettings;
 
-            [Header("Calculated Values")] [ReadOnly]
+            [Header("Calculated Values")]
+            [ReadOnly]
             public float MaxJumpHeight;
 
             [ReadOnly] public float TimeToApex;

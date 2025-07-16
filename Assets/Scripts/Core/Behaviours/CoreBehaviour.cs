@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Core.Behaviours
@@ -8,17 +8,17 @@ namespace Core.Behaviours
         private GameObject _cacheGameObject;
         private Transform _cacheTransform;
         private string _cacheName;
-        
+
         private bool _isInitialized = false;
         public event Action OnDestroyed;
-        
+
         public new GameObject gameObject
         {
             get
             {
                 if (_cacheGameObject == null)
                 {
-                    _cacheGameObject =  base.gameObject;
+                    _cacheGameObject = base.gameObject;
                 }
 
                 return _cacheGameObject;
@@ -78,7 +78,7 @@ namespace Core.Behaviours
 
         protected virtual void HandleDestruction()
         {
-            
+
         }
     }
 }
