@@ -1,5 +1,49 @@
 {
   "dependencies": {
+    "com.cysharp.r3": {
+      "version": "https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.imgui": "1.0.0"
+      },
+      "hash": "fbc12b2c0b6a1ee5ce7d534f9db936bc59069219"
+    },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f213ff497e4ff462a77319cf677cf20cc0860ca9"
+    },
+    "com.cysharp.zlinq": {
+      "version": "https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "124885e3b63d0baca332ee59f688d57f569a304f"
+    },
+    "com.cysharp.zstring": {
+      "version": "https://github.com/Cysharp/ZString.git?path=src/ZString.Unity/Assets/Scripts/ZString",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "5fefbaa7df300643e53954cf07a73b3299665883"
+    },
+    "com.dbrizov.naughtyattributes": {
+      "version": "https://github.com/dbrizov/NaughtyAttributes.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "8a8fa5a9659a6d63f196391c71e06c4286c8acd7"
+    },
+    "com.github-glitchenzo.nugetforunity": {
+      "version": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f789083c31250c83082da9b29be0c976152d699b"
+    },
     "com.unity.2d.animation": {
       "version": "10.2.1",
       "depth": 1,
@@ -300,6 +344,20 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.wooshii.hierarchydecorator": {
+      "version": "https://github.com/WooshiiDev/HierarchyDecorator.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4de62306b1412118f44f177952d3f6268e8e1161"
+    },
+    "jp.hadashikick.vcontainer": {
+      "version": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.9",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "0522be3ef0bb03a3dd8866d43090b6e7ea22884a"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

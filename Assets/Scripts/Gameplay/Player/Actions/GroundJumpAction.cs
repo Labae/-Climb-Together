@@ -1,6 +1,10 @@
-﻿using Data.Player;
+﻿using Cysharp.Text;
+using Data.Player;
+using Data.Player.Abilities;
 using Debugging;
+using Debugging.Enum;
 using Gameplay.Common.Interfaces;
+using Gameplay.Physics.Interfaces;
 using Gameplay.Player.Interfaces;
 using UnityEngine;
 
@@ -8,32 +12,31 @@ namespace Gameplay.Player.Actions
 {
     public class GroundJumpAction : IPlayerAction
     {
-        private readonly PlayerMovementConfig _movementConfig;
-        private readonly Rigidbody2D _rigidbody2D;
+        private readonly PlayerMovementAbility _movementAbility;
+        private readonly IPhysicsController _physicsController;
         private readonly IGroundChecker _groundChecker;
 
-        public GroundJumpAction(PlayerMovementConfig movementConfig, Rigidbody2D rigidbody2D,
+        public GroundJumpAction(PlayerMovementAbility movementAbility, IPhysicsController physicsController,
             IGroundChecker groundChecker)
         {
-            _movementConfig = movementConfig;
-            _rigidbody2D = rigidbody2D;
+            _movementAbility = movementAbility;
+            _physicsController = physicsController;
             _groundChecker = groundChecker;
         }
-        
+
         public bool CanExecute()
         {
-            return _groundChecker.IsGrounded;
+            return _groundChecker.IsGrounded.CurrentValue;
         }
 
         public void Execute()
         {
-            _rigidbody2D.linearVelocityY += _movementConfig.GroundJumpForce;
-            GameLogger.Debug($"Player Ground Jump: {_movementConfig.GroundJumpForce}");
+            _physicsController.Jump(_movementAbility.JumpPower);
         }
 
         public void Dispose()
         {
-            
+
         }
     }
 }

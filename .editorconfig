@@ -182,7 +182,6 @@ dotnet_style_qualification_for_field = false:error
 dotnet_style_qualification_for_method = false:error
 dotnet_style_qualification_for_property = false:error
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
-file_header_template = Copyright (c) Team STEP.  All Rights Reserved.
 
 # ReSharper properties
 resharper_braces_for_for = required
@@ -399,7 +398,6 @@ csharp_preserve_single_line_statements = true
 
 # IDE0073: File header
 dotnet_diagnostic.ide0073.severity = error
-file_header_template = Copyright (c) Team STEP.  All Rights Reserved.
 
 # IDE0035: Remove unreachable code
 dotnet_diagnostic.ide0035.severity = warning

@@ -3,7 +3,9 @@
     public enum ForceType
     {
         None,
+        Movement,
         Knockback,
         Dash,
+        Gravity,
     }
 }

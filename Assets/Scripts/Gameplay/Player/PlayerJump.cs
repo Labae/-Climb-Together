@@ -1,31 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using Data.Player;
+using Data.Player.Abilities;
 using Gameplay.Common.Interfaces;
+using Gameplay.Physics.Interfaces;
 using Gameplay.Player.Actions;
 using Gameplay.Player.Interfaces;
-using Systems.Reactive;
-using UnityEngine;
+using R3;
 
 namespace Gameplay.Player
 {
     public class PlayerJump : IDisposable
     {
         private readonly List<IPlayerAction> _jumpActions;
-        private readonly ObservableProperty<bool> _jumpPressed;
+        private readonly Subject<Unit> _onJumpExecuted = new();
 
-        public PlayerJump(PlayerMovementConfig config, 
-            ObservableProperty<bool> jumpPressed, 
-            Rigidbody2D rigidbody2D,
+        private DisposableBag _disposableBag;
+
+        public Observable<Unit> OnJumpExecuted => _onJumpExecuted.AsObservable();
+
+        public PlayerJump(PlayerMovementAbility movementAbility,
+            Observable<bool> jumpPressed,
+            IPhysicsController physicsController,
             IGroundChecker groundChecker)
         {
-            _jumpPressed = jumpPressed;
             _jumpActions = new List<IPlayerAction>
             {
-                new GroundJumpAction(config, rigidbody2D, groundChecker),
-                new AirJumpAction(config, rigidbody2D, groundChecker)
+                new GroundJumpAction(movementAbility, physicsController, groundChecker),
+                new AirJumpAction(movementAbility, physicsController, groundChecker)
             };
-            _jumpPressed.OnValueChanged += OnJumpPressed;
+
+            jumpPressed.Subscribe(OnJumpPressed).AddTo(ref _disposableBag);
         }
 
         public void Dispose()
@@ -34,9 +39,9 @@ namespace Gameplay.Player
             {
                 jumpAction.Dispose();
             }
-            _jumpPressed.OnValueChanged -= OnJumpPressed;
+            _disposableBag.Dispose();
         }
-        
+
         private void OnJumpPressed(bool pressed)
         {
             if (!pressed)
@@ -50,8 +55,9 @@ namespace Gameplay.Player
                 {
                     continue;
                 }
-                
+
                 jumpAction.Execute();
+                _onJumpExecuted.OnNext(Unit.Default);
                 break;
             }
         }

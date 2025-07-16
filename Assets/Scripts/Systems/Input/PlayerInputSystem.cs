@@ -1,23 +1,25 @@
 ﻿using System;
-using Debugging;
-using Debugging.Enum;
+using R3;
 using Systems.Input.Interfaces;
-using Systems.Reactive;
 using UnityEngine.InputSystem;
 
 namespace Systems.Input
 {
     public class PlayerInputSystem : IInputSystem, InputSystemActions.IPlayerActions, IDisposable
     {
-        public ObservableProperty<bool> JumpPressed { get; }
+        private readonly Subject<float> _movementInput = new();
+        private readonly Subject<bool> _jumpInput = new();
+
+        public Observable<float> MovementInput => _movementInput.AsObservable();
+        public Observable<bool> JumpPressed => _jumpInput.AsObservable();
+
         public bool IsInputEnabled { get; private set; } = false;
 
         private InputSystemActions.PlayerActions _inputSystemActions;
 
-        public PlayerInputSystem()
+        public PlayerInputSystem(IGlobalInputSystem globalInputSystem)
         {
-            _inputSystemActions = GlobalInputSystem.Actions.Player;
-            JumpPressed = new ObservableProperty<bool>(false);
+            _inputSystemActions = globalInputSystem.Actions.Player;
             IsInputEnabled = false;
 
             _inputSystemActions.SetCallbacks(this);
@@ -45,17 +47,33 @@ namespace Systems.Input
             _inputSystemActions.Disable();
         }
 
-        public void ResetFrameInput()
-        {
-            JumpPressed.Value = false;
-        }
-
         public void OnJump(InputAction.CallbackContext context)
         {
+            if (!IsInputEnabled)
+            {
+                return;
+            }
+
             if (context.performed)
             {
-                JumpPressed.Value = true;
-                GameLogger.Debug($"JumpPressed: {JumpPressed.Value}", LogCategory.Input);
+                _jumpInput.OnNext(true);
+            }
+        }
+
+        public void OnMovement(InputAction.CallbackContext context)
+        {
+            if (!IsInputEnabled)
+            {
+                return;
+            }
+
+            if (context.performed)
+            {
+                _movementInput.OnNext(context.ReadValue<float>());
+            }
+            else if (context.canceled)
+            {
+                _movementInput.OnNext(0f);
             }
         }
 

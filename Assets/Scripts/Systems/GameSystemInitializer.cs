@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Text;
 using Debugging;
 using Systems.Input;
 using UnityEngine;
@@ -33,7 +34,7 @@ namespace Systems
             }
             catch (Exception e)
             {
-                GameLogger.Error($"Failed to initialize game systems: {e.Message}");
+                GameLogger.Error(ZString.Concat("Failed to initialize game systems: ", e.Message));
             }
         }
 
@@ -105,7 +106,7 @@ namespace Systems
             }
             catch (Exception e)
             {
-                GameLogger.Error($"Error during cleanup: {e.Message}");
+                GameLogger.Error(ZString.Concat("Error during cleanup: ", e.Message));
             }
         }
 

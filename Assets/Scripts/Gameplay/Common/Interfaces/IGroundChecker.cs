@@ -1,13 +1,14 @@
 ﻿using System;
+using R3;
 
 namespace Gameplay.Common.Interfaces
 {
     public interface IGroundChecker
     {
-        event Action OnGroundEnter;
-        event Action OnGroundExit;
+        Observable<Unit> OnGroundEntered { get; }
+        Observable<Unit> OnGroundExited { get; }
 
-        bool IsGrounded { get; }
+        ReadOnlyReactiveProperty<bool> IsGrounded { get; }
         bool WasGroundedLastFrame { get; }
     }
 }

@@ -1,3 +1,16 @@
 {
-	"name": "Debugging"
+    "name": "Debugging",
+    "rootNamespace": "",
+    "references": [
+        "ZString"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
