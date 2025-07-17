@@ -18,7 +18,7 @@ MonoBehaviour:
   Movement:
     RunSpeed: 8
     AirMultiplier: 0.7
-    JumpPower: 15
+    JumpPower: 12
     JumpBufferTime: 0.2
     CoyoteTime: 0.15
     HasDoubleJump: 1
@@ -37,6 +37,6 @@ MonoBehaviour:
     MaxHorizontalSpeed: 10
     MaxVerticalSpeed: 20
     JumpHoldGravity: -12
-  MaxJumpHeight: 1.7201835
-  TimeToApex: 0.0764526
-  MaxHorizontalDistance: 1.2232416
+  MaxJumpHeight: 3.6
+  TimeToApex: 0.6
+  MaxHorizontalDistance: 9.6

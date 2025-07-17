@@ -251,6 +251,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   _groundThreshold: 0.5
+  _useManualCheck: 0
 --- !u!1 &7685096119990228235
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,10 +6,6 @@ namespace Systems.StateMachine.Interfaces
     {
         void OnEnter();
 
-        void OnUpdate();
-
-        void OnFixedUpdate();
-
         void OnExit();
     }
 

@@ -15,10 +15,6 @@ namespace Data.Configs
 
         public bool RunInBackground = true;
 
-        [Header("Input Settings")]
-        [Range(0.05f, 0.1f)]
-        public float InputBuffer = 0.05f;
-
         [Header("Physics Settings")]
         [Range(-50f, -5f)]
         public float Gravity2D = -9.81f;
