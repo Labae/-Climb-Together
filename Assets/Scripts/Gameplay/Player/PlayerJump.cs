@@ -22,7 +22,7 @@ namespace Gameplay.Player
         #region Fields
 
         private readonly List<IPlayerAction> _jumpActions;
-        private readonly Subject<Unit> _onJumpExecuted = new();
+        private readonly Subject<IPlayerAction> _onJumpExecuted = new();
         private readonly Subject<IPlayerAction> _onSpecificJumpExecuted = new();
 
         // 점프 상태 추적
@@ -48,7 +48,7 @@ namespace Gameplay.Player
 
         // Dependencies
         private readonly PhysicsSettings _physicsSettings;
-        private readonly IGroundChecker _groundChecker;
+        private readonly IGroundDetector _groundDetector;
         private readonly IPhysicsController _physicsController;
 
         // 반응형 속성
@@ -63,10 +63,7 @@ namespace Gameplay.Player
 
         #region Properties
 
-        public Observable<Unit> OnJumpExecuted => _onJumpExecuted.AsObservable();
-
-        /// <summary>특정 점프 액션이 실행되었을 때의 이벤트</summary>
-        public Observable<IPlayerAction> OnSpecificJumpExecuted => _onSpecificJumpExecuted.AsObservable();
+        public Observable<IPlayerAction> OnJumpExecuted => _onJumpExecuted.AsObservable();
 
         /// <summary>점프 가능 여부 (반응형)</summary>
         public ReadOnlyReactiveProperty<bool> CanJump => _canJump.ToReadOnlyReactiveProperty();
@@ -104,16 +101,18 @@ namespace Gameplay.Player
             PlayerMovementAbility movementAbility,
             Observable<bool> jumpPressed,
             IPhysicsController physicsController,
-            IGroundChecker groundChecker)
+            IGroundDetector groundDetector,
+            IWallDetector wallDetector)
         {
             GameLogger.Assert(physicsSettings != null, "PhysicsSettings Null", LogCategory.Player);
             GameLogger.Assert(movementAbility != null, "Movement Ability Null", LogCategory.Player);
             GameLogger.Assert(jumpPressed != null, "jumpPressed Null", LogCategory.Player);
             GameLogger.Assert(physicsController != null, "IPhysicsController Null", LogCategory.Player);
-            GameLogger.Assert(groundChecker != null, "IGroundChecker Null", LogCategory.Player);
+            GameLogger.Assert(groundDetector != null, "IGroundChecker Null", LogCategory.Player);
+            GameLogger.Assert(wallDetector != null, "IWallDetector Null", LogCategory.Player);
 
             _physicsSettings = physicsSettings;
-            _groundChecker = groundChecker;
+            _groundDetector = groundDetector;
             _physicsController = physicsController;
 
             // 설정값 저장
@@ -122,8 +121,9 @@ namespace Gameplay.Player
 
             _jumpActions = new List<IPlayerAction>
             {
-                new GroundJumpAction(movementAbility, physicsController, groundChecker),
-                new AirJumpAction(movementAbility, physicsController, groundChecker)
+                new GroundJumpAction(movementAbility, physicsController, groundDetector),
+                new WallJumpAction(movementAbility, physicsController, groundDetector, wallDetector, true),
+                new AirJumpAction(movementAbility, physicsController, groundDetector),
             };
 
             SetupJumpInput(jumpPressed, physicsController);
@@ -170,7 +170,7 @@ namespace Gameplay.Player
         private void SetupCoyoteTimeSystem()
         {
             // 접지 상태 변화 감지
-            _groundChecker.IsGrounded
+            _groundDetector.IsGrounded
                 .Subscribe(OnGroundStateChanged)
                 .AddTo(_disposables);
 
@@ -253,7 +253,7 @@ namespace Gameplay.Player
             bool wasCoyoteActive = _coyoteTimeActive;
 
             // 현재 땅에 있으면 코요테 타임 활성화
-            if (_groundChecker.IsGrounded.CurrentValue)
+            if (_groundDetector.IsGrounded.CurrentValue)
             {
                 _coyoteTimeActive = true;
             }
@@ -345,6 +345,10 @@ namespace Gameplay.Player
                 {
                     return ExecuteJumpAction(jumpAction);
                 }
+                else if (jumpAction is WallJumpAction && jumpAction.CanExecute())
+                {
+                    return ExecuteJumpAction(jumpAction);
+                }
                 // AirJump는 일반 조건 확인
                 else if (jumpAction is AirJumpAction && jumpAction.CanExecute())
                 {
@@ -365,7 +369,7 @@ namespace Gameplay.Player
                 UpdateJumpState(jumpAction);
 
                 // 이벤트 발생
-                _onJumpExecuted.OnNext(Unit.Default);
+                _onJumpExecuted.OnNext(jumpAction);
                 _onSpecificJumpExecuted.OnNext(jumpAction);
 
                 GameLogger.Debug(ZString.Concat("Jump executed: ", jumpAction.GetType().Name), LogCategory.Player);

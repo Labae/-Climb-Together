@@ -21,3 +21,7 @@ MonoBehaviour:
     animation: {fileID: 11400000, guid: 81cb4d6142fbf4f4f823d36f844a1419, type: 2}
   - state: 3
     animation: {fileID: 11400000, guid: daa924b43f359437485b161dc6164d8b, type: 2}
+  - state: 4
+    animation: {fileID: 11400000, guid: 194f696d7cd17490e92e50d46471404c, type: 2}
+  - state: 5
+    animation: {fileID: 11400000, guid: 8404ad6c4219a4e71bef86c6538d349c, type: 2}

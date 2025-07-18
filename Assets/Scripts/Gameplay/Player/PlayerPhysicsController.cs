@@ -7,7 +7,7 @@ namespace Gameplay.Player
 {
     public class PlayerPhysicsController : PhysicsControllerBase
     {
-        public PlayerPhysicsController(Rigidbody2D rigidbody2D, PhysicsSettings physicsSettings, IGroundChecker groundChecker) : base(rigidbody2D, physicsSettings, groundChecker)
+        public PlayerPhysicsController(Rigidbody2D rigidbody2D, PhysicsSettings physicsSettings, IGroundDetector groundDetector) : base(rigidbody2D, physicsSettings, groundDetector)
         {
         }
     }

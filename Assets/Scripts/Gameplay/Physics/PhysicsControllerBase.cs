@@ -20,7 +20,7 @@ namespace Gameplay.Physics
 
         // 핵심 컴포넌트
         protected readonly Rigidbody2D _rigidbody2D;
-        protected readonly IGroundChecker _groundChecker;
+        protected readonly IGroundDetector GroundDetector;
         protected readonly PhysicsSettings _physicsSettings;
 
         // 속도 요청 시스템 (메모리 할당 최적화)
@@ -80,10 +80,10 @@ namespace Gameplay.Physics
         #region Constructor
 
         protected PhysicsControllerBase(Rigidbody2D rigidbody2D,
-            PhysicsSettings physicsSettings, IGroundChecker groundChecker)
+            PhysicsSettings physicsSettings, IGroundDetector groundDetector)
         {
             _rigidbody2D = rigidbody2D;
-            _groundChecker = groundChecker;
+            GroundDetector = groundDetector;
             _physicsSettings = physicsSettings;
 
             // Unity 물리 설정
@@ -120,7 +120,7 @@ namespace Gameplay.Physics
         /// </summary>
         private void ApplyGravity(float fixedDeltaTime)
         {
-            if (!_gravityEnabled || _groundChecker.IsCurrentlyGrounded())
+            if (!_gravityEnabled || GroundDetector.IsCurrentlyGrounded())
             {
                 return;
             }

@@ -11,7 +11,9 @@ using Gameplay.Common;
 using Gameplay.Common.DirectionProviders;
 using Gameplay.Common.Enums;
 using Gameplay.Common.Interfaces;
+using Gameplay.Common.WallDetection;
 using Gameplay.Player.States;
+using Gameplay.Player.States.Extensions;
 using R3;
 using Systems.Animations;
 using Systems.Animations.Interfaces;
@@ -40,7 +42,8 @@ namespace Gameplay.Player
         private IDirectionProvider _directionProvider;
         private PlayerLocomotion _playerLocomotion;
         private PlayerJump _playerJump;
-        private GroundChecker _groundChecker;
+        private GroundDetector _groundDetector;
+        private WallDetector _wallDetector;
         private PlayerPhysicsController _playerPhysicsController;
         private ISpriteAnimator _spriteAnimator;
 
@@ -153,8 +156,11 @@ namespace Gameplay.Player
             _spriteRenderer ??= GetComponentInChildren<SpriteRenderer>();
             GameLogger.Assert(_spriteRenderer != null, "Failed to get SpriteRenderer component", LogCategory.Player);
 
-            _groundChecker ??= GetComponentInChildren<GroundChecker>();
-            GameLogger.Assert(_groundChecker != null, "Failed to get GroundChecker component", LogCategory.Player);
+            _groundDetector ??= GetComponentInChildren<GroundDetector>();
+            GameLogger.Assert(_groundDetector != null, "Failed to get GroundDetector component", LogCategory.Player);
+
+            _wallDetector ??= GetComponentInChildren<WallDetector>();
+            GameLogger.Assert(_wallDetector != null, "Failed to get WallDetector component", LogCategory.Player);
 
             if (_enableDetailedLogging)
             {
@@ -175,11 +181,14 @@ namespace Gameplay.Player
                     FacingDirection.Right
                 );
 
+                // Wall에 방향 제공자 설정
+                _wallDetector.SetDirectionProvider(_directionProvider);
+
                 // 물리 컨트롤러 설정
                 _playerPhysicsController = new PlayerPhysicsController(
                     _rigidbody2D,
                     _abilities.PhysicsSettings,
-                    _groundChecker
+                    _groundDetector
                 );
 
                 // 로코모션 시스템 설정
@@ -187,7 +196,9 @@ namespace Gameplay.Player
                     _abilities.Movement,
                     _playerInputSystem.MovementInput,
                     _playerPhysicsController,
-                    _groundChecker
+                    _groundDetector,
+                    _wallDetector,
+                    true
                 );
 
                 // 점프 시스템 설정
@@ -196,7 +207,8 @@ namespace Gameplay.Player
                     _abilities.Movement,
                     _playerInputSystem.JumpPressed,
                     _playerPhysicsController,
-                    _groundChecker
+                    _groundDetector,
+                    _wallDetector
                 );
 
                 // 애니메이션 시스템 설정
@@ -233,7 +245,9 @@ namespace Gameplay.Player
                 _stateMachine.AddState(new PlayerIdleState());
                 _stateMachine.AddState(new PlayerRunState());
                 _stateMachine.AddState(new PlayerJumpState());
+                _stateMachine.AddState(new PlayerDoubleJumpState());
                 _stateMachine.AddState(new PlayerFallState());
+                _stateMachine.AddState(new PlayerWallSlideState(_playerPhysicsController));
 
                 // 상태 전환 시스템 설정
                 _playerStateTransitions = new PlayerStateTransitions(
@@ -241,7 +255,8 @@ namespace Gameplay.Player
                     _playerLocomotion,
                     _playerJump,
                     _playerPhysicsController,
-                    _groundChecker
+                    _groundDetector,
+                    _wallDetector
                 );
 
                 if (_enableDetailedLogging)
@@ -317,13 +332,25 @@ namespace Gameplay.Player
                 .AddTo(ref disposableBuilder);
 
             // 접지 상태 변화 추적
-            _groundChecker.IsGrounded
+            _groundDetector.IsGrounded
                 .DistinctUntilChanged()
                 .Subscribe(isGrounded =>
                 {
                     if (_enableDetailedLogging)
                     {
                         GameLogger.Debug(ZString.Concat("Ground - IsGrounded changed to: ", isGrounded), LogCategory.Player);
+                    }
+                })
+                .AddTo(ref disposableBuilder);
+
+            // 벽 감지 상태 변화 추적
+            _wallDetector.IsWallDetected
+                .DistinctUntilChanged()
+                .Subscribe(isWallDetected =>
+                {
+                    if (_enableDetailedLogging)
+                    {
+                        GameLogger.Debug(ZString.Concat("Wall - IsWallDetected changed to: ", isWallDetected), LogCategory.Player);
                     }
                 })
                 .AddTo(ref disposableBuilder);
@@ -464,7 +491,7 @@ namespace Gameplay.Player
             EnsureInitialized();
 
             transform.position = position;
-            _groundChecker?.CheckGroundState();
+            _groundDetector?.CheckGroundState();
 
             if (_enableDetailedLogging)
             {
@@ -475,12 +502,12 @@ namespace Gameplay.Player
         /// <summary>
         /// 플레이어 입력 활성화/비활성화
         /// </summary>
-        /// <param name="enabled">활성화 여부</param>
-        public void SetInputEnabled(bool enabled)
+        /// <param name="inputEnable">활성화 여부</param>
+        public void SetInputEnabled(bool inputEnable)
         {
             if (!IsInitialized) return;
 
-            if (enabled)
+            if (inputEnable)
             {
                 _playerInputSystem?.EnableInput();
             }
@@ -491,7 +518,7 @@ namespace Gameplay.Player
 
             if (_enableDetailedLogging)
             {
-                GameLogger.Debug(ZString.Concat("Player input ", enabled ? "enabled" : "disabled"), LogCategory.Player);
+                GameLogger.Debug(ZString.Concat("Player input ", inputEnable ? "enabled" : "disabled"), LogCategory.Player);
             }
         }
 
@@ -545,7 +572,7 @@ namespace Gameplay.Player
             sb.AppendLine(ZString.Concat("Initialized: ", IsInitialized));
             sb.AppendLine(ZString.Concat("Current State: ", CurrentState));
             sb.AppendLine(ZString.Concat("Direction: ", _directionProvider?.CurrentDirection ?? FacingDirection.Right));
-            sb.AppendLine(ZString.Concat("Grounded: ", _groundChecker?.IsGrounded.CurrentValue ?? false));
+            sb.AppendLine(ZString.Concat("Grounded: ", _groundDetector?.IsGrounded.CurrentValue ?? false));
             sb.AppendLine(ZString.Concat("Moving: ", _playerPhysicsController?.IsCurrentlyMoving() ?? false));
             sb.AppendLine(ZString.Concat("Input Enabled: ", _playerInputSystem?.IsInputEnabled ?? false));
 

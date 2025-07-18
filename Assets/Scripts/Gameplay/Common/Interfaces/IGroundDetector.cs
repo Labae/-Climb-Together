@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Gameplay.Common.Interfaces
 {
-    public interface IGroundChecker
+    public interface IGroundDetector
     {
         // 기존 이벤트들
         Observable<Unit> OnGroundEntered { get; }

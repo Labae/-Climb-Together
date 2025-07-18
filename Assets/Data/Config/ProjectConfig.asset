@@ -15,7 +15,6 @@ MonoBehaviour:
   TargetFrameRate: 60
   VSyncCount: 1
   RunInBackground: 1
-  InputBuffer: 0.1
   Gravity2D: -9.81
   FixedTimeStep: 0.02
   MaximumAllowedTimestep: 3
@@ -24,3 +23,7 @@ MonoBehaviour:
   SfxVolume: 1
   ShowDebugInfo: 0
   ShowFPS: 1
+  EnableLogging: 1
+  EnabledLogCategories: 5
+  EnabledLogLevels: 31
+  UseProductionLogging: 0

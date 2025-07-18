@@ -20,7 +20,7 @@ namespace Gameplay.Player.Actions
 
         private readonly PlayerMovementAbility _movementAbility;
         private readonly IPhysicsController _physicsController;
-        private readonly IGroundChecker _groundChecker;
+        private readonly IGroundDetector _groundDetector;
 
         // 성능 추적
         private float _lastExecutionTime;
@@ -47,11 +47,11 @@ namespace Gameplay.Player.Actions
         #region Constructor
 
         public GroundJumpAction(PlayerMovementAbility movementAbility, IPhysicsController physicsController,
-            IGroundChecker groundChecker, bool enableDetailedLogging = false)
+            IGroundDetector groundDetector, bool enableDetailedLogging = false)
         {
             _movementAbility = movementAbility ?? throw new ArgumentNullException(nameof(movementAbility));
             _physicsController = physicsController ?? throw new ArgumentNullException(nameof(physicsController));
-            _groundChecker = groundChecker ?? throw new ArgumentNullException(nameof(groundChecker));
+            _groundDetector = groundDetector ?? throw new ArgumentNullException(nameof(groundDetector));
             _enableDetailedLogging = enableDetailedLogging;
 
             if (_enableDetailedLogging)
@@ -69,7 +69,7 @@ namespace Gameplay.Player.Actions
             try
             {
                 // 기본 조건 확인
-                if (_movementAbility == null || _physicsController == null || _groundChecker == null)
+                if (_movementAbility == null || _physicsController == null || _groundDetector == null)
                 {
                     if (_enableDetailedLogging)
                     {
@@ -80,7 +80,7 @@ namespace Gameplay.Player.Actions
                 }
 
                 // 접지 상태 확인
-                bool isGrounded = _groundChecker.IsCurrentlyGrounded();
+                bool isGrounded = _groundDetector.IsCurrentlyGrounded();
                 if (!isGrounded)
                 {
                     if (_enableDetailedLogging)
@@ -177,7 +177,7 @@ namespace Gameplay.Player.Actions
             sb.AppendLine(ZString.Concat("Jump Power: ", JumpPower.ToString("F2")));
             sb.AppendLine(ZString.Concat("Execution Count: ", _executionCount));
             sb.AppendLine(ZString.Concat("Last Execution: ", _lastExecutionTime.ToString("F2"), "s"));
-            sb.Append(ZString.Concat("Is Grounded: ", _groundChecker?.IsCurrentlyGrounded() ?? false));
+            sb.Append(ZString.Concat("Is Grounded: ", _groundDetector?.IsCurrentlyGrounded() ?? false));
             return sb.ToString();
         }
 #endif

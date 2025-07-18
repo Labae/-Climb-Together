@@ -20,7 +20,7 @@ namespace Gameplay.Player.Actions
 
         private readonly PlayerMovementAbility _movementAbility;
         private readonly IPhysicsController _physicsController;
-        private readonly IGroundChecker _groundChecker;
+        private readonly IGroundDetector _groundDetector;
         private readonly CompositeDisposable _disposables = new();
 
         // 점프 상태 관리
@@ -59,11 +59,11 @@ namespace Gameplay.Player.Actions
         #region Constructor
 
         public AirJumpAction(PlayerMovementAbility movementAbility, IPhysicsController physicsController,
-            IGroundChecker groundChecker, bool enableDetailedLogging = false)
+            IGroundDetector groundDetector, bool enableDetailedLogging = false)
         {
             _movementAbility = movementAbility ?? throw new ArgumentNullException(nameof(movementAbility));
             _physicsController = physicsController ?? throw new ArgumentNullException(nameof(physicsController));
-            _groundChecker = groundChecker ?? throw new ArgumentNullException(nameof(groundChecker));
+            _groundDetector = groundDetector ?? throw new ArgumentNullException(nameof(groundDetector));
             _enableDetailedLogging = enableDetailedLogging;
 
             // 최대 공중 점프 횟수 설정
@@ -88,12 +88,12 @@ namespace Gameplay.Player.Actions
             try
             {
                 // 착지 시 공중 점프 횟수 초기화
-                _groundChecker.OnGroundEntered
+                _groundDetector.OnGroundEntered
                     .Subscribe(_ => OnGroundEntered())
                     .AddTo(_disposables);
 
                 // 땅에서 떨어질 때 공중 점프 활성화
-                _groundChecker.OnGroundExited
+                _groundDetector.OnGroundExited
                     .Subscribe(_ => OnGroundExited())
                     .AddTo(_disposables);
             }
@@ -131,7 +131,7 @@ namespace Gameplay.Player.Actions
             try
             {
                 // 기본 조건 확인
-                if (_movementAbility == null || _physicsController == null || _groundChecker == null)
+                if (_movementAbility == null || _physicsController == null || _groundDetector == null)
                 {
                     if (_enableDetailedLogging)
                     {
@@ -153,7 +153,7 @@ namespace Gameplay.Player.Actions
                 }
 
                 // 접지 상태 확인 (공중에 있어야 함)
-                if (_groundChecker.IsCurrentlyGrounded())
+                if (_groundDetector.IsCurrentlyGrounded())
                 {
                     if (_enableDetailedLogging)
                     {
@@ -291,7 +291,7 @@ namespace Gameplay.Player.Actions
             sb.AppendLine(ZString.Concat("Remaining Jumps: ", _remainingJumps, "/", _maxAirJumps));
             sb.AppendLine(ZString.Concat("Execution Count: ", _executionCount));
             sb.AppendLine(ZString.Concat("Last Execution: ", _lastExecutionTime.ToString("F2"), "s"));
-            sb.Append(ZString.Concat("Is Grounded: ", _groundChecker?.IsCurrentlyGrounded() ?? false));
+            sb.Append(ZString.Concat("Is Grounded: ", _groundDetector?.IsCurrentlyGrounded() ?? false));
             return sb.ToString();
         }
 #endif

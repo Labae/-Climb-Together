@@ -10,13 +10,13 @@ namespace Gameplay.Player.Locomotion
     {
         private readonly PlayerMovementAbility _movementAbility;
         private readonly IPhysicsController _physicsController;
-        private readonly IGroundChecker _groundChecker;
+        private readonly IGroundDetector _groundDetector;
 
-        public DefaultLocomotion(PlayerMovementAbility movementAbility, IPhysicsController physicsController, IGroundChecker groundChecker)
+        public DefaultLocomotion(PlayerMovementAbility movementAbility, IPhysicsController physicsController, IGroundDetector groundDetector)
         {
             _movementAbility = movementAbility;
             _physicsController = physicsController;
-            _groundChecker = groundChecker;
+            _groundDetector = groundDetector;
         }
 
         public bool CanExecute(float horizontalInput)
@@ -26,7 +26,7 @@ namespace Gameplay.Player.Locomotion
 
         public void Execute(float horizontalInput)
         {
-            var speed = _groundChecker.IsCurrentlyGrounded()
+            var speed = _groundDetector.IsCurrentlyGrounded()
                 ? _movementAbility.RunSpeed
                 : _movementAbility.RunSpeed * _movementAbility.AirMultiplier;
             _physicsController.Move(speed * horizontalInput);

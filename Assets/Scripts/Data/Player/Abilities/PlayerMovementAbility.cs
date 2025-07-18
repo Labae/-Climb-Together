@@ -24,13 +24,13 @@ namespace Data.Player.Abilities
         public float CoyoteTime = 0.15f;
 
         [Header("Advanced Movement")]
-        public bool HasDoubleJump = false;
+        public bool HasDoubleJump = true;
 
         [ShowIf("HasDoubleJump")]
         [Range(0.5f, 1.5f)]
         public float DoubleJumpMultiplier = 0.8f;
 
-        public bool HasWallJump = false;
+        public bool HasWallJump = true;
 
         [ShowIf("HasWallJump")]
         [Range(5f, 25f)]
@@ -40,5 +40,11 @@ namespace Data.Player.Abilities
         [Range(0.1f, 1f)]
         public float WallJumpDuration = 0.3f;
 
+        [Header("Wall Slide")]
+        public bool HasWallSlide = true;
+
+        [ShowIf("HasWallSlide")]
+        [Range(1f, 10f)]
+        public float WallSlideSpeed = 3.0f;
     }
 }

@@ -23,7 +23,7 @@ namespace Gameplay.Player
         private float _lastValidInputTime;
         private float _lastValidInput;
         private float _lastProcessedInput;
-        private bool _isExecuting;
+        private readonly ReactiveProperty<bool> _isExecuting = new();
 
         // 상태 추적
         private IPlayerLocomotion _currentLocomotion;
@@ -36,7 +36,10 @@ namespace Gameplay.Player
         public Observable<IPlayerLocomotion> OnLocomotionExecuted => _onLocomotionExecuted.AsObservable();
 
         /// <summary>현재 로코모션이 실행 중인지 여부</summary>
-        public bool IsExecuting => _isExecuting;
+        public bool IsExecuting => _isExecuting.CurrentValue;
+
+        /// <summary>현재 로코모션 실행 상태 (반응형)</summary>
+        public ReadOnlyReactiveProperty<bool> IsExecutingObservable => _isExecuting.ToReadOnlyReactiveProperty();
 
         /// <summary>현재 실행 중인 로코모션</summary>
         public IPlayerLocomotion CurrentLocomotion => _currentLocomotion;
@@ -55,12 +58,15 @@ namespace Gameplay.Player
         public PlayerLocomotion(PlayerMovementAbility movementAbility,
             Observable<float> movementInput,
             IPhysicsController physicsController,
-            IGroundChecker groundChecker)
+            IGroundDetector groundChecker,
+            IWallDetector wallChecker, bool enableDetailedLogging = false)
         {
             _locomotions = new List<IPlayerLocomotion>
             {
+                new WallSlideLocomotion(movementAbility, physicsController, groundChecker, wallChecker,
+                    movementInput, enableDetailedLogging),
                 new DefaultLocomotion(movementAbility, physicsController, groundChecker),
-                new NoneLocomotion(physicsController),
+                new NoneLocomotion(physicsController)
             };
 
             SetupInputHandling(movementInput);
@@ -117,7 +123,7 @@ namespace Gameplay.Player
 
         private void OnInputActiveStateChanged(bool isActive)
         {
-            _isExecuting = isActive;
+            UpdateExecutingState(isActive);
 
             if (!isActive)
             {
@@ -145,6 +151,17 @@ namespace Gameplay.Player
             _lastValidInputTime = Time.time;
         }
 
+        /// <summary>
+        /// 실행 상태 업데이트 (반응형)
+        /// </summary>
+        private void UpdateExecutingState(bool isExecuting)
+        {
+            if (_isExecuting.CurrentValue != isExecuting)
+            {
+                _isExecuting.OnNext(isExecuting);
+            }
+        }
+
         #endregion
 
         #region Movement Processing
@@ -158,6 +175,10 @@ namespace Gameplay.Player
             }
 
             _lastProcessedInput = input;
+
+            // 입력 상태에 따른 실행 상태 업데이트
+            bool hasActiveInput = InputUtility.IsInputActive(input);
+            UpdateExecutingState(hasActiveInput);
 
             foreach (var locomotion in _locomotions)
             {
@@ -197,7 +218,7 @@ namespace Gameplay.Player
         /// </summary>
         private void UpdateMovementState(IPlayerLocomotion locomotion, float input)
         {
-            bool wasMoving = _isMoving.Value;
+            bool wasMoving = _isMoving.CurrentValue;
             bool isNowMoving = DetermineMovementState(locomotion, input);
 
             if (wasMoving != isNowMoving)
@@ -215,6 +236,7 @@ namespace Gameplay.Player
             {
                 DefaultLocomotion => InputUtility.IsInputActive(input),
                 NoneLocomotion => false,
+                WallSlideLocomotion wallSlide => wallSlide.IsWallSliding,
                 _ => InputUtility.IsInputActive(input)
             };
         }
@@ -242,6 +264,14 @@ namespace Gameplay.Player
         }
 
         /// <summary>
+        /// 현재 벽 슬라이딩 중인지 확인
+        /// </summary>
+        public bool IsWallSliding()
+        {
+            return _currentLocomotion is WallSlideLocomotion wallSlide && wallSlide.IsWallSliding;
+        }
+
+        /// <summary>
         /// 특정 로코모션이 현재 활성화되어 있는지 확인
         /// </summary>
         public bool IsLocomotionActive<T>() where T : IPlayerLocomotion
@@ -263,7 +293,19 @@ namespace Gameplay.Player
         public void StopLocomotion()
         {
             ProcessMovement(0f);
-            _isExecuting = false;
+            UpdateExecutingState(false);
+        }
+
+        /// <summary>
+        /// WallSlide 상태 즉시 체크 (외부에서 호출 가능)
+        /// </summary>
+        public bool CheckWallSlideStatus()
+        {
+            if (_currentLocomotion is WallSlideLocomotion wallSlide)
+            {
+                return wallSlide.IsWallSliding;
+            }
+            return false;
         }
 
         #endregion
@@ -283,6 +325,8 @@ namespace Gameplay.Player
                     input.ToString("F2"),
                     ", Direction: ",
                     InputUtility.GetInputDirection(input),
+                    ", Executing: ",
+                    _isExecuting.CurrentValue,
                     ")"
                 );
 
@@ -302,11 +346,20 @@ namespace Gameplay.Player
         {
             using var sb = ZString.CreateStringBuilder();
             sb.AppendLine(ZString.Concat("Current: ", _currentLocomotion?.GetName() ?? "None"));
-            sb.AppendLine(ZString.Concat("Executing: ", _isExecuting));
-            sb.AppendLine(ZString.Concat("Moving: ", _isMoving.Value));
+            sb.AppendLine(ZString.Concat("Executing: ", _isExecuting.CurrentValue));
+            sb.AppendLine(ZString.Concat("Moving: ", _isMoving.CurrentValue));
+            sb.AppendLine(ZString.Concat("Wall Sliding: ", IsWallSliding()));
             sb.AppendLine(ZString.Concat("Last Input: ", _lastValidInput.ToString("F2")));
             sb.AppendLine(ZString.Concat("Input Time: ", (Time.time - _lastValidInputTime).ToString("F2"), "s ago"));
             sb.Append(ZString.Concat("Direction: ", InputUtility.GetInputDirection(_lastValidInput)));
+
+            // WallSlide 상세 정보
+            if (_currentLocomotion is WallSlideLocomotion wallSlide)
+            {
+                sb.AppendLine();
+                sb.Append(wallSlide.GetWallSlideDebugInfo());
+            }
+
             return sb.ToString();
         }
 #endif
@@ -322,6 +375,7 @@ namespace Gameplay.Player
 
             _onLocomotionExecuted?.Dispose();
             _isMoving?.Dispose();
+            _isExecuting?.Dispose();
             _disposables?.Dispose();
         }
     }

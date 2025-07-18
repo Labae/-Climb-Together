@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Gameplay.Common
 {
     [Serializable]
-    public class GroundChecker : CoreBehaviour, IGroundChecker
+    public class GroundDetector : CoreBehaviour, IGroundDetector
     {
         [Header("Detection Settings")]
         [SerializeField, Min(0.1f)]
@@ -70,7 +70,7 @@ namespace Gameplay.Common
 
         private void FixedUpdate()
         {
-            if (_useManualCheck) return;
+            if (!IsInitialized || _useManualCheck) return;
 
             CheckGroundState();
         }

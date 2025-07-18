@@ -6,6 +6,8 @@
         Run,
         Jump,
         Fall,
+        DoubleJump,
+        WallSlide,
         Hit,
         Death,
     }

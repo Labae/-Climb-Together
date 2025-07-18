@@ -23,9 +23,11 @@ MonoBehaviour:
     CoyoteTime: 0.15
     HasDoubleJump: 1
     DoubleJumpMultiplier: 0.8
-    HasWallJump: 0
-    WallJumpForce: 12
-    WallJumpDuration: 0.3
+    HasWallJump: 1
+    WallJumpForce: 8
+    WallJumpDuration: 0.1
+    HasWallSlide: 1
+    WallSlideSpeed: 5
   Combat:
     MaxHealth: 6
     InvincibilityTime: 2
