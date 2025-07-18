@@ -10,7 +10,6 @@ using Gameplay.Player.Interfaces;
 using Gameplay.Player.Locomotion;
 using R3;
 using Systems.Input.Utilities;
-using Systems.Physics.Utilities;
 using UnityEngine;
 
 namespace Gameplay.Player

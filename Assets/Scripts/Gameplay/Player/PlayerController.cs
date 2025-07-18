@@ -307,7 +307,8 @@ namespace Gameplay.Player
             // 물리 상태 변화 추적
             _playerPhysicsController.IsMoving
                 .DistinctUntilChanged()
-                .Subscribe(isMoving => {
+                .Subscribe(isMoving =>
+                {
                     if (_enableDetailedLogging)
                     {
                         GameLogger.Debug(ZString.Concat("Physics - IsMoving changed to: ", isMoving), LogCategory.Player);
@@ -318,7 +319,8 @@ namespace Gameplay.Player
             // 접지 상태 변화 추적
             _groundChecker.IsGrounded
                 .DistinctUntilChanged()
-                .Subscribe(isGrounded => {
+                .Subscribe(isGrounded =>
+                {
                     if (_enableDetailedLogging)
                     {
                         GameLogger.Debug(ZString.Concat("Ground - IsGrounded changed to: ", isGrounded), LogCategory.Player);

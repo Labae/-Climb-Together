@@ -338,8 +338,6 @@ namespace Gameplay.Player
 
             // 코요테 타임 또는 일반 점프 조건 확인
             bool canJumpFromGround = _coyoteTimeActive;
-            bool canJumpFromAir = false;
-
             foreach (var jumpAction in _jumpActions)
             {
                 // GroundJump는 코요테 타임 동안 가능
