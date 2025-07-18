@@ -192,6 +192,7 @@ namespace Gameplay.Player
 
                 // 점프 시스템 설정
                 _playerJump = new PlayerJump(
+                    _abilities.PhysicsSettings,
                     _abilities.Movement,
                     _playerInputSystem.JumpPressed,
                     _playerPhysicsController,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Text;
+using Data.Common;
 using Data.Player.Abilities;
 using Debugging;
 using Debugging.Enum;
@@ -10,6 +11,7 @@ using Gameplay.Player.Actions;
 using Gameplay.Player.Interfaces;
 using R3;
 using Systems.Input.Utilities;
+using Systems.Physics;
 using Systems.Physics.Utilities;
 using UnityEngine;
 
@@ -45,7 +47,9 @@ namespace Gameplay.Player
         private readonly float _jumpCooldown = 0.1f;
 
         // Dependencies
+        private readonly PhysicsSettings _physicsSettings;
         private readonly IGroundChecker _groundChecker;
+        private readonly IPhysicsController _physicsController;
 
         // 반응형 속성
         private readonly ReactiveProperty<bool> _canJump = new();
@@ -95,17 +99,22 @@ namespace Gameplay.Player
 
         #region Constructor
 
-        public PlayerJump(PlayerMovementAbility movementAbility,
+        public PlayerJump(
+            PhysicsSettings physicsSettings,
+            PlayerMovementAbility movementAbility,
             Observable<bool> jumpPressed,
             IPhysicsController physicsController,
             IGroundChecker groundChecker)
         {
+            GameLogger.Assert(physicsSettings != null, "PhysicsSettings Null", LogCategory.Player);
             GameLogger.Assert(movementAbility != null, "Movement Ability Null", LogCategory.Player);
             GameLogger.Assert(jumpPressed != null, "jumpPressed Null", LogCategory.Player);
             GameLogger.Assert(physicsController != null, "IPhysicsController Null", LogCategory.Player);
             GameLogger.Assert(groundChecker != null, "IGroundChecker Null", LogCategory.Player);
 
+            _physicsSettings = physicsSettings;
             _groundChecker = groundChecker;
+            _physicsController = physicsController;
 
             // 설정값 저장
             _jumpBufferTime = movementAbility.JumpBufferTime;
@@ -416,7 +425,8 @@ namespace Gameplay.Player
             if (canJump)
             {
                 // 터미널 속도에 가까우면 점프 불가
-                if (PhysicsUtility.IsFalling(velocity) && Mathf.Abs(velocity.y) > 20f)
+                if (PhysicsUtility.IsFalling(velocity) &&
+                    Mathf.Abs(velocity.y) > Mathf.Abs(_physicsSettings.TerminalVelocity))
                 {
                     canJump = false;
                 }
@@ -453,6 +463,14 @@ namespace Gameplay.Player
             // 마지막 점프가 GroundJump이고 상승 중이면 속도 감소
             if (_lastExecutedJump is GroundJumpAction)
             {
+                var currentVelocity = _physicsController.GetVelocity();
+                if (PhysicsUtility.IsRising(currentVelocity))
+                {
+                    // Reduce upward velocity by a factor (e.g., 50%)
+                    var reducedVelocity = new Vector2(currentVelocity.x, currentVelocity.y * 0.5f);
+                    _physicsController.RequestVelocity(VelocityRequest.Set(reducedVelocity));
+                }
+
                 GameLogger.Debug("Variable jump height applied", LogCategory.Player);
             }
         }
@@ -503,6 +521,7 @@ namespace Gameplay.Player
                     return true;
                 }
             }
+
             return false;
         }
 

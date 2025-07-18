@@ -82,17 +82,6 @@ namespace Systems.Physics.Utilities
         }
 
         /// <summary>
-        /// 속도를 클램프합니다.
-        /// </summary>
-        /// <param name="velocity">속도 벡터</param>
-        /// <param name="maxSpeed">최대 속도</param>
-        /// <returns>클램프된 속도</returns>
-        public static Vector2 ClampVelocity(Vector2 velocity, float maxSpeed)
-        {
-            return Vector2.ClampMagnitude(velocity, maxSpeed);
-        }
-
-        /// <summary>
         /// 수평 속도만 클램프합니다.
         /// </summary>
         /// <param name="velocity">속도 벡터</param>

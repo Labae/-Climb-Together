@@ -338,41 +338,6 @@ namespace Gameplay.Player.States
 
         #endregion
 
-        #region Advanced Transition Conditions
-
-        /// <summary>
-        /// 복합 조건 체크 - 점프에서 낙하로 전환 조건
-        /// </summary>
-        private bool ShouldTransitionFromJumpToFall()
-        {
-            var velocity = _physicsController.GetVelocity();
-            return PhysicsUtility.IsFalling(velocity) &&
-                   !_groundChecker.IsGrounded.CurrentValue &&
-                   !PhysicsUtility.IsRising(velocity);
-        }
-
-        /// <summary>
-        /// 복합 조건 체크 - 실행 중에서 아이들로 전환 조건
-        /// </summary>
-        private bool ShouldTransitionFromRunToIdle()
-        {
-            return _groundChecker.IsGrounded.CurrentValue &&
-                   IsNearlyStationary() &&
-                   !_playerLocomotion.IsExecuting;
-        }
-
-        /// <summary>
-        /// 복합 조건 체크 - 아이들에서 실행으로 전환 조건
-        /// </summary>
-        private bool ShouldTransitionFromIdleToRun()
-        {
-            return _groundChecker.IsGrounded.CurrentValue &&
-                   IsCurrentlyMoving() &&
-                   _playerLocomotion.IsExecuting;
-        }
-
-        #endregion
-
         #region Debug Utilities
 
 #if UNITY_EDITOR

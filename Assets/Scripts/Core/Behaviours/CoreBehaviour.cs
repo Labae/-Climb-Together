@@ -115,7 +115,8 @@ namespace Core.Behaviours
                 sb.Append("Failed to initialize ");
                 sb.Append(GetType().Name);
                 sb.Append(":");
-                sb.Append("e.Message\n");
+                sb.Append("e.Message");
+                sb.Append("\n");
                 GameLogger.Error(sb.ToString(), LogCategory.Default);
                 throw;
             }

@@ -29,14 +29,14 @@ namespace Gameplay.Common.DirectionProviders
             _directionLockTime = directionLockTime;
 
             velocityStream
-                .Where(_ => Time.time - _lastDirectionChangeTime >= _directionLockTime)
+                .Where(_ => Time.unscaledTime - _lastDirectionChangeTime >= _directionLockTime)
                 .Where(velocity => PhysicsUtility.HasValidVelocity(velocity, _velocityThreshold))
                 .Select(velocity => velocity > 0 ? FacingDirection.Right : FacingDirection.Left)
                 .DistinctUntilChanged()
                 .Subscribe(direction =>
                 {
                     _baseProvider.SetDirection(direction);
-                    _lastDirectionChangeTime = Time.time;
+                    _lastDirectionChangeTime = Time.unscaledTime;
                 })
                 .AddTo(_disposables);
         }
@@ -44,13 +44,13 @@ namespace Gameplay.Common.DirectionProviders
         public void SetDirection(FacingDirection direction)
         {
             _baseProvider.SetDirection(direction);
-            _lastDirectionChangeTime = Time.time;
+            _lastDirectionChangeTime = Time.unscaledTime;
         }
 
         public void FlipDirection()
         {
             _baseProvider.FlipDirection();
-            _lastDirectionChangeTime = Time.time;
+            _lastDirectionChangeTime = Time.unscaledTime;
         }
 
         public void Dispose()

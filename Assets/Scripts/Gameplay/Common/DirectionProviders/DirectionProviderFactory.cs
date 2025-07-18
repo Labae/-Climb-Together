@@ -1,6 +1,7 @@
 ﻿using Gameplay.Common.Enums;
 using R3;
 using Systems.Input.Utilities;
+using Systems.Physics.Utilities;
 
 namespace Gameplay.Common.DirectionProviders
 {
@@ -18,7 +19,7 @@ namespace Gameplay.Common.DirectionProviders
         }
 
         public static VelocityBasedDirectionProvider CreateVelocityBased(Observable<float> velocityStream,
-            FacingDirection initialDirection = FacingDirection.Right, float threshold = InputUtility.InputThreshold, float lockTime = 0.1f)
+            FacingDirection initialDirection = FacingDirection.Right, float threshold = PhysicsUtility.VelocityThreshold, float lockTime = 0.1f)
         {
             return new VelocityBasedDirectionProvider(velocityStream, initialDirection, threshold, lockTime);
         }
