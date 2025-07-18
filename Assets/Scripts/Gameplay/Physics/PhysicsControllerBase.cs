@@ -44,6 +44,8 @@ namespace Gameplay.Physics
         private readonly ReactiveProperty<float> _verticalVelocity = new();
         private readonly ReactiveProperty<bool> _isRising = new();
         private readonly ReactiveProperty<bool> _isFalling = new();
+        private readonly ReactiveProperty<bool> _isMoving = new();
+        private readonly ReactiveProperty<bool> _isNearlyStationary = new();
 
         // 캐시된 값들 (성능 최적화)
         private Vector2 _lastVelocity;
@@ -66,6 +68,12 @@ namespace Gameplay.Physics
 
         /// <summary>하강 중인지 여부</summary>
         public ReadOnlyReactiveProperty<bool> IsFalling => _isFalling.ToReadOnlyReactiveProperty();
+
+        /// <summary>움직이고 있는지 여부</summary>
+        public ReadOnlyReactiveProperty<bool> IsMoving => _isMoving.ToReadOnlyReactiveProperty();
+
+        /// <summary>거의 정지 상태인지 여부</summary>
+        public ReadOnlyReactiveProperty<bool> IsNearlyStationary => _isNearlyStationary.ToReadOnlyReactiveProperty();
 
         #endregion
 
@@ -112,7 +120,7 @@ namespace Gameplay.Physics
         /// </summary>
         private void ApplyGravity(float fixedDeltaTime)
         {
-            if (!_gravityEnabled || _groundChecker.IsGrounded.CurrentValue)
+            if (!_gravityEnabled || _groundChecker.IsCurrentlyGrounded())
             {
                 return;
             }
@@ -382,11 +390,9 @@ namespace Gameplay.Physics
                 velocity.y = 0;
             }
 
-            // 최대 속도 제한
-            velocity.x = Mathf.Clamp(velocity.x, -_physicsSettings.MaxHorizontalSpeed,
-                _physicsSettings.MaxHorizontalSpeed);
-            velocity.y = Mathf.Clamp(velocity.y, -_physicsSettings.MaxVerticalSpeed,
-                _physicsSettings.MaxVerticalSpeed);
+            // 최대 속도 제한 - PhysicsUtility 사용
+            velocity = PhysicsUtility.ClampHorizontalVelocity(velocity, _physicsSettings.MaxHorizontalSpeed);
+            velocity = PhysicsUtility.ClampVerticalVelocity(velocity, _physicsSettings.MaxVerticalSpeed);
         }
 
         /// <summary>
@@ -422,7 +428,7 @@ namespace Gameplay.Physics
         /// </summary>
         public void Jump(float jumpSpeed)
         {
-            RequestVelocity(VelocityRequest.SetVertical(jumpSpeed, VelocityPriority.Jump));
+            RequestVelocity(VelocityRequest.SetVertical(jumpSpeed));
         }
 
         /// <summary>
@@ -430,7 +436,8 @@ namespace Gameplay.Physics
         /// </summary>
         public void Move(float horizontalSpeed)
         {
-            if (!PhysicsUtility.IgnoreVelocity(horizontalSpeed))
+            // PhysicsUtility 사용하여 속도 유효성 검사
+            if (PhysicsUtility.HasValidVelocity(horizontalSpeed))
             {
                 SetForce(ForceType.Movement, Vector2.right * horizontalSpeed);
             }
@@ -465,6 +472,26 @@ namespace Gameplay.Physics
             RequestVelocity(VelocityRequest.Set(Vector2.zero, ForceType.None, VelocityPriority.Override));
         }
 
+        /// <summary>
+        /// 점진적 정지 - 현재 속도를 감소시킴
+        /// </summary>
+        public void SlowDown(float deceleration, float deltaTime)
+        {
+            var currentVelocity = GetVelocity();
+            var targetVelocity = Vector2.zero;
+            var newVelocity = Vector2.MoveTowards(currentVelocity, targetVelocity, deceleration * deltaTime);
+
+            // 거의 정지했으면 완전히 정지
+            if (PhysicsUtility.IsNearlyStationary(newVelocity))
+            {
+                Stop();
+            }
+            else
+            {
+                RequestVelocity(VelocityRequest.Set(newVelocity));
+            }
+        }
+
         #endregion
 
         #region Getters
@@ -478,29 +505,51 @@ namespace Gameplay.Physics
         /// <summary>현재 수직 속도 반환</summary>
         public float GetVerticalSpeed() => _rigidbody2D.linearVelocityY;
 
-        /// <summary>움직이고 있는지 여부</summary>
-        public bool IsMoving() => _rigidbody2D.linearVelocity.sqrMagnitude > PhysicsUtility.VelocityThreshold;
+        /// <summary>움직이고 있는지 여부 - PhysicsUtility 사용</summary>
+        public bool IsCurrentlyMoving() => PhysicsUtility.IsMoving(_rigidbody2D.linearVelocity);
+
+        /// <summary>거의 정지 상태인지 여부 - PhysicsUtility 사용</summary>
+        public bool IsCurrentlyNearlyStationary() => PhysicsUtility.IsNearlyStationary(_rigidbody2D.linearVelocity);
+
+        /// <summary>떨어지고 있는지 여부 - PhysicsUtility 사용</summary>
+        public bool IsCurrentlyFalling() => PhysicsUtility.IsFalling(_rigidbody2D.linearVelocity);
+
+        /// <summary>상승하고 있는지 여부 - PhysicsUtility 사용</summary>
+        public bool IsCurrentlyRising() => PhysicsUtility.IsRising(_rigidbody2D.linearVelocity);
+
+        /// <summary>속도 방향 반환 - PhysicsUtility 사용</summary>
+        public int GetHorizontalDirection() => PhysicsUtility.GetVelocityDirection(GetHorizontalSpeed());
+
+        /// <summary>이전 프레임과 속도가 변화했는지 확인</summary>
+        public bool HasVelocityChanged() => PhysicsUtility.VelocityChanged(_rigidbody2D.linearVelocity, _lastVelocity);
+
+        /// <summary>현재 속도가 같은 방향인지 확인</summary>
+        public bool IsSameDirection(Vector2 otherVelocity) =>
+            PhysicsUtility.SameDirection(_rigidbody2D.linearVelocity, otherVelocity);
 
         #endregion
 
         #region Events
 
         /// <summary>
-        /// 속도 변화가 있을 때만 이벤트 체크 (성능 최적화)
+        /// 속도 변화가 있을 때만 이벤트 체크 (성능 최적화) - PhysicsUtility 사용
         /// </summary>
         private void CheckVelocityEventsIfChanged()
         {
             var currentVelocity = _rigidbody2D.linearVelocity;
 
-            // 속도가 변경되었을 때만 이벤트 발생
-            if (Vector2.SqrMagnitude(currentVelocity - _lastVelocity) > PhysicsUtility.VelocityThreshold)
+            // PhysicsUtility를 사용하여 속도 변화 감지
+            if (PhysicsUtility.VelocityChanged(currentVelocity, _lastVelocity))
             {
                 _velocity.OnNext(currentVelocity);
                 _horizontalVelocity.OnNext(currentVelocity.x);
                 _verticalVelocity.OnNext(currentVelocity.y);
 
-                _isRising.OnNext(currentVelocity.y > _physicsSettings.RisingThreshold);
-                _isFalling.OnNext(currentVelocity.y < _physicsSettings.FallingThreshold);
+                // PhysicsUtility를 사용하여 상태 판정
+                _isRising.OnNext(PhysicsUtility.IsRising(currentVelocity));
+                _isFalling.OnNext(PhysicsUtility.IsFalling(currentVelocity));
+                _isMoving.OnNext(PhysicsUtility.IsMoving(currentVelocity));
+                _isNearlyStationary.OnNext(PhysicsUtility.IsNearlyStationary(currentVelocity));
 
                 _lastVelocity = currentVelocity;
             }
@@ -520,6 +569,8 @@ namespace Gameplay.Physics
             _verticalVelocity?.Dispose();
             _isRising?.Dispose();
             _isFalling?.Dispose();
+            _isMoving?.Dispose();
+            _isNearlyStationary?.Dispose();
         }
 
         #endregion

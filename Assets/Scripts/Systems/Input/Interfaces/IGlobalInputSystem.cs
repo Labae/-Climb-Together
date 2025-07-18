@@ -3,6 +3,5 @@
     public interface IGlobalInputSystem
     {
         InputSystemActions Actions { get; }
-        float InputBuffer { get; }
     }
 }

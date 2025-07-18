@@ -20,7 +20,6 @@ namespace Data.Player.Abilities
             public PlayerCombatAbility Combat;
 
             [Header("Settings")]
-            [Required]
             public PlayerPhysicsSettings PhysicsSettings;
 
             [Header("Calculated Values")]

@@ -26,7 +26,7 @@ namespace Gameplay.Player.Locomotion
 
         public void Execute(float horizontalInput)
         {
-            var speed = _groundChecker.IsGrounded.CurrentValue
+            var speed = _groundChecker.IsCurrentlyGrounded()
                 ? _movementAbility.RunSpeed
                 : _movementAbility.RunSpeed * _movementAbility.AirMultiplier;
             _physicsController.Move(speed * horizontalInput);
