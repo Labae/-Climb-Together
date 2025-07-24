@@ -13,6 +13,7 @@ namespace Gameplay.DI
         [Inject] private Camera _mainCamera;
         [Inject] private PlayerController _playerController;
         [Inject] private PlayerAbilities _playerAbilities;
+        [Inject] private IObjectResolver _objectResolver;
 
         public void Start()
         {
@@ -40,6 +41,7 @@ namespace Gameplay.DI
             // 게임 타임 스케일 설정 (일시정지 등에서 사용)
             Time.timeScale = 1f;
             GameLogger.Info("Time Scale: 1.0");
+
         }
 
         private void SetupPlayer()
@@ -82,6 +84,7 @@ namespace Gameplay.DI
                 GameLogger.Error("❌ Main Camera가 null입니다!");
             }
         }
+
 
         private void StartGame()
         {

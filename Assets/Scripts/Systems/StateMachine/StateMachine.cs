@@ -70,6 +70,7 @@ namespace Systems.StateMachine
 
             _lastStateChangeTime = Time.time;
 
+            SetupUpdateSystem();
             SetupLogging();
             SetupPerformanceTracking();
         }
@@ -77,6 +78,19 @@ namespace Systems.StateMachine
         #endregion
 
         #region Setup
+
+        private void SetupUpdateSystem()
+        {
+            Observable.EveryUpdate(UnityFrameProvider.Update)
+                .Where(_ => _currentState.Value != null)
+                .Subscribe(_ => _currentState.Value?.OnUpdate())
+                .AddTo(_disposables);
+
+            Observable.EveryUpdate(UnityFrameProvider.FixedUpdate)
+                .Where(_ => _currentState.Value != null)
+                .Subscribe(_ => _currentState.Value?.OnFixedUpdate())
+                .AddTo(_disposables);
+        }
 
         private void SetupLogging()
         {

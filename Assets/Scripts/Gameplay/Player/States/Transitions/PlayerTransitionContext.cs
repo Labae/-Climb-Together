@@ -1,6 +1,8 @@
 ﻿using Data.Player.Enums;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
+using Gameplay.Player.Core;
+using Gameplay.Player.Jump;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
 
@@ -17,6 +19,7 @@ namespace Gameplay.Player.States.Transitions
         public IPhysicsController PhysicsController { get; }
         public IGroundDetector GroundDetector { get; }
         public IWallDetector WallDetector { get; }
+        public PlayerEventBus EventBus { get; }
 
         public PlayerTransitionContext(
             IStateMachine<PlayerStateType> stateMachine,
@@ -24,7 +27,8 @@ namespace Gameplay.Player.States.Transitions
             PlayerJump playerJump,
             IPhysicsController physicsController,
             IGroundDetector groundDetector,
-            IWallDetector wallDetector)
+            IWallDetector wallDetector,
+            PlayerEventBus eventBus)
         {
             StateMachine = stateMachine;
             PlayerLocomotion = playerLocomotion;
@@ -32,6 +36,7 @@ namespace Gameplay.Player.States.Transitions
             PhysicsController = physicsController;
             GroundDetector = groundDetector;
             WallDetector = wallDetector;
+            EventBus = eventBus;
         }
 
         // 헬퍼 프로퍼티들

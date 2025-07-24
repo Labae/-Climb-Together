@@ -1,10 +1,9 @@
 ﻿using System;
 using Data.Animations;
 using Debugging;
-using Systems.Animations.Interfaces;
 using UnityEngine;
 
-namespace Systems.Animations
+namespace Systems.Visuals.Animation
 {
     public class SpriteAnimator : ISpriteAnimator
     {

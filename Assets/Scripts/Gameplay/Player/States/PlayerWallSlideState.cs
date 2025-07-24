@@ -1,7 +1,7 @@
 ﻿using Data.Player.Enums;
 using Gameplay.Physics.Interfaces;
 
-namespace Gameplay.Player.States.Extensions
+namespace Gameplay.Player.States
 {
     public class PlayerWallSlideState : PlayerStateBase
     {

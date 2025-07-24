@@ -5,7 +5,8 @@ namespace Systems.StateMachine.Interfaces
     public interface IState : IDisposable
     {
         void OnEnter();
-
+        void OnUpdate();
+        void OnFixedUpdate();
         void OnExit();
     }
 

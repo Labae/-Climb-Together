@@ -49,6 +49,7 @@ namespace Gameplay.Player.States.Transitions
         {
             if (context.CurrentState == PlayerStateType.WallSlide)
             {
+                context.PhysicsController.SetGravityEnabled(true);
                 context.StateMachine.ChangeState(PlayerStateType.Fall);
             }
         }

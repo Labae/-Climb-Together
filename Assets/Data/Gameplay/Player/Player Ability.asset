@@ -27,7 +27,7 @@ MonoBehaviour:
     WallJumpForce: 8
     WallJumpDuration: 0.1
     HasWallSlide: 1
-    WallSlideSpeed: 5
+    WallSlideSpeed: 10
   Combat:
     MaxHealth: 6
     InvincibilityTime: 2

@@ -1,5 +1,6 @@
 ﻿using Data.Player.Enums;
-using Gameplay.Player.Actions;
+using Gameplay.Common.Enums;
+using Gameplay.Player.Events;
 using R3;
 using Systems.StateMachine.Interfaces;
 
@@ -15,8 +16,8 @@ namespace Gameplay.Player.States.Transitions
             if (context is PlayerTransitionContext playerContext)
             {
                 // 점프 즉시 반응
-                playerContext.PlayerJump.OnJumpExecuted
-                    .Subscribe(action => HandleJumpAction(playerContext, action))
+                playerContext.EventBus.Subscribe<JumpExecutedEvent>()
+                    .Subscribe(jumpEvent => HandleJumpEvent(playerContext, jumpEvent))
                     .AddTo(disposables);
             }
         }
@@ -28,17 +29,24 @@ namespace Gameplay.Player.States.Transitions
             return false;
         }
 
-        private void HandleJumpAction(PlayerTransitionContext context, object action)
+        private void HandleJumpEvent(PlayerTransitionContext context, JumpExecutedEvent jumpEvent)
         {
-            switch (action)
+            var targetState = DetermineTargetState(jumpEvent.JumpType, context.CurrentState);
+            if (targetState.HasValue)
             {
-                case GroundJumpAction when CanJumpFrom(context.CurrentState):
-                    context.StateMachine.ChangeState(PlayerStateType.Jump);
-                    break;
-                case AirJumpAction when CanDoubleJumpFrom(context.CurrentState):
-                    context.StateMachine.ChangeState(PlayerStateType.DoubleJump);
-                    break;
+                context.StateMachine.ChangeState(targetState.Value);
             }
+        }
+
+        private PlayerStateType? DetermineTargetState(JumpType jumpType, PlayerStateType currentState)
+        {
+            return jumpType switch
+            {
+                JumpType.Ground when CanJumpFrom(currentState) => PlayerStateType.Jump,
+                JumpType.Air when CanDoubleJumpFrom(currentState) => PlayerStateType.DoubleJump,
+                JumpType.Wall when CanWallJump(currentState) => PlayerStateType.WallSlide,
+                _ => null
+            };
         }
 
         private bool CanJumpFrom(PlayerStateType state) =>
@@ -46,5 +54,8 @@ namespace Gameplay.Player.States.Transitions
 
         private bool CanDoubleJumpFrom(PlayerStateType state) =>
             state is PlayerStateType.Jump or PlayerStateType.Fall or PlayerStateType.WallSlide;
+
+        private bool CanWallJump(PlayerStateType state) =>
+            state is PlayerStateType.WallSlide or PlayerStateType.Fall;
     }
 }

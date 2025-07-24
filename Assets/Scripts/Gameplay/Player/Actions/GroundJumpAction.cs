@@ -91,28 +91,6 @@ namespace Gameplay.Player.Actions
                     return false;
                 }
 
-                // 점프 파워 확인
-                if (_movementAbility.JumpPower <= 0f)
-                {
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Warning("GroundJump: Invalid jump power", LogCategory.Player);
-                    }
-
-                    return false;
-                }
-
-                // 물리 상태 확인 (이미 상승 중이면 점프 불가)
-                if (PhysicsUtility.IsRising(_physicsController.GetVelocity()))
-                {
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Debug("GroundJump: Already rising", LogCategory.Player);
-                    }
-
-                    return false;
-                }
-
                 return true;
             }
             catch (Exception e)

@@ -9,18 +9,19 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.Common;
 using Gameplay.Common.DirectionProviders;
-using Gameplay.Common.Enums;
 using Gameplay.Common.Interfaces;
 using Gameplay.Common.WallDetection;
+using Gameplay.Player.Core;
+using Gameplay.Player.Events;
+using Gameplay.Player.Jump;
 using Gameplay.Player.States;
-using Gameplay.Player.States.Extensions;
 using R3;
 using Systems.Animations;
-using Systems.Animations.Interfaces;
-using Systems.Input;
 using Systems.Input.Interfaces;
 using Systems.StateMachine;
 using Systems.StateMachine.Interfaces;
+using Systems.Visuals.Animation;
+using Systems.Visuals.Orientation;
 using UnityEngine;
 using VContainer;
 
@@ -45,6 +46,7 @@ namespace Gameplay.Player
         private GroundDetector _groundDetector;
         private WallDetector _wallDetector;
         private PlayerPhysicsController _playerPhysicsController;
+        private ISpriteOrientation _spriteOrientation;
         private ISpriteAnimator _spriteAnimator;
 
         #endregion
@@ -53,6 +55,13 @@ namespace Gameplay.Player
 
         private IStateMachine<PlayerStateType> _stateMachine;
         private PlayerStateTransitions _playerStateTransitions;
+
+        #endregion
+
+        #region Event System
+
+        private PlayerEventBus _eventBus;
+        private PlayerAnimationSystem _animationSystem;
 
         #endregion
 
@@ -93,14 +102,6 @@ namespace Gameplay.Player
         /// <summary>현재 플레이어 상태</summary>
         public PlayerStateType CurrentState => _stateMachine?.CurrentStateType.CurrentValue ?? PlayerStateType.Idle;
 
-        /// <summary>플레이어 방향 제공자</summary>
-        public IDirectionProvider DirectionProvider => _directionProvider;
-
-        /// <summary>물리 컨트롤러</summary>
-        public PlayerPhysicsController PhysicsController => _playerPhysicsController;
-
-        /// <summary>상태 머신</summary>
-        public IStateMachine<PlayerStateType> StateMachine => _stateMachine;
 
         #endregion
 
@@ -118,6 +119,9 @@ namespace Gameplay.Player
                 ValidateComponents();
                 SetupSystems();
                 SetupStateMachine();
+
+                SetupAnimationSystem();
+
                 SubscribeEvents();
 
                 LogInitializationComplete();
@@ -172,13 +176,15 @@ namespace Gameplay.Player
         {
             try
             {
+                // 이벤트 버스 설정
+                _eventBus = new PlayerEventBus();
+
                 // 입력 시스템 설정
                 _playerInputSystem = new PlayerInputSystem(_globalInputSystem);
 
                 // 방향 제공자 설정
                 _directionProvider = DirectionProviderFactory.CreateInputBased(
-                    _playerInputSystem.MovementInput,
-                    FacingDirection.Right
+                    _playerInputSystem.MovementInput
                 );
 
                 // Wall에 방향 제공자 설정
@@ -203,13 +209,17 @@ namespace Gameplay.Player
 
                 // 점프 시스템 설정
                 _playerJump = new PlayerJump(
-                    _abilities.PhysicsSettings,
-                    _abilities.Movement,
-                    _playerInputSystem.JumpPressed,
+                    _eventBus,
                     _playerPhysicsController,
                     _groundDetector,
-                    _wallDetector
+                    _wallDetector,
+                    _playerInputSystem.JumpPressed,
+                    _abilities.Movement,
+                    _abilities.PhysicsSettings
                 );
+
+                // 스프라이트 방향 시스템 설정
+                _spriteOrientation = new SpriteOrientation(_spriteRenderer, FacingDirection.Right);
 
                 // 애니메이션 시스템 설정
                 _spriteAnimator = new SpriteAnimator(_spriteRenderer);
@@ -234,9 +244,7 @@ namespace Gameplay.Player
             try
             {
                 // 상태 머신 생성
-                _stateMachine = new StateMachine<PlayerStateType>(
-                    PlayerStateType.Idle,
-                    enablePerformanceTracking: _enablePerformanceTracking,
+                _stateMachine = new StateMachine<PlayerStateType>(enablePerformanceTracking: _enablePerformanceTracking,
                     enableDetailedLogging: _enableDetailedLogging,
                     logCategory: LogCategory.Player
                 );
@@ -256,7 +264,8 @@ namespace Gameplay.Player
                     _playerJump,
                     _playerPhysicsController,
                     _groundDetector,
-                    _wallDetector
+                    _wallDetector,
+                    _eventBus
                 );
 
                 if (_enableDetailedLogging)
@@ -267,6 +276,25 @@ namespace Gameplay.Player
             catch (Exception e)
             {
                 GameLogger.Error(ZString.Concat("Failed to setup state machine: ", e.Message), LogCategory.Player);
+                throw;
+            }
+        }
+
+        private void SetupAnimationSystem()
+        {
+            try
+            {
+                _animationSystem = new PlayerAnimationSystem(_eventBus, _spriteOrientation, _spriteAnimator,
+                    _playerAnimationRegistry);
+
+                if (_enableDetailedLogging)
+                {
+                    GameLogger.Debug("Animation system initialized successfully", LogCategory.Player);
+                }
+            }
+            catch (Exception e)
+            {
+                GameLogger.Error(ZString.Concat("Failed to setup animation system: ", e.Message), LogCategory.Player);
                 throw;
             }
         }
@@ -283,25 +311,19 @@ namespace Gameplay.Player
 
                 // 상태 변경 이벤트
                 _stateMachine.OnStateChanged
-                    .Subscribe(OnStateChanged)
+                    .Subscribe(stateType =>
+                    {
+                        _eventBus.Publish(new StateChangedEvent(stateType));
+                    })
                     .AddTo(ref d);
 
                 // 방향 변경 이벤트 (스프라이트 플립)
                 _directionProvider.OnDirectionChanged
-                    .Subscribe(OnDirectionChanged)
+                    .Subscribe(direction =>
+                    {
+                        _eventBus.Publish(new DirectionChangedEvent(direction));
+                    })
                     .AddTo(ref d);
-
-                // 애니메이션 완료 이벤트 (필요시)
-                if (_spriteAnimator is SpriteAnimator spriteAnimator)
-                {
-                    // 애니메이션 관련 이벤트 구독 가능
-                }
-
-                // 성능 추적 이벤트 (디버그용)
-                if (_enablePerformanceTracking)
-                {
-                    SetupPerformanceTracking(ref d);
-                }
 
                 d.RegisterTo(destroyCancellationToken);
 
@@ -317,152 +339,9 @@ namespace Gameplay.Player
             }
         }
 
-        private void SetupPerformanceTracking(ref DisposableBuilder disposableBuilder)
-        {
-            // 물리 상태 변화 추적
-            _playerPhysicsController.IsMoving
-                .DistinctUntilChanged()
-                .Subscribe(isMoving =>
-                {
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Debug(ZString.Concat("Physics - IsMoving changed to: ", isMoving), LogCategory.Player);
-                    }
-                })
-                .AddTo(ref disposableBuilder);
-
-            // 접지 상태 변화 추적
-            _groundDetector.IsGrounded
-                .DistinctUntilChanged()
-                .Subscribe(isGrounded =>
-                {
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Debug(ZString.Concat("Ground - IsGrounded changed to: ", isGrounded), LogCategory.Player);
-                    }
-                })
-                .AddTo(ref disposableBuilder);
-
-            // 벽 감지 상태 변화 추적
-            _wallDetector.IsWallDetected
-                .DistinctUntilChanged()
-                .Subscribe(isWallDetected =>
-                {
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Debug(ZString.Concat("Wall - IsWallDetected changed to: ", isWallDetected), LogCategory.Player);
-                    }
-                })
-                .AddTo(ref disposableBuilder);
-        }
-
-        #endregion
-
-        #region Event Handlers
-
-        private void OnStateChanged(PlayerStateType stateType)
-        {
-            try
-            {
-                // 애니메이션 처리
-                HandleAnimationChange(stateType);
-
-                // 상태별 특수 처리
-                HandleStateSpecificLogic(stateType);
-
-                if (_enableDetailedLogging)
-                {
-                    GameLogger.Debug(ZString.Concat("State changed handled: ", stateType), LogCategory.Player);
-                }
-            }
-            catch (Exception e)
-            {
-                GameLogger.Error(ZString.Concat("Error handling state change to ", stateType, ": ", e.Message), LogCategory.Player);
-            }
-        }
-
-        private void HandleAnimationChange(PlayerStateType stateType)
-        {
-            // 같은 애니메이션이면 스킵 (성능 최적화)
-            if (_lastAnimationState == stateType)
-                return;
-
-            var animationData = _playerAnimationRegistry.GetAnimation(stateType);
-            if (animationData != null)
-            {
-                _spriteAnimator.Play(animationData);
-                _lastAnimationState = stateType;
-
-                if (_enableDetailedLogging)
-                {
-                    GameLogger.Debug(ZString.Concat("Animation played: ", animationData.name), LogCategory.Player);
-                }
-            }
-            else
-            {
-                GameLogger.Warning(ZString.Concat("No animation found for state: ", stateType), LogCategory.Player);
-            }
-        }
-
-        private void HandleStateSpecificLogic(PlayerStateType stateType)
-        {
-            switch (stateType)
-            {
-                case PlayerStateType.Jump:
-                    // 점프 시작 시 특수 로직 (예: 파티클 효과, 사운드 등)
-                    break;
-
-                case PlayerStateType.Fall:
-                    // 낙하 시작 시 특수 로직
-                    break;
-
-                case PlayerStateType.Idle:
-                    // 아이들 상태 진입 시 특수 로직
-                    break;
-
-                case PlayerStateType.Run:
-                    // 달리기 상태 진입 시 특수 로직
-                    break;
-            }
-        }
-
-        private void OnDirectionChanged(FacingDirection direction)
-        {
-            try
-            {
-                if (_spriteRenderer != null)
-                {
-                    _spriteRenderer.flipX = direction == FacingDirection.Left;
-
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Debug(ZString.Concat("Direction changed to: ", direction), LogCategory.Player);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                GameLogger.Error(ZString.Concat("Error handling direction change: ", e.Message), LogCategory.Player);
-            }
-        }
-
         #endregion
 
         #region Update Methods
-
-        private void FixedUpdate()
-        {
-            if (!IsInitialized) return;
-
-            try
-            {
-                _playerPhysicsController?.FixedUpdate();
-            }
-            catch (Exception e)
-            {
-                GameLogger.Error(ZString.Concat("Error in FixedUpdate: ", e.Message), LogCategory.Player);
-            }
-        }
 
         private void Update()
         {
@@ -478,79 +357,17 @@ namespace Gameplay.Player
             }
         }
 
-        #endregion
-
-        #region Public API
-
-        /// <summary>
-        /// 플레이어를 특정 위치로 텔레포트
-        /// </summary>
-        /// <param name="position">목표 위치</param>
-        public void TeleportTo(Vector2 position)
-        {
-            EnsureInitialized();
-
-            transform.position = position;
-            _groundDetector?.CheckGroundState();
-
-            if (_enableDetailedLogging)
-            {
-                GameLogger.Debug(ZString.Concat("Player teleported to: ", position.x.ToString("F2"), ", ", position.y.ToString("F2")), LogCategory.Player);
-            }
-        }
-
-        /// <summary>
-        /// 플레이어 입력 활성화/비활성화
-        /// </summary>
-        /// <param name="inputEnable">활성화 여부</param>
-        public void SetInputEnabled(bool inputEnable)
+        private void FixedUpdate()
         {
             if (!IsInitialized) return;
 
-            if (inputEnable)
+            try
             {
-                _playerInputSystem?.EnableInput();
+                _playerPhysicsController?.FixedUpdate();
             }
-            else
+            catch (Exception e)
             {
-                _playerInputSystem?.DisableInput();
-            }
-
-            if (_enableDetailedLogging)
-            {
-                GameLogger.Debug(ZString.Concat("Player input ", inputEnable ? "enabled" : "disabled"), LogCategory.Player);
-            }
-        }
-
-        /// <summary>
-        /// 플레이어 강제 정지
-        /// </summary>
-        public void ForceStop()
-        {
-            if (!IsInitialized) return;
-
-            _playerPhysicsController?.Stop();
-            _playerLocomotion?.StopLocomotion();
-
-            if (_enableDetailedLogging)
-            {
-                GameLogger.Debug("Player force stopped", LogCategory.Player);
-            }
-        }
-
-        /// <summary>
-        /// 상태 강제 변경
-        /// </summary>
-        /// <param name="stateType">목표 상태</param>
-        public void ForceChangeState(PlayerStateType stateType)
-        {
-            if (!IsInitialized) return;
-
-            _stateMachine?.ForceChangeState(stateType);
-
-            if (_enableDetailedLogging)
-            {
-                GameLogger.Debug(ZString.Concat("State force changed to: ", stateType), LogCategory.Player);
+                GameLogger.Error(ZString.Concat("Error in FixedUpdate: ", e.Message), LogCategory.Player);
             }
         }
 
@@ -613,6 +430,8 @@ namespace Gameplay.Player
                 }
 
                 // 시스템들 정리 (순서 중요)
+                _animationSystem?.Dispose();
+                _eventBus?.Dispose();
                 _playerStateTransitions?.Dispose();
                 _playerLocomotion?.Dispose();
                 _playerJump?.Dispose();

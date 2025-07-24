@@ -1,4 +1,4 @@
-﻿namespace Gameplay.Common.Enums
+﻿namespace Systems.Animations
 {
     public enum FacingDirection
     {

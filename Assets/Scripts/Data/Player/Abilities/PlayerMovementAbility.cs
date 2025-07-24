@@ -23,6 +23,17 @@ namespace Data.Player.Abilities
         [Range(0.1f, 2f)]
         public float CoyoteTime = 0.15f;
 
+        [Header("Variable Jump")]
+        public bool HasVariableJump = true;
+
+        [ShowIf("HasVariableJump")]
+        [Range(0.1f, 1f)]
+        public float VariableJumpFactor = 0.5f;
+
+        [ShowIf("HasVariableJump")]
+        [Range(0.1f, 1f)]
+        public float VariableJumpTimeWindow = 0.3f;
+
         [Header("Advanced Movement")]
         public bool HasDoubleJump = true;
 

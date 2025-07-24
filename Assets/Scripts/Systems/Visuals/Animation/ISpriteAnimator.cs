@@ -1,7 +1,7 @@
 ﻿using System;
 using Data.Animations;
 
-namespace Systems.Animations.Interfaces
+namespace Systems.Visuals.Animation
 {
     public interface ISpriteAnimator
     {

@@ -7,6 +7,7 @@ namespace Systems.Physics.Utilities
         public const float VelocityThreshold = 0.01f;
         public const float AngularVelocityThreshold = 0.01f;
         public const float StopThreshold = 0.1f;
+        public const float UpdateFrequency = 0.016f; // 60 fps
 
         /// <summary>
         /// 속도가 무시할 수 있을 정도로 작은지 확인합니다.

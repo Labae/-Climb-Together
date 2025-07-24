@@ -11,6 +11,15 @@ namespace Gameplay.Player.States
         {
         }
 
+        public virtual void OnUpdate()
+        {
+        }
+
+        public virtual void OnFixedUpdate()
+        {
+
+        }
+
         public virtual void OnExit()
         {
         }

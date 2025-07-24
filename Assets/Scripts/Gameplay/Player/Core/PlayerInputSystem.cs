@@ -3,7 +3,7 @@ using R3;
 using Systems.Input.Interfaces;
 using UnityEngine.InputSystem;
 
-namespace Systems.Input
+namespace Gameplay.Player.Core
 {
     public class PlayerInputSystem : IInputSystem, InputSystemActions.IPlayerActions, IDisposable
     {
@@ -57,6 +57,11 @@ namespace Systems.Input
             if (context.performed)
             {
                 _jumpInput.OnNext(true);
+            }
+
+            if (context.canceled)
+            {
+                _jumpInput.OnNext(false);
             }
         }
 
