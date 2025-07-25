@@ -6,18 +6,19 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
+using Gameplay.Player.Events;
 using Gameplay.Player.Interfaces;
 using Gameplay.Player.Locomotion;
 using R3;
 using Systems.Input.Utilities;
 using UnityEngine;
 
-namespace Gameplay.Player
+namespace Gameplay.Player.Core
 {
-    public class PlayerLocomotion : IDisposable
+    public class PlayerLocomotionSystem : IDisposable
     {
         private readonly List<IPlayerLocomotion> _locomotions;
-        private readonly Subject<IPlayerLocomotion> _onLocomotionExecuted = new();
+        private readonly PlayerEventBus _eventBus;
 
         // 입력 추적 및 캐싱
         private float _lastValidInputTime;
@@ -32,8 +33,6 @@ namespace Gameplay.Player
         private readonly CompositeDisposable _disposables = new();
 
         #region Properties
-
-        public Observable<IPlayerLocomotion> OnLocomotionExecuted => _onLocomotionExecuted.AsObservable();
 
         /// <summary>현재 로코모션이 실행 중인지 여부</summary>
         public bool IsExecuting => _isExecuting.CurrentValue;
@@ -55,12 +54,16 @@ namespace Gameplay.Player
 
         #endregion
 
-        public PlayerLocomotion(PlayerMovementAbility movementAbility,
+        public PlayerLocomotionSystem(PlayerEventBus eventBus,
+            PlayerMovementAbility movementAbility,
             Observable<float> movementInput,
             IPhysicsController physicsController,
             IGroundDetector groundChecker,
-            IWallDetector wallChecker, bool enableDetailedLogging = false)
+            IWallDetector wallChecker,
+            bool enableDetailedLogging = false)
         {
+            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+
             _locomotions = new List<IPlayerLocomotion>
             {
                 new WallSlideLocomotion(movementAbility, physicsController, groundChecker, wallChecker,
@@ -70,6 +73,7 @@ namespace Gameplay.Player
             };
 
             SetupInputHandling(movementInput);
+            SetupEventHandling();
         }
 
         #region Input Handling
@@ -110,6 +114,14 @@ namespace Gameplay.Player
                 .AddTo(_disposables);
         }
 
+        private void SetupEventHandling()
+        {
+            // LocomotionRequest 이벤트에 반응
+            _eventBus.Subscribe<LocomotionRequestEvent>()
+                .Subscribe(OnLocomotionRequested)
+                .AddTo(_disposables);
+        }
+
         private void OnMovementInput(float horizontalInput)
         {
             // InputUtility를 사용하여 입력 유효성 검사
@@ -118,7 +130,16 @@ namespace Gameplay.Player
                 UpdateValidInput(horizontalInput);
             }
 
-            ProcessMovement(horizontalInput);
+            // 입력 이벤트 발행
+            _eventBus.Publish(new MovementInputEvent(horizontalInput, Time.time));
+
+            // LocomotionRequest 이벤트 발행
+            _eventBus.Publish(new LocomotionRequestEvent(horizontalInput));
+        }
+
+        private void OnLocomotionRequested(LocomotionRequestEvent request)
+        {
+            ProcessMovement(request.Input);
         }
 
         private void OnInputActiveStateChanged(bool isActive)
@@ -204,7 +225,14 @@ namespace Gameplay.Player
             _currentLocomotion = locomotion;
 
             locomotion.Execute(input);
-            _onLocomotionExecuted.OnNext(locomotion);
+
+            // 이벤트 발행
+            _eventBus.Publish(new LocomotionExecutedEvent(locomotion, input));
+
+            if (previousLocomotion != locomotion)
+            {
+                _eventBus.Publish(new LocomotionChangedEvent(previousLocomotion, locomotion, input));
+            }
 
             // 움직임 상태 업데이트
             UpdateMovementState(locomotion, input);
@@ -224,6 +252,7 @@ namespace Gameplay.Player
             if (wasMoving != isNowMoving)
             {
                 _isMoving.OnNext(isNowMoving);
+                _eventBus.Publish(new MovementStateChangedEvent(isNowMoving));
             }
         }
 
@@ -373,7 +402,6 @@ namespace Gameplay.Player
                 locomotionAction?.Dispose();
             }
 
-            _onLocomotionExecuted?.Dispose();
             _isMoving?.Dispose();
             _isExecuting?.Dispose();
             _disposables?.Dispose();

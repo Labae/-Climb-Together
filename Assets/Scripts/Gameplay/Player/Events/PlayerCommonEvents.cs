@@ -23,4 +23,14 @@ namespace Gameplay.Player.Events
             Direction = direction;
         }
     }
+
+    public readonly struct MovementStateChangedEvent : IPlayerEvent
+    {
+        public bool IsMoving { get; }
+
+        public MovementStateChangedEvent(bool isMoving)
+        {
+            IsMoving = isMoving;
+        }
+    }
 }

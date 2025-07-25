@@ -5,9 +5,9 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
-using Gameplay.Player.Actions;
 using Gameplay.Player.Core;
 using Gameplay.Player.Jump;
+using Gameplay.Player.Locomotion;
 using Gameplay.Player.States.Transitions;
 using R3;
 using Systems.StateMachine.Interfaces;
@@ -21,12 +21,12 @@ namespace Gameplay.Player.States
         private readonly CompositeDisposable _disposables = new();
         private readonly List<ITransitionHandler<PlayerStateType>> _handlers = new();
 
-        public PlayerStateTransitions(IStateMachine<PlayerStateType> stateMachine, PlayerLocomotion playerLocomotion,
-            PlayerJump playerJump, IPhysicsController physicsController,
+        public PlayerStateTransitions(IStateMachine<PlayerStateType> stateMachine, PlayerLocomotionSystem playerLocomotionSystem,
+            PlayerJumpSystem playerJumpSystem, IPhysicsController physicsController,
             IGroundDetector groundDetector, IWallDetector wallDetector, PlayerEventBus eventBus)
         {
-            _context = new PlayerTransitionContext(stateMachine, playerLocomotion,
-                playerJump, physicsController, groundDetector, wallDetector, eventBus);
+            _context = new PlayerTransitionContext(stateMachine, playerLocomotionSystem,
+                playerJumpSystem, physicsController, groundDetector, wallDetector, eventBus);
 
             SetupHandlers();
             SetupPeriodicCheck();

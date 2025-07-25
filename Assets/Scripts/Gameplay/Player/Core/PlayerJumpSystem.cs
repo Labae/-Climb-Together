@@ -6,17 +6,17 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
-using Gameplay.Player.Actions;
-using Gameplay.Player.Core;
 using Gameplay.Player.Events;
 using Gameplay.Player.Interfaces;
+using Gameplay.Player.Jump;
+using Gameplay.Player.Jump.Actions;
 using R3;
 using Systems.Physics.Utilities;
 using UnityEngine;
 
-namespace Gameplay.Player.Jump
+namespace Gameplay.Player.Core
 {
-    public class PlayerJump : IDisposable
+    public class PlayerJumpSystem : IDisposable
     {
         #region Fields
 
@@ -41,7 +41,7 @@ namespace Gameplay.Player.Jump
 
         #region Constructor
 
-        public PlayerJump(PlayerEventBus eventBus, IPhysicsController physicsController,
+        public PlayerJumpSystem(PlayerEventBus eventBus, IPhysicsController physicsController,
             IGroundDetector groundDetector, IWallDetector wallDetector, Observable<bool> jumpPressed, PlayerMovementAbility movementAbility, PhysicsSettings physicsSettings)
         {
             GameLogger.Assert(eventBus != null, "PlayerJump eventBus is null", LogCategory.Player);

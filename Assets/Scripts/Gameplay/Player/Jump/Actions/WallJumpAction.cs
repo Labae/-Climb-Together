@@ -3,16 +3,13 @@ using Cysharp.Text;
 using Data.Player.Abilities;
 using Debugging;
 using Debugging.Enum;
-using Gameplay.Common.Enums;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
 using Gameplay.Player.Interfaces;
-using Systems.Physics;
-using Systems.Physics.Enums;
 using Systems.Physics.Utilities;
 using UnityEngine;
 
-namespace Gameplay.Player.Actions
+namespace Gameplay.Player.Jump.Actions
 {
     public class WallJumpAction : IPlayerAction
     {

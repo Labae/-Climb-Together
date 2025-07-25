@@ -9,7 +9,7 @@ using Gameplay.Player.Interfaces;
 using R3;
 using UnityEngine;
 
-namespace Gameplay.Player.Actions
+namespace Gameplay.Player.Jump.Actions
 {
     /// <summary>
     /// 공중에서의 점프 액션 (더블 점프)

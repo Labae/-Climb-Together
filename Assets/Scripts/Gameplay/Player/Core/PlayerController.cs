@@ -14,6 +14,7 @@ using Gameplay.Common.WallDetection;
 using Gameplay.Player.Core;
 using Gameplay.Player.Events;
 using Gameplay.Player.Jump;
+using Gameplay.Player.Locomotion;
 using Gameplay.Player.States;
 using R3;
 using Systems.Animations;
@@ -41,8 +42,8 @@ namespace Gameplay.Player
 
         private PlayerInputSystem _playerInputSystem;
         private IDirectionProvider _directionProvider;
-        private PlayerLocomotion _playerLocomotion;
-        private PlayerJump _playerJump;
+        private PlayerLocomotionSystem _playerLocomotionSystem;
+        private PlayerJumpSystem _playerJumpSystem;
         private GroundDetector _groundDetector;
         private WallDetector _wallDetector;
         private PlayerPhysicsController _playerPhysicsController;
@@ -198,7 +199,8 @@ namespace Gameplay.Player
                 );
 
                 // 로코모션 시스템 설정
-                _playerLocomotion = new PlayerLocomotion(
+                _playerLocomotionSystem = new PlayerLocomotionSystem(
+                    _eventBus,
                     _abilities.Movement,
                     _playerInputSystem.MovementInput,
                     _playerPhysicsController,
@@ -208,7 +210,7 @@ namespace Gameplay.Player
                 );
 
                 // 점프 시스템 설정
-                _playerJump = new PlayerJump(
+                _playerJumpSystem = new PlayerJumpSystem(
                     _eventBus,
                     _playerPhysicsController,
                     _groundDetector,
@@ -260,8 +262,8 @@ namespace Gameplay.Player
                 // 상태 전환 시스템 설정
                 _playerStateTransitions = new PlayerStateTransitions(
                     _stateMachine,
-                    _playerLocomotion,
-                    _playerJump,
+                    _playerLocomotionSystem,
+                    _playerJumpSystem,
                     _playerPhysicsController,
                     _groundDetector,
                     _wallDetector,
@@ -433,8 +435,8 @@ namespace Gameplay.Player
                 _animationSystem?.Dispose();
                 _eventBus?.Dispose();
                 _playerStateTransitions?.Dispose();
-                _playerLocomotion?.Dispose();
-                _playerJump?.Dispose();
+                _playerLocomotionSystem?.Dispose();
+                _playerJumpSystem?.Dispose();
                 _stateMachine?.Dispose();
                 _playerPhysicsController?.Dispose();
                 _playerInputSystem?.Dispose();

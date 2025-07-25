@@ -6,10 +6,10 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.Common.Enums;
 using Gameplay.Physics.Interfaces;
-using Gameplay.Player.Actions;
 using Gameplay.Player.Core;
 using Gameplay.Player.Events;
 using Gameplay.Player.Interfaces;
+using Gameplay.Player.Jump.Actions;
 
 namespace Gameplay.Player.Jump
 {

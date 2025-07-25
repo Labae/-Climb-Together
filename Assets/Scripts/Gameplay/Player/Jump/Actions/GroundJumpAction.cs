@@ -6,10 +6,9 @@ using Debugging.Enum;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
 using Gameplay.Player.Interfaces;
-using Systems.Physics.Utilities;
 using UnityEngine;
 
-namespace Gameplay.Player.Actions
+namespace Gameplay.Player.Jump.Actions
 {
     /// <summary>
     /// 지상에서의 점프 액션
