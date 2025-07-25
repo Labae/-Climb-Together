@@ -7,5 +7,6 @@
         Knockback,
         Dash,
         Gravity,
+        WallJump,
     }
 }

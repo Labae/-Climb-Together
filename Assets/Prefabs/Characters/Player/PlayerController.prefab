@@ -199,6 +199,65 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerAnimationRegistry: {fileID: 11400000, guid: 68b1d5771cb0d4733b9af59468ea4b70, type: 2}
+  _enablePerformanceTracking: 0
+  _enableDetailedLogging: 0
+  _showDebugInfo: 0
+--- !u!1 &3993051251799115639
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1792191778441261304}
+  - component: {fileID: 3856846980715970012}
+  m_Layer: 0
+  m_Name: WallDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1792191778441261304
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3993051251799115639}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.014, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3312034506207390308}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3856846980715970012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3993051251799115639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae0bac040df34c68bbcff693a2edd48c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _height: 2
+  _distance: 0.7
+  _rayCount: 4
+  _capacity: 4
+  _wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  _wallThreshold: 0.5
+  _useFixedDirection: 0
+  _fixedDirection: 1
+  _useManualCheck: 0
+  _enableDetailedLogging: 0
 --- !u!1 &4591863232930099705
 GameObject:
   m_ObjectHideFlags: 0
@@ -210,7 +269,7 @@ GameObject:
   - component: {fileID: 1133208147809549719}
   - component: {fileID: 77901860655652086}
   m_Layer: 0
-  m_Name: GroundChecker
+  m_Name: GroundDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -262,7 +321,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3312034506207390308}
   m_Layer: 0
-  m_Name: Checkers
+  m_Name: Detectors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -282,5 +341,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1133208147809549719}
+  - {fileID: 1792191778441261304}
   m_Father: {fileID: 8538247145111478786}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

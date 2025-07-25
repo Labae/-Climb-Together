@@ -1,366 +1,79 @@
 ﻿using System;
-using Cysharp.Text;
+using System.Collections.Generic;
 using Data.Player.Enums;
+using Debugging;
+using Debugging.Enum;
 using Gameplay.Common.Interfaces;
 using Gameplay.Physics.Interfaces;
-using Gameplay.Player.Interfaces;
+using Gameplay.Player.Core;
+using Gameplay.Player.Jump;
 using Gameplay.Player.Locomotion;
-using Gameplay.Player.States.Extensions;
+using Gameplay.Player.States.Transitions;
 using R3;
-using Systems.Physics.Utilities;
 using Systems.StateMachine.Interfaces;
-using UnityEngine;
 
 namespace Gameplay.Player.States
 {
+    // 메인 전환 관리자
     public class PlayerStateTransitions : IDisposable
     {
-        private readonly IStateMachine<PlayerStateType> _stateMachine;
-        private readonly PlayerLocomotion _playerLocomotion;
-        private readonly PlayerJump _playerJump;
-        private readonly IPhysicsController _physicsController;
-        private readonly IGroundChecker _groundChecker;
-
+        private readonly PlayerTransitionContext _context;
         private readonly CompositeDisposable _disposables = new();
+        private readonly List<ITransitionHandler<PlayerStateType>> _handlers = new();
 
-        // 상태 전환 캐시 (성능 최적화)
-        private PlayerStateType _lastState;
-        private bool _wasGrounded;
-        private bool _wasMoving;
-
-        public PlayerStateTransitions(IStateMachine<PlayerStateType> stateMachine, PlayerLocomotion playerLocomotion,
-            PlayerJump playerJump, IPhysicsController physicsController, IGroundChecker groundChecker)
+        public PlayerStateTransitions(IStateMachine<PlayerStateType> stateMachine, PlayerLocomotionSystem playerLocomotionSystem,
+            PlayerJumpSystem playerJumpSystem, IPhysicsController physicsController,
+            IGroundDetector groundDetector, IWallDetector wallDetector, PlayerEventBus eventBus)
         {
-            _stateMachine = stateMachine;
-            _playerLocomotion = playerLocomotion;
-            _playerJump = playerJump;
-            _physicsController = physicsController;
-            _groundChecker = groundChecker;
+            _context = new PlayerTransitionContext(stateMachine, playerLocomotionSystem,
+                playerJumpSystem, physicsController, groundDetector, wallDetector, eventBus);
 
-            // 초기 상태 캐싱
-            _lastState = _stateMachine.CurrentStateType.CurrentValue;
-            _wasGrounded = _groundChecker.IsGrounded.CurrentValue;
-            _wasMoving = IsCurrentlyMoving();
-
-            SetupAllTransitions();
+            SetupHandlers();
+            SetupPeriodicCheck();
         }
 
-        private void SetupAllTransitions()
+        private void SetupHandlers()
         {
-            SetupLocomotionTransitions();
-            SetupJumpTransitions();
-            SetupGroundTransitions();
-            SetupPhysicsTransitions();
-            SetupStateChangeTracking();
-        }
+            // 핸들러들을 우선순위 순으로 추가
+            _handlers.Add(new JumpTransitionHandler());
+            _handlers.Add(new GroundTransitionHandler());
+            _handlers.Add(new WallSlideTransitionHandler());
+            _handlers.Add(new PhysicsTransitionHandler());
 
-        #region State Change Tracking
-
-        /// <summary>
-        /// 상태 변경 추적 설정 (캐싱을 위해)
-        /// </summary>
-        private void SetupStateChangeTracking()
-        {
-            _stateMachine.CurrentStateType
-                .Subscribe(newState => _lastState = newState)
-                .AddTo(_disposables);
-        }
-
-        #endregion
-
-        #region Locomotion Transitions
-
-        private void SetupLocomotionTransitions()
-        {
-            _playerLocomotion.OnLocomotionExecuted
-                .Subscribe(HandleLocomotionTransition)
-                .AddTo(_disposables);
-
-            // 움직임 상태 변화에 따른 전환 (최적화된 버전)
-            _physicsController.IsMoving
-                .DistinctUntilChanged()
-                .Where(_ => _groundChecker.IsGrounded.CurrentValue)
-                .Subscribe(HandleMovementStateChange)
-                .AddTo(_disposables);
-        }
-
-        private void HandleLocomotionTransition(IPlayerLocomotion locomotion)
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-            bool isGrounded = _groundChecker.IsGrounded.CurrentValue;
-
-            switch (locomotion)
+            // 각 핸들러 초기화
+            foreach (var handler in _handlers)
             {
-                case DefaultLocomotion when ShouldTransitionToRun(currentState, isGrounded):
-                    _stateMachine.ChangeState(PlayerStateType.Run);
-                    break;
-                case NoneLocomotion when ShouldTransitionToIdle(currentState, isGrounded):
-                    _stateMachine.ChangeState(PlayerStateType.Idle);
-                    break;
+                handler.Setup(_context, _disposables);
             }
+
+            // 상태 변경 로깅
+            _context.StateMachine.CurrentStateType
+                .Subscribe(state => GameLogger.Debug($"State: {state}", LogCategory.Player))
+                .AddTo(_disposables);
         }
 
-        private void HandleMovementStateChange(bool isMoving)
+        private void SetupPeriodicCheck()
         {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
+            // 주기적으로 모든 핸들러의 전환 조건 체크
+            Observable.Interval(TimeSpan.FromSeconds(0.1f))
+                .Subscribe(_ => CheckAllTransitions())
+                .AddTo(_disposables);
+        }
 
-            // 상태가 변경되었고 땅에 있을 때만 처리
-            if (_wasMoving != isMoving && _groundChecker.IsGrounded.CurrentValue)
+        private void CheckAllTransitions()
+        {
+            foreach (var handler in _handlers)
             {
-                if (isMoving && currentState == PlayerStateType.Idle)
+                if (!handler.TryGetTransition(_context, out var targetState) || targetState == _context.CurrentState)
                 {
-                    _stateMachine.ChangeState(PlayerStateType.Run);
+                    continue;
                 }
-                else if (!isMoving && currentState == PlayerStateType.Run)
-                {
-                    _stateMachine.ChangeState(PlayerStateType.Idle);
-                }
-            }
 
-            _wasMoving = isMoving;
-        }
-
-        private bool ShouldTransitionToRun(PlayerStateType currentState, bool isGrounded)
-        {
-            return currentState != PlayerStateType.Run &&
-                   isGrounded &&
-                   IsCurrentlyMoving();
-        }
-
-        private bool ShouldTransitionToIdle(PlayerStateType currentState, bool isGrounded)
-        {
-            return currentState != PlayerStateType.Idle &&
-                   isGrounded &&
-                   !IsCurrentlyMoving();
-        }
-
-        /// <summary>
-        /// PhysicsUtility를 사용한 움직임 상태 체크
-        /// </summary>
-        private bool IsCurrentlyMoving()
-        {
-            return PhysicsUtility.IsMoving(_physicsController.GetVelocity());
-        }
-
-        /// <summary>
-        /// 거의 정지 상태인지 체크
-        /// </summary>
-        private bool IsNearlyStationary()
-        {
-            return PhysicsUtility.IsNearlyStationary(_physicsController.GetVelocity());
-        }
-
-        #endregion
-
-        #region Jump Transitions
-
-        private void SetupJumpTransitions()
-        {
-            _playerJump.OnJumpExecuted
-                .Subscribe(HandleJumpTransition)
-                .AddTo(_disposables);
-        }
-
-        private void HandleJumpTransition(Unit unit)
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-            if (CanJumpFrom(currentState))
-            {
-                _stateMachine.ChangeState(PlayerStateType.Jump);
+                GameLogger.Debug($"Handler '{handler.Name}' triggered: {_context.CurrentState} -> {targetState}", LogCategory.Player);
+                _context.StateMachine.ChangeState(targetState);
+                return; // 첫 번째 핸들러만 실행
             }
         }
-
-        private bool CanJumpFrom(PlayerStateType state)
-        {
-            return state is PlayerStateType.Idle
-                or PlayerStateType.Run
-                or PlayerStateType.Fall;
-        }
-
-        #endregion
-
-        #region Physics Transitions
-
-        private void SetupPhysicsTransitions()
-        {
-            // 상승에서 하강으로 전환 (더 명확한 조건)
-            SetupRisingToFallingTransition();
-
-            // 직접 낙하 전환 (땅에서 떨어질 때)
-            SetupDirectFallTransition();
-
-            // 터미널 속도 도달 시 전환
-            SetupTerminalVelocityTransition();
-        }
-
-        private void SetupRisingToFallingTransition()
-        {
-            _physicsController.IsRising
-                .CombineLatest(_physicsController.IsFalling, (rising, falling) => !rising && falling)
-                .Where(shouldFall => shouldFall)
-                .Where(_ => !_groundChecker.IsGrounded.CurrentValue)
-                .Subscribe(_ => HandleFallTransition())
-                .AddTo(_disposables);
-        }
-
-        private void SetupDirectFallTransition()
-        {
-            _groundChecker.OnGroundExited
-                .Where(_ => !PhysicsUtility.IsRising(_physicsController.GetVelocity()))
-                .Subscribe(_ => HandleDirectFallTransition())
-                .AddTo(_disposables);
-        }
-
-        private void SetupTerminalVelocityTransition()
-        {
-            _physicsController.VerticalVelocity
-                .Where(velocity => PhysicsUtility.IsFalling(Vector2.down * velocity))
-                .Where(velocity => Mathf.Abs(velocity) > PhysicsUtility.StopThreshold * 2) // 충분히 빠른 낙하
-                .Subscribe(_ => HandleFastFallTransition())
-                .AddTo(_disposables);
-        }
-
-        private void HandleFallTransition()
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-            if (CanFallFrom(currentState))
-            {
-                _stateMachine.ChangeState(PlayerStateType.Fall);
-            }
-        }
-
-        private void HandleDirectFallTransition()
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-            if (CanDirectFallFrom(currentState))
-            {
-                _stateMachine.ChangeState(PlayerStateType.Fall);
-            }
-        }
-
-        private void HandleFastFallTransition()
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-            // 빠른 낙하 시에만 상태 전환 (선택적)
-            if (currentState == PlayerStateType.Jump && PhysicsUtility.IsFalling(_physicsController.GetVelocity()))
-            {
-                _stateMachine.ChangeState(PlayerStateType.Fall);
-            }
-        }
-
-        private bool CanFallFrom(PlayerStateType currentState)
-        {
-            return currentState != PlayerStateType.Fall
-                   && currentState.CanReceiveInput()
-                   && !_groundChecker.IsGrounded.CurrentValue
-                   && PhysicsUtility.IsFalling(_physicsController.GetVelocity());
-        }
-
-        private bool CanDirectFallFrom(PlayerStateType currentState)
-        {
-            return currentState is PlayerStateType.Idle or PlayerStateType.Run
-                   && currentState.CanReceiveInput()
-                   && !_groundChecker.IsGrounded.CurrentValue;
-        }
-
-        #endregion
-
-        #region Ground Transitions
-
-        private void SetupGroundTransitions()
-        {
-            _groundChecker.OnGroundEntered
-                .Subscribe(_ => HandleLandTransition())
-                .AddTo(_disposables);
-
-            // 착지 시 속도에 따른 상태 결정 (최적화)
-            _groundChecker.OnGroundEntered
-                .DelayFrame(1) // 물리 업데이트 후 체크
-                .Subscribe(_ => HandleLandStateDecision())
-                .AddTo(_disposables);
-        }
-
-        private void HandleLandTransition()
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-
-            if (!CanLandFrom(currentState))
-            {
-                return;
-            }
-
-            // 착지 시 즉시 상태 결정
-            DecideLandingState();
-        }
-
-        private void HandleLandStateDecision()
-        {
-            var currentState = _stateMachine.CurrentStateType.CurrentValue;
-
-            // 착지 후 1프레임 지연하여 정확한 상태 결정
-            if (currentState.CanReceiveInput() && _groundChecker.IsGrounded.CurrentValue)
-            {
-                DecideLandingState();
-            }
-        }
-
-        private void DecideLandingState()
-        {
-            // PhysicsUtility를 사용하여 더 정확한 상태 판정
-            if (IsCurrentlyMoving())
-            {
-                _stateMachine.ChangeState(PlayerStateType.Run);
-            }
-            else if (IsNearlyStationary())
-            {
-                _stateMachine.ChangeState(PlayerStateType.Idle);
-            }
-            // 중간 속도인 경우 현재 속도 방향에 따라 결정
-            else
-            {
-                int horizontalDirection = PhysicsUtility.GetVelocityDirection(_physicsController.GetHorizontalSpeed());
-                if (horizontalDirection != 0)
-                {
-                    _stateMachine.ChangeState(PlayerStateType.Run);
-                }
-                else
-                {
-                    _stateMachine.ChangeState(PlayerStateType.Idle);
-                }
-            }
-        }
-
-        private bool CanLandFrom(PlayerStateType state)
-        {
-            return state is PlayerStateType.Jump
-                or PlayerStateType.Fall;
-        }
-
-        #endregion
-
-        #region Debug Utilities
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// 디버그용 상태 전환 정보
-        /// </summary>
-        public string GetTransitionDebugInfo()
-        {
-            var velocity = _physicsController.GetVelocity();
-
-            using var sb = ZString.CreateStringBuilder();
-            sb.AppendLine(ZString.Concat("State: ", _stateMachine.CurrentStateType.CurrentValue));
-            sb.AppendLine(ZString.Concat("Grounded: ", _groundChecker.IsGrounded.CurrentValue));
-            sb.AppendLine(ZString.Concat("Moving: ", IsCurrentlyMoving()));
-            sb.AppendLine(ZString.Concat("Stationary: ", IsNearlyStationary()));
-            sb.AppendLine(ZString.Concat("Rising: ", PhysicsUtility.IsRising(velocity)));
-            sb.AppendLine(ZString.Concat("Falling: ", PhysicsUtility.IsFalling(velocity)));
-            sb.Append(ZString.Concat("Velocity: ", velocity.x.ToString("F2"), ", ", velocity.y.ToString("F2")));
-            return sb.ToString();
-        }
-#endif
-
-        #endregion
 
         public void Dispose()
         {

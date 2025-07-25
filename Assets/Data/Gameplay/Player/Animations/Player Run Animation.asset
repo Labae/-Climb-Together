@@ -18,7 +18,7 @@ MonoBehaviour:
   PlayOnAwake: 1
   SpeedMultiplier: 1
   Frames:
-  - Sprite: {fileID: 3826307500932207936, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: -3527357154641545584, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -26,7 +26,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: -4444787892709523812, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: 7305698537536439336, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -34,7 +34,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: 3578084457042534991, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: -6265393639127470710, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -42,7 +42,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: -8553696389155014488, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: -1603285514816502280, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -50,7 +50,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: 2363616808478443838, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: 5827102545937612103, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -58,7 +58,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: 5612886612161969036, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: -2975480835474854487, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -66,7 +66,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: 1197090364831921311, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: -5502466000863201218, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -74,7 +74,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: -3968172737512782824, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
+  - Sprite: {fileID: -660007628521950804, guid: 09634bb59c3c14a999fad3d46d9a8a09, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
     Scale: {x: 1, y: 1}
@@ -82,39 +82,7 @@ MonoBehaviour:
     Alpha: 1
     TriggerEvent: 0
     EventName: 
-  - Sprite: {fileID: -819995704482175969, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
-    Duration: 0.1
-    Offset: {x: 0, y: 0}
-    Scale: {x: 1, y: 1}
-    Rotation: 0
-    Alpha: 1
-    TriggerEvent: 0
-    EventName: 
-  - Sprite: {fileID: -8582321256850703871, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
-    Duration: 0.1
-    Offset: {x: 0, y: 0}
-    Scale: {x: 1, y: 1}
-    Rotation: 0
-    Alpha: 1
-    TriggerEvent: 0
-    EventName: 
-  - Sprite: {fileID: -5474180185011047579, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
-    Duration: 0.1
-    Offset: {x: 0, y: 0}
-    Scale: {x: 1, y: 1}
-    Rotation: 0
-    Alpha: 1
-    TriggerEvent: 0
-    EventName: 
-  - Sprite: {fileID: 474988562686098906, guid: ad52f0ca1e937404da955159abfa1ed9, type: 3}
-    Duration: 0.1
-    Offset: {x: 0, y: 0}
-    Scale: {x: 1, y: 1}
-    Rotation: 0
-    Alpha: 1
-    TriggerEvent: 0
-    EventName: 
-  TotalDuration: 1.2000002
-  FrameCount: 12
+  TotalDuration: 0.8000001
+  FrameCount: 8
   PreviewTime: 0
   CurrentPreviewFrame: 0

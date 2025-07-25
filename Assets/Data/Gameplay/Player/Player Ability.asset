@@ -17,15 +17,20 @@ MonoBehaviour:
   PlayerIcon: {fileID: 0}
   Movement:
     RunSpeed: 8
-    AirMultiplier: 0.7
+    AirMultiplier: 0.3
     JumpPower: 12
     JumpBufferTime: 0.2
-    CoyoteTime: 0.15
+    CoyoteTime: 0.4
+    HasVariableJump: 1
+    VariableJumpFactor: 0.338
+    VariableJumpTimeWindow: 0.322
     HasDoubleJump: 1
     DoubleJumpMultiplier: 0.8
-    HasWallJump: 0
-    WallJumpForce: 12
-    WallJumpDuration: 0.3
+    HasWallJump: 1
+    WallJumpForce: 8
+    WallJumpDuration: 0.1
+    HasWallSlide: 1
+    WallSlideSpeed: 10
   Combat:
     MaxHealth: 6
     InvincibilityTime: 2

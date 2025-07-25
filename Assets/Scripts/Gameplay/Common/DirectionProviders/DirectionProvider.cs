@@ -2,6 +2,7 @@
 using Gameplay.Common.Enums;
 using Gameplay.Common.Interfaces;
 using R3;
+using Systems.Animations;
 
 namespace Gameplay.Common.DirectionProviders
 {
