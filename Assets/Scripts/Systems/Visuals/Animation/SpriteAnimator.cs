@@ -1,6 +1,7 @@
 ﻿using System;
 using Data.Animations;
 using Debugging;
+using R3;
 using UnityEngine;
 
 namespace Systems.Visuals.Animation
@@ -28,24 +29,25 @@ namespace Systems.Visuals.Animation
         private int _previousFrame = -1;
         private SpriteRenderer _spriteRenderer;
 
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+
         // Constructor
         public SpriteAnimator(SpriteRenderer spriteRenderer)
         {
             _spriteRenderer = spriteRenderer;
             SpeedMultiplier = 1f;
-        }
 
-        public SpriteAnimator(SpriteRenderer spriteRenderer, AnimationData initialAnimation) : this(spriteRenderer)
-        {
-            SetAnimation(initialAnimation);
+            Observable.EveryUpdate()
+                .Subscribe(_ => Update())
+                .AddTo(_disposables);
         }
 
         // Update Method
-        public void Update(float deltaTime)
+        private void Update()
         {
             if (IsPlaying && !IsPaused && CurrentAnimation != null)
             {
-                UpdateAnimation(deltaTime);
+                UpdateAnimation(Time.deltaTime);
             }
         }
 
@@ -256,6 +258,11 @@ namespace Systems.Visuals.Animation
         {
             if (CurrentAnimation == null) return 0f;
             return Mathf.Max(0f, CurrentAnimation.GetTotalDuration() - CurrentTime);
+        }
+
+        public void Dispose()
+        {
+            _disposables?.Dispose();
         }
     }
 }

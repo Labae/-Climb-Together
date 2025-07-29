@@ -2,20 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using Core.Behaviours;
 using Cysharp.Text;
-using Data.Player.Abilities.Data.Player;
+using Data.Platformer.Abilities.Data.Player;
+using Data.Platformer.Enums;
 using Data.Player.Animations;
-using Data.Player.Enums;
 using Debugging;
 using Debugging.Enum;
-using Gameplay.Common;
 using Gameplay.Common.DirectionProviders;
 using Gameplay.Common.Interfaces;
-using Gameplay.Common.WallDetection;
-using Gameplay.Player.Core;
-using Gameplay.Player.Events;
-using Gameplay.Player.Jump;
-using Gameplay.Player.Locomotion;
-using Gameplay.Player.States;
+using Gameplay.Platformer.Movement;
+using Gameplay.Platformer.Physics;
+using Gameplay.Platformer.States;
 using R3;
 using Systems.Animations;
 using Systems.Input.Interfaces;
@@ -26,15 +22,14 @@ using Systems.Visuals.Orientation;
 using UnityEngine;
 using VContainer;
 
-namespace Gameplay.Player
+namespace Gameplay.Player.Core
 {
-    [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerController : CoreBehaviour
     {
         #region Core Components
 
-        private Rigidbody2D _rigidbody2D;
         private SpriteRenderer _spriteRenderer;
+        private CircleCollider2D _circleCollider;
 
         #endregion
 
@@ -42,58 +37,42 @@ namespace Gameplay.Player
 
         private PlayerInputSystem _playerInputSystem;
         private IDirectionProvider _directionProvider;
-        private PlayerLocomotionSystem _playerLocomotionSystem;
-        private PlayerJumpSystem _playerJumpSystem;
-        private GroundDetector _groundDetector;
-        private WallDetector _wallDetector;
-        private PlayerPhysicsController _playerPhysicsController;
-        private ISpriteOrientation _spriteOrientation;
-        private ISpriteAnimator _spriteAnimator;
+        private PlayerSpriteSystem _spriteSystem;
+        private PlatformerPhysicsSystem _platformerPhysicsSystem;
+        private PlatformerMovementController _platformerMovementController;
 
         #endregion
 
         #region State Machine
 
-        private IStateMachine<PlayerStateType> _stateMachine;
-        private PlayerStateTransitions _playerStateTransitions;
-
-        #endregion
-
-        #region Event System
-
-        private PlayerEventBus _eventBus;
-        private PlayerAnimationSystem _animationSystem;
+        private IStateMachine<PlatformerStateType> _stateMachine;
 
         #endregion
 
         #region Configuration
 
-        [Header("Required References")]
-        [SerializeField, Required]
+        [Header("Required References")] [SerializeField, Required]
         private PlayerAnimationRegistry _playerAnimationRegistry;
 
-        [Header("Debug Options")]
-        [SerializeField]
+        [Header("Debug Options")] [SerializeField]
         private bool _enablePerformanceTracking = false;
 
-        [SerializeField]
-        private bool _enableDetailedLogging = false;
+        [SerializeField] private bool _enableDetailedLogging = false;
 
-        [SerializeField]
-        private bool _showDebugInfo = false;
+        [SerializeField] private bool _showDebugInfo = false;
 
         #endregion
 
         #region Dependencies
 
-        [Inject] private PlayerAbilities _abilities;
+        [Inject] private PlatformerPlayerSettings _settings;
         [Inject] private IGlobalInputSystem _globalInputSystem;
 
         #endregion
 
         #region State Tracking
 
-        private PlayerStateType _lastAnimationState;
+        private PlatformerStateType _lastAnimationState;
         private float _initializationStartTime;
 
         #endregion
@@ -101,8 +80,8 @@ namespace Gameplay.Player
         #region Properties
 
         /// <summary>현재 플레이어 상태</summary>
-        public PlayerStateType CurrentState => _stateMachine?.CurrentStateType.CurrentValue ?? PlayerStateType.Idle;
-
+        public PlatformerStateType CurrentState =>
+            _stateMachine?.CurrentStateType.CurrentValue ?? PlatformerStateType.Idle;
 
         #endregion
 
@@ -129,7 +108,8 @@ namespace Gameplay.Player
             }
             catch (Exception e)
             {
-                GameLogger.Error(ZString.Concat("Failed to initialize PlayerController: ", e.Message), LogCategory.Player);
+                GameLogger.Error(ZString.Concat("Failed to initialize PlayerController: ", e.Message),
+                    LogCategory.Player);
                 throw;
             }
         }
@@ -141,7 +121,7 @@ namespace Gameplay.Player
                 throw new InvalidOperationException("PlayerAnimationRegistry is required but not assigned");
             }
 
-            if (_abilities == null)
+            if (_settings == null)
             {
                 throw new InvalidOperationException("PlayerAbilities dependency not injected");
             }
@@ -154,18 +134,11 @@ namespace Gameplay.Player
 
         private void ValidateComponents()
         {
-            // Unity 컴포넌트 검증
-            _rigidbody2D ??= GetComponent<Rigidbody2D>();
-            GameLogger.Assert(_rigidbody2D != null, "Failed to get Rigidbody2D component", LogCategory.Player);
+            _circleCollider ??= GetComponent<CircleCollider2D>();
+            GameLogger.Assert(_circleCollider != null, "Failed to get CircleCollider component", LogCategory.Player);
 
             _spriteRenderer ??= GetComponentInChildren<SpriteRenderer>();
             GameLogger.Assert(_spriteRenderer != null, "Failed to get SpriteRenderer component", LogCategory.Player);
-
-            _groundDetector ??= GetComponentInChildren<GroundDetector>();
-            GameLogger.Assert(_groundDetector != null, "Failed to get GroundDetector component", LogCategory.Player);
-
-            _wallDetector ??= GetComponentInChildren<WallDetector>();
-            GameLogger.Assert(_wallDetector != null, "Failed to get WallDetector component", LogCategory.Player);
 
             if (_enableDetailedLogging)
             {
@@ -177,9 +150,6 @@ namespace Gameplay.Player
         {
             try
             {
-                // 이벤트 버스 설정
-                _eventBus = new PlayerEventBus();
-
                 // 입력 시스템 설정
                 _playerInputSystem = new PlayerInputSystem(_globalInputSystem);
 
@@ -188,46 +158,23 @@ namespace Gameplay.Player
                     _playerInputSystem.MovementInput
                 );
 
-                // Wall에 방향 제공자 설정
-                _wallDetector.SetDirectionProvider(_directionProvider);
-
-                // 물리 컨트롤러 설정
-                _playerPhysicsController = new PlayerPhysicsController(
-                    _rigidbody2D,
-                    _abilities.PhysicsSettings,
-                    _groundDetector
+                _platformerPhysicsSystem = new PlatformerPhysicsSystem(
+                    transform,
+                    _circleCollider,
+                    _settings.PhysicsSettings,
+                    _settings.PlatformerMovement
                 );
 
-                // 로코모션 시스템 설정
-                _playerLocomotionSystem = new PlayerLocomotionSystem(
-                    _eventBus,
-                    _abilities.Movement,
-                    _playerInputSystem.MovementInput,
-                    _playerPhysicsController,
-                    _groundDetector,
-                    _wallDetector,
-                    true
+                _platformerMovementController = new PlatformerMovementController(
+                    _platformerPhysicsSystem,
+                    _playerInputSystem,
+                    _settings.PlatformerMovement
                 );
 
-                // 점프 시스템 설정
-                _playerJumpSystem = new PlayerJumpSystem(
-                    _eventBus,
-                    _playerPhysicsController,
-                    _groundDetector,
-                    _wallDetector,
-                    _playerInputSystem.JumpPressed,
-                    _abilities.Movement,
-                    _abilities.PhysicsSettings
-                );
-
-                // 스프라이트 방향 시스템 설정
-                _spriteOrientation = new SpriteOrientation(_spriteRenderer, FacingDirection.Right);
-
-                // 애니메이션 시스템 설정
-                _spriteAnimator = new SpriteAnimator(_spriteRenderer);
 
                 // 입력 활성화
                 _playerInputSystem.EnableInput();
+                _platformerPhysicsSystem.SetGravityEnabled(true);
 
                 if (_enableDetailedLogging)
                 {
@@ -246,33 +193,24 @@ namespace Gameplay.Player
             try
             {
                 // 상태 머신 생성
-                _stateMachine = new StateMachine<PlayerStateType>(enablePerformanceTracking: _enablePerformanceTracking,
+                _stateMachine = new StateMachine<PlatformerStateType>(
+                    PlatformerStateType.Fall,
+                    enablePerformanceTracking: _enablePerformanceTracking,
                     enableDetailedLogging: _enableDetailedLogging,
                     logCategory: LogCategory.Player
                 );
 
                 // 상태들 추가
-                _stateMachine.AddState(new PlayerIdleState());
-                _stateMachine.AddState(new PlayerRunState());
-                _stateMachine.AddState(new PlayerJumpState());
-                _stateMachine.AddState(new PlayerDoubleJumpState());
-                _stateMachine.AddState(new PlayerFallState());
-                _stateMachine.AddState(new PlayerWallSlideState(_playerPhysicsController));
-
-                // 상태 전환 시스템 설정
-                _playerStateTransitions = new PlayerStateTransitions(
-                    _stateMachine,
-                    _playerLocomotionSystem,
-                    _playerJumpSystem,
-                    _playerPhysicsController,
-                    _groundDetector,
-                    _wallDetector,
-                    _eventBus
-                );
+                _stateMachine.AddState(new PlatformerIdleState(_platformerMovementController));
+                _stateMachine.AddState(new PlatformerRunState(_platformerMovementController));
+                _stateMachine.AddState(new PlatformerJumpState(_platformerMovementController));
+                _stateMachine.AddState(new PlatformerFallState(_platformerMovementController));
 
                 if (_enableDetailedLogging)
                 {
-                    GameLogger.Debug(ZString.Concat("State machine initialized with ", _stateMachine.StateCount, " states"), LogCategory.Player);
+                    GameLogger.Debug(
+                        ZString.Concat("State machine initialized with ", _stateMachine.StateCount, " states"),
+                        LogCategory.Player);
                 }
             }
             catch (Exception e)
@@ -286,7 +224,17 @@ namespace Gameplay.Player
         {
             try
             {
-                _animationSystem = new PlayerAnimationSystem(_eventBus, _spriteOrientation, _spriteAnimator,
+                // 스프라이트 방향 시스템 설정
+                var spriteOrientation = new SpriteOrientation(_spriteRenderer, FacingDirection.Right);
+
+                // 애니메이션 시스템 설정
+                var spriteAnimator = new SpriteAnimator(_spriteRenderer);
+
+                _spriteSystem = new PlayerSpriteSystem(
+                    _stateMachine,
+                    _directionProvider,
+                    spriteOrientation,
+                    spriteAnimator,
                     _playerAnimationRegistry);
 
                 if (_enableDetailedLogging)
@@ -310,22 +258,6 @@ namespace Gameplay.Player
             try
             {
                 var d = Disposable.CreateBuilder();
-
-                // 상태 변경 이벤트
-                _stateMachine.OnStateChanged
-                    .Subscribe(stateType =>
-                    {
-                        _eventBus.Publish(new StateChangedEvent(stateType));
-                    })
-                    .AddTo(ref d);
-
-                // 방향 변경 이벤트 (스프라이트 플립)
-                _directionProvider.OnDirectionChanged
-                    .Subscribe(direction =>
-                    {
-                        _eventBus.Publish(new DirectionChangedEvent(direction));
-                    })
-                    .AddTo(ref d);
 
                 d.RegisterTo(destroyCancellationToken);
 
@@ -351,7 +283,7 @@ namespace Gameplay.Player
 
             try
             {
-                _spriteAnimator?.Update(Time.deltaTime);
+                _platformerMovementController.Update(Time.deltaTime);
             }
             catch (Exception e)
             {
@@ -359,13 +291,17 @@ namespace Gameplay.Player
             }
         }
 
+        #endregion
+
+        #region Input Processing
+
         private void FixedUpdate()
         {
             if (!IsInitialized) return;
 
             try
             {
-                _playerPhysicsController?.FixedUpdate();
+                _platformerPhysicsSystem.PhysicsUpdate(Time.fixedDeltaTime);
             }
             catch (Exception e)
             {
@@ -391,8 +327,6 @@ namespace Gameplay.Player
             sb.AppendLine(ZString.Concat("Initialized: ", IsInitialized));
             sb.AppendLine(ZString.Concat("Current State: ", CurrentState));
             sb.AppendLine(ZString.Concat("Direction: ", _directionProvider?.CurrentDirection ?? FacingDirection.Right));
-            sb.AppendLine(ZString.Concat("Grounded: ", _groundDetector?.IsGrounded.CurrentValue ?? false));
-            sb.AppendLine(ZString.Concat("Moving: ", _playerPhysicsController?.IsCurrentlyMoving() ?? false));
             sb.AppendLine(ZString.Concat("Input Enabled: ", _playerInputSystem?.IsInputEnabled ?? false));
 
             if (_enablePerformanceTracking && _stateMachine != null)
@@ -431,27 +365,25 @@ namespace Gameplay.Player
                     GameLogger.Debug("Starting PlayerController destruction", LogCategory.Player);
                 }
 
-                // 시스템들 정리 (순서 중요)
-                _animationSystem?.Dispose();
-                _eventBus?.Dispose();
-                _playerStateTransitions?.Dispose();
-                _playerLocomotionSystem?.Dispose();
-                _playerJumpSystem?.Dispose();
+                _platformerMovementController?.Dispose();
+                _platformerPhysicsSystem?.Dispose();
+                _spriteSystem?.Dispose();
                 _stateMachine?.Dispose();
-                _playerPhysicsController?.Dispose();
                 _playerInputSystem?.Dispose();
                 _directionProvider?.Dispose();
-
 
                 if (_enableDetailedLogging)
                 {
                     var destructionTime = Time.time - InitializationTime;
-                    GameLogger.Debug(ZString.Concat("PlayerController destroyed after ", destructionTime.ToString("F2"), " seconds"), LogCategory.Player);
+                    GameLogger.Debug(
+                        ZString.Concat("PlayerController destroyed after ", destructionTime.ToString("F2"), " seconds"),
+                        LogCategory.Player);
                 }
             }
             catch (Exception e)
             {
-                GameLogger.Error(ZString.Concat("Error during PlayerController destruction: ", e.Message), LogCategory.Player);
+                GameLogger.Error(ZString.Concat("Error during PlayerController destruction: ", e.Message),
+                    LogCategory.Player);
             }
             finally
             {

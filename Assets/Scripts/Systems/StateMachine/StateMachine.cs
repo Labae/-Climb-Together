@@ -151,6 +151,8 @@ namespace Systems.StateMachine
 
             // 초기 상태 설정 (개선된 로직)
             TrySetInitialState(state);
+
+            _states[state.StateType].SetChangeAction(ChangeState);
         }
 
         private void TrySetInitialState(IState<T> state)

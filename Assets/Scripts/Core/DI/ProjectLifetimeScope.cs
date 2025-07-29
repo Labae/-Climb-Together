@@ -1,5 +1,6 @@
 ﻿using Data.Configs;
 using NaughtyAttributes;
+using Systems.EventBus;
 using Systems.Input;
 using UnityEngine;
 using VContainer;
@@ -18,6 +19,7 @@ namespace Core.DI
 
             builder.RegisterInstance(_projectConfig);
             builder.Register<GlobalInputSystem>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<IEventBus, EventBus>(Lifetime.Singleton);
             builder.RegisterEntryPoint<ProjectInitializer>();
         }
     }

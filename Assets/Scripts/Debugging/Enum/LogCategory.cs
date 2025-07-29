@@ -11,6 +11,8 @@ namespace Debugging.Enum
         UI,
         Input,
         Player,
-        Enemy
+        Enemy,
+        StateTransition,
+        Physics,
     }
 }

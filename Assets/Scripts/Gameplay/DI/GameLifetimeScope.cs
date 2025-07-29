@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Data.Player.Abilities.Data.Player;
+using Data.Platformer.Abilities.Data.Player;
 using Gameplay.Player;
+using Gameplay.Player.Core;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VContainer;
 using VContainer.Unity;
 
@@ -16,14 +18,14 @@ namespace Gameplay.DI
         private PlayerController _playerPrefab;
 
         [SerializeField, Required]
-        private PlayerAbilities _playerAbilities;
+        private PlatformerPlayerSettings platformerPlayerSettings;
 
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
 
             builder.RegisterInstance(_mainCamera);
-            builder.RegisterInstance(_playerAbilities);
+            builder.RegisterInstance(platformerPlayerSettings);
 
             builder.RegisterComponentInNewPrefab(_playerPrefab, Lifetime.Scoped);
             builder.RegisterEntryPoint<GameInitializer>(Lifetime.Scoped);

@@ -8,7 +8,7 @@ namespace Systems.StateMachine.Interfaces
 
         public abstract T StateType { get; }
 
-        public void Initialize(Action<T> changeAction)
+        public void SetChangeAction(Action<T> changeAction)
         {
             _changeStateAction = changeAction;
         }

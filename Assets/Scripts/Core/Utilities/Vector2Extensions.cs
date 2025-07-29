@@ -5,6 +5,15 @@ namespace Core.Utilities
 {
     public static class Vector2Extensions
     {
+        #region Common Utility
+
+        public static Vector3 ToVector3(this Vector2 from)
+        {
+            return new  Vector3(from.x, from.y, 0f);
+        }
+
+        #endregion
+
         #region Distance Utility
 
         /// <summary>

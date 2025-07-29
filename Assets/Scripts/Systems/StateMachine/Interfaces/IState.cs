@@ -13,5 +13,6 @@ namespace Systems.StateMachine.Interfaces
     public interface IState<T> : IState where T : Enum
     {
         T StateType { get; }
+        void SetChangeAction(Action<T> action);
     }
 }

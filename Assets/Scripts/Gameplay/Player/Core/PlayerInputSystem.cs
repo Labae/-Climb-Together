@@ -1,11 +1,12 @@
 ﻿using System;
+using Gameplay.Platformer.Movement.Interface;
 using R3;
 using Systems.Input.Interfaces;
 using UnityEngine.InputSystem;
 
 namespace Gameplay.Player.Core
 {
-    public class PlayerInputSystem : IInputSystem, InputSystemActions.IPlayerActions, IDisposable
+    public class PlayerInputSystem : IInputSystem, IPlatformerInput, InputSystemActions.IPlayerActions, IDisposable
     {
         private readonly Subject<float> _movementInput = new();
         private readonly Subject<bool> _jumpInput = new();

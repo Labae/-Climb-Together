@@ -1,7 +1,8 @@
-﻿using Data.Player.Abilities.Data.Player;
+﻿using Data.Platformer.Abilities.Data.Player;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.Player;
+using Gameplay.Player.Core;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -12,7 +13,7 @@ namespace Gameplay.DI
     {
         [Inject] private Camera _mainCamera;
         [Inject] private PlayerController _playerController;
-        [Inject] private PlayerAbilities _playerAbilities;
+        [Inject] private PlatformerPlayerSettings _platformerPlayerSettings;
         [Inject] private IObjectResolver _objectResolver;
 
         public void Start()
@@ -54,11 +55,9 @@ namespace Gameplay.DI
                 GameLogger.Info($"Player Position: {_playerController.transform.position}", LogCategory.Player);
 
                 // 플레이어 능력치 로그
-                var movement = _playerAbilities.Movement;
+                var movement = _platformerPlayerSettings.PlatformerMovement;
                 GameLogger.Info($"Move Speed: {movement.RunSpeed}", LogCategory.Player);
                 GameLogger.Info($"Jump Power: {movement.JumpPower}", LogCategory.Player);
-                GameLogger.Info($"Has Double Jump: {movement.HasDoubleJump}", LogCategory.Player);
-                GameLogger.Info($"Has Wall Jump: {movement.HasWallJump}", LogCategory.Player);
             }
             else
             {

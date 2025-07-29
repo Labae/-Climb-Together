@@ -3,6 +3,7 @@
     public enum WallSideType
     {
         Left,
-        Right
+        Right,
+        None
     }
 }

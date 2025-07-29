@@ -15,33 +15,24 @@ MonoBehaviour:
   PlayerName: MegaPlayer
   Description: 
   PlayerIcon: {fileID: 0}
-  Movement:
+  PlatformerMovement:
     RunSpeed: 8
-    AirMultiplier: 0.3
-    JumpPower: 12
+    UseGradualStop: 0
+    JumpPower: 15
     JumpBufferTime: 0.2
-    CoyoteTime: 0.4
-    HasVariableJump: 1
-    VariableJumpFactor: 0.338
-    VariableJumpTimeWindow: 0.322
-    HasDoubleJump: 1
-    DoubleJumpMultiplier: 0.8
-    HasWallJump: 1
-    WallJumpForce: 8
-    WallJumpDuration: 0.1
-    HasWallSlide: 1
-    WallSlideSpeed: 10
+    CoyoteTime: 0.15
+    DashSpeed: 12
+    DashDuration: 0.2
+    KnockbackDuration: 0.5
   Combat:
     MaxHealth: 6
     InvincibilityTime: 2
   PhysicsSettings:
     NormalGravity: -20
     TerminalVelocity: -25
-    RisingThreshold: 0.1
-    FallingThreshold: -0.1
+    RaycastDistance: 1
+    GroundSnapDistance: 0.1
+    GroundCheckDistnace: 0.4
     MaxHorizontalSpeed: 10
     MaxVerticalSpeed: 20
     JumpHoldGravity: -12
-  MaxJumpHeight: 3.6
-  TimeToApex: 0.6
-  MaxHorizontalDistance: 9.6

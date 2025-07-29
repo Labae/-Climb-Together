@@ -3,7 +3,7 @@ using Data.Animations;
 
 namespace Systems.Visuals.Animation
 {
-    public interface ISpriteAnimator
+    public interface ISpriteAnimator : IDisposable
     {
         // Properties
         AnimationData CurrentAnimation { get; }
@@ -32,8 +32,5 @@ namespace Systems.Visuals.Animation
         // Animation Management
         void SetAnimation(AnimationData animationData);
         bool HasAnimation();
-
-        // Update
-        void Update(float deltaTime);
     }
 }

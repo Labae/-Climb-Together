@@ -24,6 +24,6 @@ MonoBehaviour:
   ShowDebugInfo: 0
   ShowFPS: 1
   EnableLogging: 1
-  EnabledLogCategories: 5
+  EnabledLogCategories: 8
   EnabledLogLevels: 31
   UseProductionLogging: 0

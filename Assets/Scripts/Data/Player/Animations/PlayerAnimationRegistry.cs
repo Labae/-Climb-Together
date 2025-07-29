@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Data.Animations;
-using Data.Player.Enums;
+using Data.Platformer.Enums;
 using UnityEngine;
 
 namespace Data.Player.Animations
@@ -11,16 +11,16 @@ namespace Data.Player.Animations
         [System.Serializable]
         public class PlayerStateAnimationPair
         {
-            public PlayerStateType state;
+            public PlatformerStateType state;
             public AnimationData animation;
         }
 
         [SerializeField] private PlayerStateAnimationPair[] _animations;
-        private Dictionary<PlayerStateType, AnimationData> _cache;
+        private Dictionary<PlatformerStateType, AnimationData> _cache;
 
         public override AnimationData GetAnimation<T>(T state)
         {
-            if (state is not PlayerStateType playerState)
+            if (state is not PlatformerStateType playerState)
             {
                 return null;
             }
@@ -32,7 +32,7 @@ namespace Data.Player.Animations
             return _cache != null && _cache.TryGetValue(playerState, out var anim) ? anim : null;
         }
 
-        public AnimationData GetAnimation(PlayerStateType state)
+        public AnimationData GetAnimation(PlatformerStateType state)
         {
             if (_cache == null)
             {
@@ -43,7 +43,7 @@ namespace Data.Player.Animations
 
         private void BuildCache()
         {
-            _cache = new Dictionary<PlayerStateType, AnimationData>();
+            _cache = new Dictionary<PlatformerStateType, AnimationData>();
 
             foreach (var pair in _animations)
             {

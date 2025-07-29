@@ -10,9 +10,9 @@ namespace Data.Common
         [Range(-50f, -5f)] public float NormalGravity = -20f;
         [Range(-50f, -10f)] public float TerminalVelocity = -25f;
 
-        [Header("Movement Thresholds")]
-        public float RisingThreshold = 0.1f;
-        public float FallingThreshold = -0.1f;
+        [Header("Collision")] public float RaycastDistance = 100f;
+        public float GroundSnapDistance = 0.5f;
+        public float GroundCheckDistnace = 1f;
 
         [Header("Speed Limits")]
         public float MaxHorizontalSpeed = 10f;
