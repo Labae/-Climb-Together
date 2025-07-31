@@ -68,6 +68,10 @@ namespace Data.Common
         [Range(1, 3)]
         public int MaxDashCount = 1;  // 연속 대시 횟수
 
+        public AnimationCurve DashSpeedCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+        public float DashEndSpeedRatio = 0.3f;
+        public float DashEndVerticalSpeedRatio = 0.1f;
+
         [Header("Dash Directions")]
         public bool AllowDiagonalDash = true;
         public bool AllowVerticalDash = true;

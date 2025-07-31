@@ -7,5 +7,6 @@
         JumpCut,
         Falling,
         Apex,
+        Dashing,
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Data.Common;
+using Gameplay.Platformer.Movement.Enums;
 using Gameplay.Platformer.Physics;
 using Gameplay.Platformer.Movement.Interface;
 using R3;
@@ -19,15 +20,17 @@ namespace Gameplay.Platformer.Movement
         private bool _isDashing = false;
         private float _dashTimer = 0f;
         private Vector2 _dashDirection = Vector2.right;
+        private bool _wasGroundedWhenDashStarted = false;
+        private Vector2 _initialDashVelocity = Vector2.zero;
 
         // Cooldown & Count 관리
         private float _dashCooldownTimer = 0f;
         private int _currentDashCount = 0;
-        private bool _dashCountReset = true; // 땅에 닿으면 리셋
 
         // 현재 상태 추적
         private Vector2 _lastDirectionalInput = Vector2.zero;
         private Vector2 _currentLookDirection = Vector2.right;
+        private float _currentHorizontalLookDirection = 0f;
 
         // 이벤트
         private readonly Subject<Vector2> _onDashStarted = new();
@@ -64,18 +67,13 @@ namespace Gameplay.Platformer.Movement
             _platformerInput.DirectionalInput
                 .Subscribe(UpdateDirectionalInput)
                 .AddTo(_disposables);
-
-            // 수평 이동 입력으로 Look Direction 업데이트
-            _platformerInput.MovementInput
-                .Where(input => InputUtility.IsInputActive(input))
-                .Subscribe(input => _currentLookDirection = new Vector2(Mathf.Sign(input), 0))
-                .AddTo(_disposables);
         }
 
         private void SubscribeToPhysicsEvents()
         {
             // 착지 시 대시 카운트 리셋
             _physicsSystem.OnLanded
+                .Where(_ => !_isDashing)
                 .Subscribe(_ => ResetDashCount())
                 .AddTo(_disposables);
         }
@@ -88,6 +86,11 @@ namespace Gameplay.Platformer.Movement
             if (InputUtility.IsInputActive(input))
             {
                 _currentLookDirection = input.normalized;
+
+                if (InputUtility.IsInputActive(input.x))
+                {
+                    _currentHorizontalLookDirection = input.x;
+                }
             }
         }
 
@@ -140,6 +143,11 @@ namespace Gameplay.Platformer.Movement
 
             UpdateDashTimer(deltaTime);
             UpdateCooldownTimer(deltaTime);
+
+            if (_isDashing)
+            {
+                ApplyDashCurve();
+            }
         }
 
         #endregion
@@ -147,7 +155,7 @@ namespace Gameplay.Platformer.Movement
         #region Dash Logic
 
         /// <summary>
-        /// 대시 시도 (Celeste 스타일)
+        /// 대시 시도
         /// </summary>
         private void TryDash()
         {
@@ -158,21 +166,19 @@ namespace Gameplay.Platformer.Movement
         }
 
         /// <summary>
-        /// Celeste 스타일 대시 방향 계산
+        /// 대시 방향 계산
         /// </summary>
         private Vector2 CalculateDashDirection()
         {
-            if (InputUtility.IsInputActive(_currentLookDirection))
+            if (InputUtility.IsInputActive(_lastDirectionalInput))
             {
-                Vector2 direction = _currentLookDirection.normalized;
-
                 // 대각선 방향 스냅 처리 (8방향으로 제한)
-                return SnapToEightDirections(direction);
+                return SnapToEightDirections(_lastDirectionalInput.normalized);
             }
             else
             {
                 // 바라보는 방향으로 대시 (수평만)
-                return _currentLookDirection;
+                return new Vector2(_currentHorizontalLookDirection, 0f).normalized;
             }
         }
 
@@ -182,15 +188,16 @@ namespace Gameplay.Platformer.Movement
         private Vector2 SnapToEightDirections(Vector2 direction)
         {
             // 8방향 벡터들
-            Vector2[] eightDirections = {
-                Vector2.right,              // 0°
-                new Vector2(1, 1).normalized,    // 45°
-                Vector2.up,                 // 90°
-                new Vector2(-1, 1).normalized,   // 135°
-                Vector2.left,               // 180°
-                new Vector2(-1, -1).normalized,  // 225°
-                Vector2.down,               // 270°
-                new Vector2(1, -1).normalized    // 315°
+            Vector2[] eightDirections =
+            {
+                Vector2.right, // 0°
+                new Vector2(1, 1).normalized, // 45°
+                Vector2.up, // 90°
+                new Vector2(-1, 1).normalized, // 135°
+                Vector2.left, // 180°
+                new Vector2(-1, -1).normalized, // 225°
+                Vector2.down, // 270°
+                new Vector2(1, -1).normalized // 315°
             };
 
             Vector2 closestDirection = Vector2.right;
@@ -219,8 +226,14 @@ namespace Gameplay.Platformer.Movement
             _dashDirection = direction;
             _currentDashCount++;
 
+            _wasGroundedWhenDashStarted = _physicsSystem.IsGrounded.CurrentValue;
+
             // Physics에 대시 적용
-            _physicsSystem.Dash(direction, _settings.DashSpeed);
+            _initialDashVelocity = _settings.DashSpeed * _dashDirection.normalized;
+            _physicsSystem.SetVelocity(_initialDashVelocity);
+
+            // 대시 중 중력 상태 설정(0f)
+            _physicsSystem.SetGravityState(PlatformerGravityState.Dashing);
 
             // 이벤트 발생
             _onDashStarted.OnNext(direction);
@@ -236,10 +249,66 @@ namespace Gameplay.Platformer.Movement
             _isDashing = false;
             _dashTimer = 0f;
             _dashCooldownTimer = _settings.DashCooldown;
-            ResetDashCount();
+            _initialDashVelocity = Vector2.zero;
+
+            // 대쉬 종료 시 속도 처리
+            HandleDashEndVelocity();
+
+            // 중력 상태를 복원
+            RestoreGravityState();
+
+            // 땅에서 시작한 대쉬라면 일정 시간 후 카운트 리셋
+            if (_wasGroundedWhenDashStarted)
+            {
+                ResetDashCountWithDelay();
+            }
 
             // 이벤트 발생
             _onDashEnded.OnNext(Unit.Default);
+        }
+
+        private void HandleDashEndVelocity()
+        {
+            var currentVelocity = _physicsSystem.Velocity
+                .CurrentValue;
+
+            var endSpeedRatio = _settings.DashEndSpeedRatio;
+            var endVelocity = currentVelocity * endSpeedRatio;
+
+            if (Mathf.Abs(_dashDirection.y) > 0.1f)
+            {
+                endVelocity.y *= _settings.DashEndVerticalSpeedRatio;
+            }
+
+            _physicsSystem.SetVelocity(endVelocity);
+        }
+
+        private void RestoreGravityState()
+        {
+            if (_physicsSystem.IsGrounded.CurrentValue)
+            {
+                _physicsSystem.SetGravityState(PlatformerGravityState.Normal);
+            }
+            else
+            {
+                _physicsSystem.SetGravityState(PlatformerGravityState.Falling);
+            }
+        }
+
+        private void ResetDashCountWithDelay()
+        {
+            Observable.Timer(TimeSpan.FromSeconds(_settings.DashCooldown))
+                .Subscribe(_ => ResetDashCount())
+                .AddTo(_disposables);
+        }
+
+        private void ApplyDashCurve()
+        {
+            var normalizedTime = 1f - (_dashTimer / _settings.DashDuration);
+            var speedMultiplier = _settings.DashSpeedCurve.Evaluate(normalizedTime);
+            var currentVelocity = _initialDashVelocity * speedMultiplier;
+
+            _physicsSystem.SetVelocity(currentVelocity);
         }
 
         /// <summary>
@@ -247,10 +316,7 @@ namespace Gameplay.Platformer.Movement
         /// </summary>
         private void ResetDashCount()
         {
-            if (_currentDashCount > 0)
-            {
-                _currentDashCount = 0;
-            }
+            _currentDashCount = 0;
         }
 
         #endregion

@@ -220,6 +220,7 @@ namespace Gameplay.Player.Core
                 _stateMachine.AddState(new PlatformerRunState(_platformerMovementController));
                 _stateMachine.AddState(new PlatformerJumpState(_platformerMovementController));
                 _stateMachine.AddState(new PlatformerFallState(_platformerMovementController));
+                _stateMachine.AddState(new PlatformerDashState(_platformerMovementController));
 
                 if (_enableDetailedLogging)
                 {

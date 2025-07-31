@@ -28,6 +28,7 @@ namespace Gameplay.Platformer.Movement
                 PlatformerGravityState.JumpCut => _settings.JumpCutGravity,
                 PlatformerGravityState.Falling => _settings.FallGravity,
                 PlatformerGravityState.Apex => _settings.ApexGravity,
+                PlatformerGravityState.Dashing => 0f,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

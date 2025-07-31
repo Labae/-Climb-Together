@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 776898256e864fb78da64d8a5485e25c, type: 3}
-  m_Name: Player Ability
+  m_Name: Platformer Player Settings
   m_EditorClassIdentifier: 
   PlayerName: MegaPlayer
   Description: 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Data.Common;
+using Debugging;
 using Gameplay.Platformer.Movement.Enums;
 using Gameplay.Platformer.Movement.Interface;
 using Gameplay.Platformer.Physics;
@@ -36,7 +37,8 @@ namespace Gameplay.Platformer.Movement
         public Observable<SpecialActionType> OnSpecialActionStarted => _onSpecialActionStarted.AsObservable();
         public Observable<SpecialActionType> OnSpecialActionEnded => _onSpecialActionEnded.AsObservable();
 
-        public PlatformerMovementController(
+        public
+            PlatformerMovementController(
             PlatformerPhysicsSystem physicsSystem,
             IPlatformerInput platformerInput,
             PlatformerMovementSettings settings
@@ -173,10 +175,14 @@ namespace Gameplay.Platformer.Movement
 
         public void Update(float deltaTime)
         {
-            _horizontalMovementHandler.Update(deltaTime);
-            _jumpHandler.Update(deltaTime);
             _dashHandler.Update(deltaTime);
             UpdateSpecialActions(deltaTime);
+
+            if (_currentSpecialAction == SpecialActionType.None)
+            {
+                _horizontalMovementHandler.Update(deltaTime);
+                _jumpHandler.Update(deltaTime);
+            }
         }
 
         private void UpdateSpecialActions(float deltaTime)
