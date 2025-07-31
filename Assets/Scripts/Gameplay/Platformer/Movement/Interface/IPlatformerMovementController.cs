@@ -11,17 +11,13 @@ namespace Gameplay.Platformer.Movement.Interface
         Observable<SpecialActionType> OnSpecialActionStarted { get; }
         Observable<SpecialActionType> OnSpecialActionEnded { get; }
 
-        void StartRunning(float direction);
-        void StopRunning();
-
-        void Jump();
-        void Dash(Vector2 direction);
         void Knockback(Vector2 direction, float force);
 
         bool CanJump();
         bool IsMoving();
         bool IsGrounded();
-        bool IsRunning();
+        bool IsIntendingToRun();
+        bool IsActuallyRunning();
         bool IsFalling();
         bool IsRising();
         bool IsInSpecialAction();

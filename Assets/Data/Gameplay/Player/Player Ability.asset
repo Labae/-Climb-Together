@@ -17,22 +17,38 @@ MonoBehaviour:
   PlayerIcon: {fileID: 0}
   PlatformerMovement:
     RunSpeed: 8
-    UseGradualStop: 0
-    JumpPower: 15
-    JumpBufferTime: 0.2
-    CoyoteTime: 0.15
+    AirMoveMultiplier: 0.7
+    AccelTime: 0.1
+    DecelTime: 0.15
+    TurnAroundTime: 0.08
+    AirAccelMultiplier: 1.5
+    AirDecelMultiplier: 2
+    MovingThreshold: 0.1
+    JumpPower: 8
+    JumpBufferTime: 0.1
+    CoyoteTime: 0.1
+    JumpCutStrength: 0.3
+    ApexThreshold: 1
+    ApexDuration: 0.05
     DashSpeed: 12
     DashDuration: 0.2
+    DashCooldown: 0.3
+    MaxDashCount: 1
+    AllowDiagonalDash: 1
+    AllowVerticalDash: 1
     KnockbackDuration: 0.5
   Combat:
     MaxHealth: 6
     InvincibilityTime: 2
   PhysicsSettings:
     NormalGravity: -20
-    TerminalVelocity: -25
+    TerminalVelocity: -15
     RaycastDistance: 1
     GroundSnapDistance: 0.1
-    GroundCheckDistnace: 0.4
+    GroundCheckDistnace: 0.05
     MaxHorizontalSpeed: 10
     MaxVerticalSpeed: 20
     JumpHoldGravity: -12
+    JumpCutGravity: -36
+    FallGravity: -25
+    ApexGravity: -8

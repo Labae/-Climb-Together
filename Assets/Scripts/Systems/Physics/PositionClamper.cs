@@ -11,6 +11,10 @@ namespace Systems.Physics
         private readonly CollisionHandler _collisionHandler;
         private readonly PhysicsSettings _settings;
 
+        private readonly float _wallMargin = 0.05f;
+        private readonly float _groundMargin = 0.02f;
+        private readonly float _ceilingMargin = 0.05f;
+
         public PositionClamper(Transform transform, CollisionHandler collisionHandler, PhysicsSettings settings)
         {
             _transform = transform;
@@ -20,90 +24,108 @@ namespace Systems.Physics
 
         public bool ClampPosition(VelocityHandler velocityHandler)
         {
-            var feetPosition = _transform.position;
-            var colliderSize = _collisionHandler.GetColliderSize();
-            var colliderOffset = _collisionHandler.GetColliderOffset();
-
-            var colliderCenter = (Vector2)feetPosition + colliderOffset;
+            var originalPosition = _transform.position;
+            var newPosition = originalPosition;
             bool wasAdjusted = false;
 
-            var leftResult = _collisionHandler.CheckDirectionWithSurface(Vector2.left);
-            var rightHit = _collisionHandler.CheckDirectionWithSurface(Vector2.right);
-            var upHit = _collisionHandler.CheckDirectionWithSurface(Vector2.up);
-            var downHit = _collisionHandler.CheckDirectionWithSurface(Vector2.down);
+            var colliderSize = _collisionHandler.GetColliderSize();
+            var colliderOffset = _collisionHandler.GetColliderOffset();
+            var colliderHalfSize = colliderSize * 0.5f;
 
+            wasAdjusted |= TryClampHorizontal(ref newPosition, velocityHandler, colliderHalfSize, colliderOffset);
+            wasAdjusted |= TryClampVertical(ref newPosition, velocityHandler, colliderHalfSize, colliderOffset);
+
+            if (wasAdjusted)
+            {
+                _transform.position = newPosition;
+            }
+
+            return wasAdjusted;
+        }
+
+        private bool TryClampHorizontal(ref Vector3 position, VelocityHandler velocityHandler,
+            Vector2 colliderHalfSize, Vector2 colliderOffset)
+        {
+            bool adjusted = false;
+
+            var leftResult = _collisionHandler.CheckDirectionWithSurface(Vector2.left);
             if (leftResult is { HasCollision: true, SurfaceType: SurfaceType.Wall })
             {
-                var wallX = leftResult.Hit.point.x;
-                var minAllowedColliderX = wallX + colliderSize.x * 0.5f;
-                var minAllowedFeetX = minAllowedColliderX - colliderOffset.x;
-                if (feetPosition.x < minAllowedFeetX)
+                var minX = leftResult.Hit.point.x + colliderHalfSize.x + _wallMargin - colliderOffset.x;
+                if (position.x < minX)
                 {
-                    feetPosition.x = minAllowedFeetX;
+                    position.x = minX;
+
                     if (velocityHandler.GetVelocity().x < 0f)
                     {
                         velocityHandler.StopHorizontal();
                     }
 
-                    wasAdjusted = true;
+                    adjusted = true;
                 }
             }
 
-            if (rightHit is { HasCollision: true, SurfaceType: SurfaceType.Wall })
+            var rightResult = _collisionHandler.CheckDirectionWithSurface(Vector2.right);
+            if (rightResult is { HasCollision: true, SurfaceType: SurfaceType.Wall })
             {
-                var wallX = rightHit.Hit.point.x;
-                var maxAllowedColliderX = wallX - colliderSize.x * 0.5f;
-                var maxAllowedFeetX = maxAllowedColliderX - colliderOffset.x;
-                if (feetPosition.x > maxAllowedFeetX)
+                var maxX = rightResult.Hit.point.x - colliderHalfSize.x - _wallMargin - colliderOffset.x;
+                if (position.x > maxX)
                 {
-                    feetPosition.x = maxAllowedFeetX;
+                    position.x = maxX;
+
                     if (velocityHandler.GetVelocity().x > 0f)
                     {
                         velocityHandler.StopHorizontal();
                     }
 
-                    wasAdjusted = true;
+                    adjusted = true;
                 }
             }
 
-            if (upHit.HasCollision && upHit.SurfaceType == SurfaceType.Ceiling)
+            return adjusted;
+        }
+
+        private bool TryClampVertical(ref Vector3 position, VelocityHandler velocityHandler,
+            Vector2 colliderHalfSize, Vector2 colliderOffset)
+        {
+            bool adjusted = false;
+
+            var upResult = _collisionHandler.CheckDirectionWithSurface(Vector2.up);
+            if (upResult is { HasCollision: true, SurfaceType: SurfaceType.Ceiling })
             {
-                var ceilingY = upHit.Hit.point.y;
-                var maxAllowedColliderY = ceilingY - colliderSize.y * 0.5f;
-                var maxAllowedFeetY = maxAllowedColliderY - colliderOffset.y;
-                if (feetPosition.y > maxAllowedFeetY)
+                var maxY = upResult.Hit.point.y - colliderHalfSize.y - _ceilingMargin - colliderOffset.y;
+                if (position.y > maxY)
                 {
-                    feetPosition.y = maxAllowedFeetY;
+                    position.y = maxY;
+
                     if (velocityHandler.GetVelocity().y > 0f)
                     {
                         velocityHandler.StopVertical();
                     }
 
-                    wasAdjusted = true;
+                    adjusted = true;
                 }
             }
 
-            if (downHit.HasCollision && downHit.SurfaceType == SurfaceType.Ground)
+            var downResult = _collisionHandler.CheckDirectionWithSurface(Vector2.down);
+            if (downResult is { HasCollision: true, SurfaceType: SurfaceType.Ground })
             {
-                var groundY = downHit.Hit.point.y;
-
-                // Ground는 땅에 정확히
-                var targetFeetY = groundY;
-                var distanceToGround = feetPosition.y - targetFeetY;
-                if (distanceToGround < _settings.GroundSnapDistance && velocityHandler.GetVelocity().y <= 0f)
+                var targetY = downResult.Hit.point.y + colliderHalfSize.y - _groundMargin - colliderOffset.y;
+                var distanceToGround = position.y - targetY;
+                if (distanceToGround < _settings.GroundCheckDistnace && velocityHandler.GetVelocity().y <= 0f)
                 {
-                    feetPosition.y = targetFeetY;
+                    position.y = targetY;
+
                     if (velocityHandler.GetVelocity().y < 0f)
                     {
                         velocityHandler.StopVertical();
                     }
 
-                    wasAdjusted = true;
+                    adjusted = true;
                 }
             }
 
-            _transform.position = feetPosition;
-            return wasAdjusted;
+            return adjusted;
         }
     }
 }

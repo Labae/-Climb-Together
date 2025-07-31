@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1874379516817139270, guid: e567a5e4f898040d7bc0506b637c75ac, type: 3}
+  m_Sprite: {fileID: 8975721076584580134, guid: c99ee4e76ff244935b16e4c58eb12534, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -96,8 +96,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8538247145111478786}
-  - component: {fileID: 7175124340466256656}
+  - component: {fileID: 7235989733546914455}
   - component: {fileID: 419945630253589330}
+  - component: {fileID: 5402242005023232742}
   m_Layer: 0
   m_Name: PlayerController
   m_TagString: Untagged
@@ -121,8 +122,8 @@ Transform:
   - {fileID: 8693212545660876341}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &7175124340466256656
-CircleCollider2D:
+--- !u!61 &7235989733546914455
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -155,8 +156,18 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.5}
-  m_Radius: 0.3
+  m_Offset: {x: 0, y: 0.27}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.8, y: 0.5}
+  m_EdgeRadius: 0
 --- !u!114 &419945630253589330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,3 +184,18 @@ MonoBehaviour:
   _enablePerformanceTracking: 0
   _enableDetailedLogging: 0
   _showDebugInfo: 0
+--- !u!114 &5402242005023232742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3593487432738503435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a9b41524bb74f18a0ee8056fa012484, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _showBoxCasts: 1
+  _showHitPoints: 1
+  _showDirectionLines: 1

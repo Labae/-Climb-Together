@@ -12,15 +12,17 @@ namespace Systems.Physics
             _settings = settings;
         }
 
-        public void ApplyGravity(VelocityHandler velocityHandler, bool isGrounded, float deltaTime)
+        public void ApplyGravity(VelocityHandler velocityHandler, bool isGrounded, float deltaTime, float? customGravity = 0f)
         {
             if (!Enabled || isGrounded || velocityHandler.VerticalLocked)
             {
                 return;
             }
 
+            var gravity = customGravity ?? _settings.NormalGravity;
+
             var currentY = velocityHandler.GetVelocity().y;
-            var newY = currentY + _settings.NormalGravity * deltaTime;
+            var newY = currentY + gravity * deltaTime;
 
             if (newY < _settings.TerminalVelocity)
             {

@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d68a43c3d524c6c9e3b7a416933a7bf, type: 3}
-  m_Name: Player Double Jump Animation
+  m_Name: Player Dash Animation
   m_EditorClassIdentifier: 
-  AnimationName: Player Double Jump
+  AnimationName: Player Dash Animation
   Description: 
   Loop: 0
   PlayOnAwake: 1
-  SpeedMultiplier: 1
+  SpeedMultiplier: 3
   Frames:
   - Sprite: {fileID: 2163491881236712025, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
     Duration: 0.1
     Offset: {x: 0, y: 0}
-    Scale: {x: 1, y: 1}
+    Scale: {x: 0.9, y: 0.9}
     Rotation: 0
     Alpha: 1
     TriggerEvent: 0
@@ -29,7 +29,7 @@ MonoBehaviour:
   - Sprite: {fileID: -6104018466464298692, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
     Duration: 0.15
     Offset: {x: 0, y: 0}
-    Scale: {x: 1, y: 1}
+    Scale: {x: 0.9, y: 0.9}
     Rotation: 0
     Alpha: 1
     TriggerEvent: 0

@@ -1,4 +1,5 @@
 ﻿using Data.Common;
+using Systems.Physics.Debugging;
 using Systems.Physics.Enums;
 using Systems.Physics.Utilities;
 using UnityEngine;
@@ -8,10 +9,10 @@ namespace Systems.Physics
     public class CollisionHandler
     {
         private readonly Transform _transform;
-        private readonly Collider2D _collider;
+        private readonly BoxCollider2D _collider;
         private readonly PhysicsSettings _settings;
 
-        public CollisionHandler(Transform transform, Collider2D collider, PhysicsSettings settings)
+        public CollisionHandler(Transform transform, BoxCollider2D collider, PhysicsSettings settings)
         {
             _transform = transform;
             _collider = collider;
@@ -23,12 +24,61 @@ namespace Systems.Physics
             var center = GetColliderCenter();
             var size = GetColliderSize();
 
-            var boxSize = direction.x != 0 ?
-                new Vector2(0.1f, size.y) :
-                new Vector2(size.x, 0.1f);
+            Vector2 boxSize;
+            const float thinkness = 0.1f;
+            const float sizeReduction = 0.7f;
 
-            return Physics2D.BoxCast(center, boxSize, 0, direction, _settings.RaycastDistance, layerMask);
+            // left / right
+            if (direction.x != 0)
+            {
+                boxSize = new Vector2(thinkness, size.y * sizeReduction);
+            }
+            else
+            {
+                boxSize = new Vector2(size.x * sizeReduction, thinkness);
+            }
+
+            var hit = Physics2D.BoxCast(center, boxSize, 0, direction, _settings.RaycastDistance, layerMask);
+
+#if UNITY_EDITOR
+            var debugInfo = new BoxCastDebugInfo
+            {
+                Center = center,
+                Size = boxSize,
+                Direction = direction,
+                Distance = _settings.RaycastDistance,
+                Hit = hit,
+                HasHit = hit.collider != null,
+                Color = GetColorForDirection(direction)
+            };
+
+            PhysicsDebugEvents.NotifyBoxCast(debugInfo);
+#endif
+
+            return hit;
         }
+
+#if UNITY_EDITOR
+        private Color GetColorForDirection(Vector2 direction)
+        {
+            if (direction == Vector2.down)
+            {
+                return Color.red;
+            }
+
+            if (direction == Vector2.up)
+            {
+                return Color.blue;
+            }
+
+            if (direction == Vector2.left || direction == Vector2.right)
+            {
+                return Color.yellow;
+            }
+
+            return Color.white;
+        }
+#endif
 
         public CollisionResult CheckDirectionWithSurface(Vector2 direction, int layerMask = PhysicsLayers.Ground)
         {
@@ -46,7 +96,7 @@ namespace Systems.Physics
 
             var normal = hit.normal;
 
-            if (normal.y > slopeThreshold)
+            if (normal.y  > slopeThreshold)
             {
                 return SurfaceType.Ground;
             }
@@ -82,34 +132,12 @@ namespace Systems.Physics
 
         public Vector2 GetColliderOffset()
         {
-            if (_collider == null)
-            {
-                return _transform.position;
-            }
-
-            return _collider switch
-            {
-                BoxCollider2D box => box.offset,
-                CapsuleCollider2D capsule => capsule.offset,
-                CircleCollider2D circle => circle.offset,
-                _ => Vector2.zero
-            };
+            return _collider.offset;
         }
 
         public Vector2 GetColliderSize()
         {
-            if (_collider == null)
-            {
-                return Vector2.one;
-            }
-
-            return _collider switch
-            {
-                BoxCollider2D box => box.size,
-                CapsuleCollider2D capsule => capsule.size,
-                CircleCollider2D circle => circle.radius * Vector2.one,
-                _ => Vector2.one
-            };
+            return _collider.size;
         }
 
         public CollisionResult GetCurrentGroundResult()

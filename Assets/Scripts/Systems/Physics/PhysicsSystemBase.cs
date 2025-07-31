@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Data.Common;
 using R3;
+using Systems.Physics.Debugging;
 using UnityEngine;
 
 namespace Systems.Physics
@@ -16,12 +18,17 @@ namespace Systems.Physics
         protected readonly PositionClamper _positionClamper;
         protected readonly GroundStateHandler _groundStateHandler;
 
+#if UNITY_EDITOR
+        public List<BoxCastDebugInfo> DebugBoxCasts { get; private set; } = new();
+        public bool ShowDebugGizmos { get; set; } = true;
+#endif
+
         public ReadOnlyReactiveProperty<Vector3> Velocity => _velocityHandler.Velocity;
         public ReadOnlyReactiveProperty<bool> IsGrounded => _groundStateHandler.IsGrounded;
         public Observable<Unit> OnLanded => _groundStateHandler.OnLanded;
         public Observable<Unit> OnLeftGround => _groundStateHandler.OnLeftGround;
 
-        protected PhysicsSystemBase(Transform transform, Collider2D collider, PhysicsSettings settings)
+        protected PhysicsSystemBase(Transform transform, BoxCollider2D collider, PhysicsSettings settings)
         {
             _transform = transform;
             _settings = settings;
@@ -31,10 +38,27 @@ namespace Systems.Physics
             _collisionHandler = new CollisionHandler(_transform, collider, settings);
             _positionClamper = new PositionClamper(_transform, _collisionHandler, settings);
             _groundStateHandler = new GroundStateHandler(_transform, _collisionHandler, settings);
+
+#if UNITY_EDITOR
+            PhysicsDebugEvents.OnBoxCastPerformed += OnBoxCastPerformed;
+#endif
         }
 
-        public void PhysicsUpdate(float deltaTime)
+#if UNITY_EDITOR
+        private void OnBoxCastPerformed(BoxCastDebugInfo info)
         {
+            if (ShowDebugGizmos)
+            {
+                DebugBoxCasts.Add(info);
+            }
+        }
+#endif
+
+        public virtual void PhysicsUpdate(float deltaTime)
+        {
+#if UNITY_EDITOR
+            DebugBoxCasts.Clear();
+#endif
             _gravityHandler.ApplyGravity(_velocityHandler, _groundStateHandler.GetGroundState(), deltaTime);
 
             ApplyMovement(deltaTime);
@@ -69,7 +93,7 @@ namespace Systems.Physics
             _velocityHandler.AddVelocity(velocity);
         }
 
-        private void ApplyMovement(float deltaTime)
+        protected void ApplyMovement(float deltaTime)
         {
             var movement = _velocityHandler.GetVelocity() * deltaTime;
             _transform.position += movement;
@@ -103,6 +127,9 @@ namespace Systems.Physics
 
         public virtual void Dispose()
         {
+#if UNITY_EDITOR
+            PhysicsDebugEvents.OnBoxCastPerformed -= OnBoxCastPerformed;
+#endif
             _velocityHandler?.Dispose();
             _groundStateHandler?.Dispose();
         }

@@ -37,7 +37,7 @@ namespace Gameplay.Platformer.States
                 return;
             }
 
-            if (_movementController.IsMoving())
+            if (_movementController.IsIntendingToRun())
             {
                 ChangeState(PlatformerStateType.Run);
                 return;

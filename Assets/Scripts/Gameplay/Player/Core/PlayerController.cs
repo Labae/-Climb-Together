@@ -15,6 +15,7 @@ using Gameplay.Platformer.States;
 using R3;
 using Systems.Animations;
 using Systems.Input.Interfaces;
+using Systems.Physics.Debugging;
 using Systems.StateMachine;
 using Systems.StateMachine.Interfaces;
 using Systems.Visuals.Animation;
@@ -24,12 +25,15 @@ using VContainer;
 
 namespace Gameplay.Player.Core
 {
+#if UNITY_EDITOR
+    [RequireComponent(typeof(PhysicsDebugGizmos))]
+#endif
     public class PlayerController : CoreBehaviour
     {
         #region Core Components
 
         private SpriteRenderer _spriteRenderer;
-        private CircleCollider2D _circleCollider;
+        private BoxCollider2D _collider2D;
 
         #endregion
 
@@ -60,6 +64,8 @@ namespace Gameplay.Player.Core
         [SerializeField] private bool _enableDetailedLogging = false;
 
         [SerializeField] private bool _showDebugInfo = false;
+
+        private PhysicsDebugGizmos _physicsDebugGizmos;
 
         #endregion
 
@@ -134,11 +140,17 @@ namespace Gameplay.Player.Core
 
         private void ValidateComponents()
         {
-            _circleCollider ??= GetComponent<CircleCollider2D>();
-            GameLogger.Assert(_circleCollider != null, "Failed to get CircleCollider component", LogCategory.Player);
+            _collider2D ??= GetComponent<BoxCollider2D>();
+            GameLogger.Assert(_collider2D != null, "Failed to get Collider2D component", LogCategory.Player);
 
             _spriteRenderer ??= GetComponentInChildren<SpriteRenderer>();
             GameLogger.Assert(_spriteRenderer != null, "Failed to get SpriteRenderer component", LogCategory.Player);
+
+#if UNITY_EDITOR
+            _physicsDebugGizmos ??= GetComponentInChildren<PhysicsDebugGizmos>();
+            GameLogger.Assert(_physicsDebugGizmos != null, "Failed to get PhysicsDebugGizmos component",
+                LogCategory.Player);
+#endif
 
             if (_enableDetailedLogging)
             {
@@ -160,7 +172,7 @@ namespace Gameplay.Player.Core
 
                 _platformerPhysicsSystem = new PlatformerPhysicsSystem(
                     transform,
-                    _circleCollider,
+                    _collider2D,
                     _settings.PhysicsSettings,
                     _settings.PlatformerMovement
                 );
@@ -171,10 +183,13 @@ namespace Gameplay.Player.Core
                     _settings.PlatformerMovement
                 );
 
-
                 // 입력 활성화
                 _playerInputSystem.EnableInput();
                 _platformerPhysicsSystem.SetGravityEnabled(true);
+
+#if UNITY_EDITOR
+                _physicsDebugGizmos.Initialize(_platformerPhysicsSystem);
+#endif
 
                 if (_enableDetailedLogging)
                 {
