@@ -32,8 +32,11 @@ namespace Data.Common
         [Space(5)] [Range(0.01f, 0.5f)] [Tooltip("Minimum speed threshold to be considered 'moving'")]
         public float MovingThreshold = 0.1f;
 
-        [Space(10)] [Header("Basic Jump")] [Range(5f, 30f)]
-        public float JumpPower = 15f;
+        [Space(10)]
+        [Header("Basic Jump")]
+        [Range(1f, 5f)]
+        public float JumpHeight = 3.5f;
+        public float TimeToJumpApex = 0.5f;
 
         [Range(0.1f, 2f)] public float JumpBufferTime = 0.2f;
 
@@ -78,7 +81,19 @@ namespace Data.Common
 
         [Range(0.2f, 1.5f)] public float KnockbackDuration = 0.5f;
 
-        // NaughtyAttributes condition
         private bool ShowAirSettings => AirMoveMultiplier < 1f;
+        public float JumpPower => CalculateJumpPower();
+        public float JumpGravity => CalculateJumpGravity();
+
+        private float CalculateJumpPower()
+        {
+            return Mathf.Sqrt(2f * CalculateJumpGravity() * JumpHeight);
+        }
+
+        private float CalculateJumpGravity()
+        {
+            // g = 2h / t^2
+            return (2f * JumpHeight) / (TimeToJumpApex * TimeToJumpApex);
+        }
     }
 }

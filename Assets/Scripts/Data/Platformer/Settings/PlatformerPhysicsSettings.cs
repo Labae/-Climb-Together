@@ -8,10 +8,6 @@ namespace Data.Platformer.Settings
     public class PlatformerPhysicsSettings : PhysicsSettings
     {
         [Header("Variable Gravity")]
-        [Range(-30f, -5f)]
-        [Tooltip("Gravity when holding jump button (weaker for floating feel)")]
-        public float JumpHoldGravity = -12f;
-
         [Range(-50f, -15f)]
         [Tooltip("Gravity after jump cut (stronger for quick fall)")]
         public float JumpCutGravity = -35f;

@@ -24,16 +24,52 @@ MonoBehaviour:
     AirAccelMultiplier: 1.5
     AirDecelMultiplier: 2
     MovingThreshold: 0.1
-    JumpPower: 8
+    JumpHeight: 3
+    TimeToJumpApex: 0.4
     JumpBufferTime: 0.1
     CoyoteTime: 0.1
     JumpCutStrength: 0.3
-    ApexThreshold: 1
-    ApexDuration: 0.05
-    DashSpeed: 12
+    ApexThreshold: 0.7
+    ApexDuration: 0.1
+    DashSpeed: 24
     DashDuration: 0.2
     DashCooldown: 0.3
     MaxDashCount: 1
+    DashSpeedCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.7063203
+        value: 0.65530694
+        inSlope: -1.4759444
+        outSlope: -1.4759444
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    DashEndSpeedRatio: 0.3
+    DashEndVerticalSpeedRatio: 0.1
     AllowDiagonalDash: 1
     AllowVerticalDash: 1
     KnockbackDuration: 0.5
@@ -46,9 +82,8 @@ MonoBehaviour:
     RaycastDistance: 1
     GroundSnapDistance: 0.1
     GroundCheckDistnace: 0.05
-    MaxHorizontalSpeed: 10
-    MaxVerticalSpeed: 20
-    JumpHoldGravity: -12
-    JumpCutGravity: -36
+    MaxHorizontalSpeed: 25
+    MaxVerticalSpeed: 50
+    JumpCutGravity: -30
     FallGravity: -25
-    ApexGravity: -8
+    ApexGravity: -10

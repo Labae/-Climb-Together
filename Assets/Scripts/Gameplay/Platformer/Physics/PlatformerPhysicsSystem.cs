@@ -19,7 +19,7 @@ namespace Gameplay.Platformer.Physics
             ) : base(transform, collider, settings)
         {
             _movementSettings = movementSettings;
-            _variableGravityHandler = new PlatformerVariableGravityHandler(settings);
+            _variableGravityHandler = new PlatformerVariableGravityHandler(settings, movementSettings);
         }
 
         public override void PhysicsUpdate(float deltaTime)

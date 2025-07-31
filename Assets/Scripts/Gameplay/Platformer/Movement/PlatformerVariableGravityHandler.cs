@@ -1,4 +1,5 @@
 ﻿using System;
+using Data.Common;
 using Data.Platformer.Settings;
 using Gameplay.Platformer.Movement.Enums;
 
@@ -6,12 +7,14 @@ namespace Gameplay.Platformer.Movement
 {
     public class PlatformerVariableGravityHandler
     {
-        private readonly PlatformerPhysicsSettings _settings;
+        private readonly PlatformerPhysicsSettings _physicsSettings;
+        private readonly PlatformerMovementSettings _movementSettings;
         private PlatformerGravityState _gravityState = PlatformerGravityState.Normal;
 
-        public PlatformerVariableGravityHandler(PlatformerPhysicsSettings settings)
+        public PlatformerVariableGravityHandler(PlatformerPhysicsSettings physicsSettings, PlatformerMovementSettings movementSettings)
         {
-            _settings = settings;
+            _physicsSettings = physicsSettings;
+            _movementSettings = movementSettings;
         }
 
         public void SetGravityState(PlatformerGravityState gravityState)
@@ -23,11 +26,11 @@ namespace Gameplay.Platformer.Movement
         {
             return _gravityState switch
             {
-                PlatformerGravityState.Normal => _settings.NormalGravity,
-                PlatformerGravityState.JumpHold => _settings.JumpHoldGravity,
-                PlatformerGravityState.JumpCut => _settings.JumpCutGravity,
-                PlatformerGravityState.Falling => _settings.FallGravity,
-                PlatformerGravityState.Apex => _settings.ApexGravity,
+                PlatformerGravityState.Normal => _physicsSettings.NormalGravity,
+                PlatformerGravityState.JumpHold => -_movementSettings.JumpGravity,
+                PlatformerGravityState.JumpCut => _physicsSettings.JumpCutGravity,
+                PlatformerGravityState.Falling => _physicsSettings.FallGravity,
+                PlatformerGravityState.Apex => _physicsSettings.ApexGravity,
                 PlatformerGravityState.Dashing => 0f,
                 _ => throw new ArgumentOutOfRangeException()
             };
