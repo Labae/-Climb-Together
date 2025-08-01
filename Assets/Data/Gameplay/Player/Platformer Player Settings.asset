@@ -16,7 +16,7 @@ MonoBehaviour:
   Description: 
   PlayerIcon: {fileID: 0}
   PlatformerMovement:
-    RunSpeed: 8
+    RunSpeed: 5
     AirMoveMultiplier: 0.7
     AccelTime: 0.1
     DecelTime: 0.15
@@ -24,15 +24,15 @@ MonoBehaviour:
     AirAccelMultiplier: 1.5
     AirDecelMultiplier: 2
     MovingThreshold: 0.1
-    JumpHeight: 3
-    TimeToJumpApex: 0.4
+    JumpHeight: 2
+    TimeToJumpApex: 0.25
     JumpBufferTime: 0.1
     CoyoteTime: 0.1
     JumpCutStrength: 0.3
     ApexThreshold: 0.7
-    ApexDuration: 0.1
-    DashSpeed: 24
-    DashDuration: 0.2
+    ApexDuration: 0.05
+    DashSpeed: 15
+    DashDuration: 0.25
     DashCooldown: 0.3
     MaxDashCount: 1
     DashSpeedCurve:
@@ -68,10 +68,10 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    DashEndSpeedRatio: 0.3
+    DashEndSpeedRatio: -0.94
     DashEndVerticalSpeedRatio: 0.1
     WallSlideSpeed: 3
-    WallJumpForce: 16
+    WallJumpForce: 12
     WallJumpDirection: {x: 0.8, y: 1}
     WallJumpInputLockTime: 0.2
     KnockbackDuration: 0.5
@@ -79,14 +79,14 @@ MonoBehaviour:
     MaxHealth: 6
     InvincibilityTime: 2
   PhysicsSettings:
-    NormalGravity: -20
-    TerminalVelocity: -15
+    NormalGravity: -16
+    TerminalVelocity: -20
     RaycastDistance: 1
     GroundCheckDistnace: 0.05
     WallCheckDistance: 0.1
     MaxHorizontalSpeed: 25
     MaxVerticalSpeed: 50
     JumpCutGravity: -30
-    FallGravity: -25
-    ApexGravity: -10
+    FallGravity: -16
+    ApexGravity: -12
     WallSlideGravity: -5
