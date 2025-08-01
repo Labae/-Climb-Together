@@ -20,7 +20,7 @@ namespace Gameplay.Common.DirectionProviders
         public Observable<FacingDirection> OnDirectionChanged => _baseProvider.OnDirectionChanged;
 
         public VelocityBasedDirectionProvider(
-            Observable<float> velocityStream,
+            Observable<Vector3> velocityStream,
             FacingDirection initialDirection = FacingDirection.Right,
             float velocityThreshold = PhysicsUtility.VelocityThreshold,
             float directionLockTime = 0.1f)
@@ -31,8 +31,8 @@ namespace Gameplay.Common.DirectionProviders
 
             velocityStream
                 .Where(_ => Time.unscaledTime - _lastDirectionChangeTime >= _directionLockTime)
-                .Where(velocity => PhysicsUtility.HasValidVelocity(velocity, _velocityThreshold))
-                .Select(velocity => velocity > 0 ? FacingDirection.Right : FacingDirection.Left)
+                .Where(velocity => PhysicsUtility.HasValidVelocity(velocity.x, _velocityThreshold))
+                .Select(velocity => velocity.x > 0 ? FacingDirection.Right : FacingDirection.Left)
                 .DistinctUntilChanged()
                 .Subscribe(direction =>
                 {

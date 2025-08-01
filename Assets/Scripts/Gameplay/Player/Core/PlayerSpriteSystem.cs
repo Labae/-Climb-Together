@@ -5,6 +5,8 @@ using Data.Player.Animations;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.Common.Interfaces;
+using Gameplay.Platformer.Movement.Enums;
+using Gameplay.Platformer.Movement.Interface;
 using R3;
 using Systems.Animations;
 using Systems.StateMachine.Interfaces;
@@ -19,6 +21,7 @@ namespace Gameplay.Player.Core
         private readonly IDirectionProvider _directionProvider;
         private readonly ISpriteOrientation _spriteOrientation;
         private readonly ISpriteAnimator _spriteAnimator;
+        private readonly IPlatformerMovementController _movementController;
         private readonly PlayerAnimationRegistry _animationRegistry;
         private readonly CompositeDisposable _disposables = new();
 
@@ -29,6 +32,7 @@ namespace Gameplay.Player.Core
             IDirectionProvider  directionProvider,
             ISpriteOrientation spriteOrientation,
             ISpriteAnimator spriteAnimator,
+            IPlatformerMovementController movementController,
             PlayerAnimationRegistry animationRegistry
         )
         {
@@ -36,6 +40,7 @@ namespace Gameplay.Player.Core
             _directionProvider = directionProvider  ?? throw new ArgumentNullException(nameof(directionProvider));
             _spriteOrientation = spriteOrientation ?? throw new ArgumentNullException(nameof(spriteOrientation));
             _spriteAnimator = spriteAnimator ?? throw new ArgumentNullException(nameof(spriteAnimator));
+            _movementController = movementController ?? throw new ArgumentNullException(nameof(movementController));
             _animationRegistry = animationRegistry ?? throw new ArgumentNullException(nameof(animationRegistry));
 
             SubscribeToEvents();
@@ -52,6 +57,10 @@ namespace Gameplay.Player.Core
 
                 _directionProvider.OnDirectionChanged
                     .Subscribe(HandleDirectionChange)
+                    .AddTo(_disposables);
+
+                _movementController.OnSpecialActionStarted
+                    .Subscribe(HandleSpecialActionAnimation)
                     .AddTo(_disposables);
 
                 GameLogger.Debug("[PlayerAnimationSystem] event subscribed.", LogCategory.Player);
@@ -109,6 +118,36 @@ namespace Gameplay.Player.Core
                     ZString.Concat("[PlayerAnimationSystem] Error handling direction change to {0}: {1}", direction,
                         e.Message), LogCategory.Player);
             }
+        }
+
+        private void HandleSpecialActionAnimation(SpecialActionType actionType)
+        {
+            var stateType = actionType switch
+            {
+                SpecialActionType.WallJump => PlatformerStateType.WallJump,
+                SpecialActionType.Dashing => PlatformerStateType.Dash,
+                _ => (PlatformerStateType?)null
+            };
+
+            if (stateType.HasValue)
+            {
+                ForcePlayAnimation(stateType.Value);
+            }
+        }
+
+        private void ForcePlayAnimation(PlatformerStateType stateType)
+        {
+            var animationData = _animationRegistry.GetAnimation(stateType);
+            if (animationData == null)
+            {
+                GameLogger.Warning(
+                    ZString.Format("[PlayerAnimationSystem] No animation found for state: {0}", stateType),
+                    LogCategory.Player);
+                return;
+            }
+
+            _spriteAnimator.Play(animationData);
+            _lastAnimationState = stateType;
         }
 
         public void Dispose()

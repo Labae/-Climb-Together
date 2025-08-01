@@ -1,10 +1,12 @@
 ﻿using System;
 using Data.Common;
-using Debugging;
+using Gameplay.Common.Enums;
+using Gameplay.Common.Interfaces;
 using Gameplay.Platformer.Movement.Enums;
 using Gameplay.Platformer.Movement.Interface;
 using Gameplay.Platformer.Physics;
 using R3;
+using Systems.Animations;
 using Systems.Physics.Utilities;
 using UnityEngine;
 
@@ -14,11 +16,13 @@ namespace Gameplay.Platformer.Movement
     {
         private readonly PlatformerPhysicsSystem _physicsSystem;
         private readonly IPlatformerInput _platformerInput;
+        private readonly IDirectionProvider _directionProvider;
         private readonly PlatformerMovementSettings _settings;
 
         private readonly PlatformerHorizontalMovementHandler _horizontalMovementHandler;
         private readonly PlatformerJumpHandler _jumpHandler;
         private readonly PlatformerDashHandler _dashHandler;
+        private readonly PlatformerWallHandler _wallHandler;
 
         private SpecialActionType _currentSpecialAction = SpecialActionType.None;
         private float _specialActionTimer = 0f;
@@ -34,6 +38,9 @@ namespace Gameplay.Platformer.Movement
         public Observable<Unit> OnJumpStarted => _jumpHandler.OnJumpStarted;
         public Observable<Vector2> OnDashStarted => _dashHandler.OnDashStarted;
         public Observable<Unit> OnDashEnded => _dashHandler.OnDashEnded;
+        public Observable<WallSideType> OnWallSlideStarted => _wallHandler.OnWallSlideStarted;
+        public Observable<Unit> OnWallSlideEnded => _wallHandler.OnWallSlideEnded;
+        public Observable<Vector2> OnWallJumped => _wallHandler.OnWallJumped;
         public Observable<SpecialActionType> OnSpecialActionStarted => _onSpecialActionStarted.AsObservable();
         public Observable<SpecialActionType> OnSpecialActionEnded => _onSpecialActionEnded.AsObservable();
 
@@ -41,11 +48,13 @@ namespace Gameplay.Platformer.Movement
             PlatformerMovementController(
             PlatformerPhysicsSystem physicsSystem,
             IPlatformerInput platformerInput,
+            IDirectionProvider directionProvider,
             PlatformerMovementSettings settings
         )
         {
             _physicsSystem = physicsSystem;
             _platformerInput = platformerInput;
+            _directionProvider = directionProvider;
             _settings = settings;
 
             _horizontalMovementHandler = new PlatformerHorizontalMovementHandler(
@@ -57,8 +66,12 @@ namespace Gameplay.Platformer.Movement
             _dashHandler = new PlatformerDashHandler(
                 _physicsSystem, _platformerInput, _settings);
 
+            _wallHandler = new PlatformerWallHandler(
+                _physicsSystem, _platformerInput, _settings);
+
             SubscribeToPhysicsEvents();
             SubscribeToDashEvents();
+            SubscribeToWallEvents();
         }
 
         #region Events Subscription
@@ -79,6 +92,17 @@ namespace Gameplay.Platformer.Movement
 
             _dashHandler.OnDashEnded
                 .Subscribe(_ => HandleDashEnded())
+                .AddTo(_disposables);
+        }
+
+        private void SubscribeToWallEvents()
+        {
+            _wallHandler.OnWallSlideStarted
+                .Subscribe(HandleWallSlideStarted)
+                .AddTo(_disposables);
+
+            _wallHandler.OnWallJumped
+                .Subscribe(HandleWallJumped)
                 .AddTo(_disposables);
         }
 
@@ -104,6 +128,20 @@ namespace Gameplay.Platformer.Movement
             {
                 EndSpecialAction();
             }
+        }
+
+        private void HandleWallSlideStarted(WallSideType wallSide)
+        {
+            var facingDirection = wallSide == WallSideType.Left ? FacingDirection.Left :  FacingDirection.Right;
+            _directionProvider.SetDirection(facingDirection);
+        }
+
+        private void HandleWallJumped(Vector2 direction)
+        {
+            StartSpecialAction(SpecialActionType.WallJump, _settings.WallJumpInputLockTime);
+
+            var facingDirection = direction.x > 0 ? FacingDirection.Right :  FacingDirection.Left;
+            _directionProvider.SetDirection(facingDirection);
         }
 
         #endregion
@@ -133,6 +171,7 @@ namespace Gameplay.Platformer.Movement
                     // 대시 중에는 수평 이동과 점프만 비활성화 (대시는 계속 활성)
                     _horizontalMovementHandler.SetEnabled(false);
                     _jumpHandler.SetEnabled(false);
+                    _wallHandler.SetEnabled(false);
                     break;
 
                 case SpecialActionType.Knockback:
@@ -140,6 +179,10 @@ namespace Gameplay.Platformer.Movement
                     _horizontalMovementHandler.SetEnabled(false);
                     _jumpHandler.SetEnabled(false);
                     _dashHandler.SetEnabled(false);
+                    _wallHandler.SetEnabled(false);
+                    break;
+                case SpecialActionType.WallJump:
+                    _horizontalMovementHandler.SetEnabled(false);
                     break;
                 case SpecialActionType.None:
                     break;
@@ -165,6 +208,7 @@ namespace Gameplay.Platformer.Movement
             _horizontalMovementHandler.SetEnabled(true);
             _jumpHandler.SetEnabled(true);
             _dashHandler.SetEnabled(true);
+            _wallHandler.SetEnabled(true);
 
             _onSpecialActionEnded.OnNext(endedAction);
         }
@@ -180,8 +224,9 @@ namespace Gameplay.Platformer.Movement
 
             if (_currentSpecialAction == SpecialActionType.None)
             {
-                _horizontalMovementHandler.Update(deltaTime);
+                _horizontalMovementHandler.Update(deltaTime, _wallHandler.IsHorizontalInputLocked());
                 _jumpHandler.Update(deltaTime);
+                _wallHandler.Update(deltaTime);
             }
         }
 
@@ -242,6 +287,11 @@ namespace Gameplay.Platformer.Movement
         /// <summary>특수 액션 중인지</summary>
         public bool IsInSpecialAction() => _currentSpecialAction != SpecialActionType.None;
 
+        public bool IsWallSliding()
+        {
+            return _wallHandler.IsWallSliding();
+        }
+
         /// <summary>현재 특수 액션 타입</summary>
         public SpecialActionType GetSpecialAction() => _currentSpecialAction;
 
@@ -254,6 +304,7 @@ namespace Gameplay.Platformer.Movement
             _horizontalMovementHandler?.Dispose();
             _jumpHandler?.Dispose();
             _dashHandler?.Dispose();
+            _wallHandler?.Dispose();
 
             // 이벤트들 정리
             _onLanded?.Dispose();

@@ -3,6 +3,7 @@ using R3;
 using Systems.Animations;
 using Systems.Input.Utilities;
 using Systems.Physics.Utilities;
+using UnityEngine;
 
 namespace Gameplay.Common.DirectionProviders
 {
@@ -19,7 +20,7 @@ namespace Gameplay.Common.DirectionProviders
             return new InputBasedDirectionProvider(movementInput, initialDirection, threshold);
         }
 
-        public static VelocityBasedDirectionProvider CreateVelocityBased(Observable<float> velocityStream,
+        public static VelocityBasedDirectionProvider CreateVelocityBased(Observable<Vector3> velocityStream,
             FacingDirection initialDirection = FacingDirection.Right, float threshold = PhysicsUtility.VelocityThreshold, float lockTime = 0.1f)
         {
             return new VelocityBasedDirectionProvider(velocityStream, initialDirection, threshold, lockTime);

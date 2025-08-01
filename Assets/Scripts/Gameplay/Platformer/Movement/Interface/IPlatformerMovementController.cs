@@ -21,6 +21,7 @@ namespace Gameplay.Platformer.Movement.Interface
         bool IsFalling();
         bool IsRising();
         bool IsInSpecialAction();
+        bool IsWallSliding();
         SpecialActionType GetSpecialAction();
     }
 }

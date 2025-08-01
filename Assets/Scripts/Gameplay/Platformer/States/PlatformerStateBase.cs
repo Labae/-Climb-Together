@@ -30,9 +30,23 @@ namespace Gameplay.Platformer.States
                 case SpecialActionType.Knockback:
                     ChangeState(PlatformerStateType.Hit);
                     return true;
+                case SpecialActionType.WallJump:
+                    ChangeState(PlatformerStateType.WallJump);
+                    break;
                 case SpecialActionType.None:
                 default:
                     break;
+            }
+
+            return false;
+        }
+
+        protected bool HandleWallSlidingTransition()
+        {
+            if (_movementController.IsWallSliding())
+            {
+                ChangeState(PlatformerStateType.WallSlide);
+                return true;
             }
 
             return false;

@@ -21,6 +21,11 @@ namespace Gameplay.Platformer.States
                 return;
             }
 
+            if (HandleWallSlidingTransition())
+            {
+                return;
+            }
+
             if (_movementController.IsFalling())
             {
                 ChangeState(PlatformerStateType.Fall);

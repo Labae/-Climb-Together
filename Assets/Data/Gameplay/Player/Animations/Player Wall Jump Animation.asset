@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d68a43c3d524c6c9e3b7a416933a7bf, type: 3}
+  m_Name: Player Wall Jump Animation
+  m_EditorClassIdentifier: 
+  AnimationName: Player Wall Jump
+  Description: 
+  Loop: 0
+  PlayOnAwake: 1
+  SpeedMultiplier: 1
+  Frames:
+  - Sprite: {fileID: 2163491881236712025, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
+    Duration: 0.1
+    Offset: {x: 0, y: 0}
+    Scale: {x: 1, y: 1}
+    Rotation: 0
+    Alpha: 1
+    TriggerEvent: 0
+    EventName: 
+  - Sprite: {fileID: -6104018466464298692, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
+    Duration: 0.15
+    Offset: {x: 0, y: 0}
+    Scale: {x: 1, y: 1}
+    Rotation: 0
+    Alpha: 1
+    TriggerEvent: 0
+    EventName: 
+  - Sprite: {fileID: -8195086664323053311, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
+    Duration: 0.1
+    Offset: {x: 0, y: 0}
+    Scale: {x: 1, y: 1}
+    Rotation: 0
+    Alpha: 1
+    TriggerEvent: 0
+    EventName: 
+  - Sprite: {fileID: -108846167847652698, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
+    Duration: 0.1
+    Offset: {x: 0, y: 0}
+    Scale: {x: 1, y: 1}
+    Rotation: 0
+    Alpha: 1
+    TriggerEvent: 0
+    EventName: 
+  - Sprite: {fileID: 7669157126739687178, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
+    Duration: 0.1
+    Offset: {x: 0, y: 0}
+    Scale: {x: 1, y: 1}
+    Rotation: 0
+    Alpha: 1
+    TriggerEvent: 0
+    EventName: 
+  - Sprite: {fileID: 4209807498477419674, guid: 0384d108502fb43c89c2b572b468d764, type: 3}
+    Duration: 0.1
+    Offset: {x: 0, y: 0}
+    Scale: {x: 1, y: 1}
+    Rotation: 0
+    Alpha: 1
+    TriggerEvent: 0
+    EventName: 
+  TotalDuration: 0.65000004
+  FrameCount: 6
+  PreviewTime: 0
+  CurrentPreviewFrame: 0

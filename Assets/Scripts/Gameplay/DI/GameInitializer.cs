@@ -3,6 +3,7 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.Player;
 using Gameplay.Player.Core;
+using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -11,7 +12,7 @@ namespace Gameplay.DI
 {
     public class GameInitializer : IStartable
     {
-        [Inject] private Camera _mainCamera;
+        [Inject] private CinemachineCamera _mainCamera;
         [Inject] private PlayerController _playerController;
         [Inject] private PlatformerPlayerSettings _platformerPlayerSettings;
         [Inject] private IObjectResolver _objectResolver;
@@ -74,9 +75,7 @@ namespace Gameplay.DI
                 GameLogger.Info($"✅ Main Camera: {_mainCamera.name}");
                 GameLogger.Info($"Camera Position: {_mainCamera.transform.position}");
 
-                // TODO: 카메라가 플레이어를 따라가도록 설정
-                // var cameraFollow = _mainCamera.GetComponent<CameraFollow>();
-                // cameraFollow.SetTarget(_playerController.transform);
+                _mainCamera.Follow = _playerController.transform;
             }
             else
             {

@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Data.Platformer.Abilities.Data.Player;
-using Gameplay.Player;
 using Gameplay.Player.Core;
+using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VContainer;
 using VContainer.Unity;
 
@@ -12,7 +11,7 @@ namespace Gameplay.DI
     public class GameLifetimeScope : LifetimeScope
     {
         [SerializeField, Required]
-        private Camera _mainCamera;
+        private CinemachineCamera _mainCamera;
 
         [SerializeField, Required]
         private PlayerController _playerPrefab;

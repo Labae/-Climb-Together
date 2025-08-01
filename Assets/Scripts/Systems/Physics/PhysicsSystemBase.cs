@@ -99,6 +99,11 @@ namespace Systems.Physics
             _transform.position += movement;
         }
 
+        public CollisionResult CheckDirectionWithSurface(Vector2 direction)
+        {
+            return _collisionHandler.CheckDirectionWithSurface(direction);
+        }
+
         #region Controls
 
         public void SetGravityEnabled(bool enabled)

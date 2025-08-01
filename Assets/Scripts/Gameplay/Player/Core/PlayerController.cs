@@ -165,11 +165,7 @@ namespace Gameplay.Player.Core
                 // 입력 시스템 설정
                 _playerInputSystem = new PlayerInputSystem(_globalInputSystem);
 
-                // 방향 제공자 설정
-                _directionProvider = DirectionProviderFactory.CreateInputBased(
-                    _playerInputSystem.MovementInput
-                );
-
+                // 물리 시스템 설정
                 _platformerPhysicsSystem = new PlatformerPhysicsSystem(
                     transform,
                     _collider2D,
@@ -177,9 +173,15 @@ namespace Gameplay.Player.Core
                     _settings.PlatformerMovement
                 );
 
+                // 방향 제공자 설정
+                _directionProvider = DirectionProviderFactory.CreateVelocityBased(
+                    _platformerPhysicsSystem.Velocity.AsObservable()
+                );
+
                 _platformerMovementController = new PlatformerMovementController(
                     _platformerPhysicsSystem,
                     _playerInputSystem,
+                    _directionProvider,
                     _settings.PlatformerMovement
                 );
 
@@ -221,6 +223,8 @@ namespace Gameplay.Player.Core
                 _stateMachine.AddState(new PlatformerJumpState(_platformerMovementController));
                 _stateMachine.AddState(new PlatformerFallState(_platformerMovementController));
                 _stateMachine.AddState(new PlatformerDashState(_platformerMovementController));
+                _stateMachine.AddState(new PlatformerWallSlideState(_platformerMovementController));
+                _stateMachine.AddState(new PlatformerWallJumpState(_platformerMovementController));
 
                 if (_enableDetailedLogging)
                 {
@@ -251,6 +255,7 @@ namespace Gameplay.Player.Core
                     _directionProvider,
                     spriteOrientation,
                     spriteAnimator,
+                    _platformerMovementController,
                     _playerAnimationRegistry);
 
                 if (_enableDetailedLogging)

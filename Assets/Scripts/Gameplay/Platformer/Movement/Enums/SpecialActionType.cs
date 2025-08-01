@@ -5,5 +5,6 @@
         None,
         Dashing,
         Knockback,
+        WallJump,
     }
 }

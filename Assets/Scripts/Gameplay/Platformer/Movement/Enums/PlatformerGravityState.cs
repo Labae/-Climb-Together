@@ -8,5 +8,6 @@
         Falling,
         Apex,
         Dashing,
+        WallSliding,
     }
 }

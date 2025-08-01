@@ -11,8 +11,8 @@ namespace Data.Common
         [Range(-50f, -10f)] public float TerminalVelocity = -25f;
 
         [Header("Collision")] public float RaycastDistance = 100f;
-        public float GroundSnapDistance = 0.5f;
         public float GroundCheckDistnace = 1f;
+        public float WallCheckDistance = 0.1f;
 
         [Header("Speed Limits")]
         public float MaxHorizontalSpeed = 10f;

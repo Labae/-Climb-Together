@@ -3,16 +3,17 @@ using Gameplay.Platformer.Movement.Interface;
 
 namespace Gameplay.Platformer.States
 {
-    public class PlatformerFallState : PlatformerStateBase
+    public class PlatformerWallSlideState : PlatformerStateBase
     {
-        public PlatformerFallState(IPlatformerMovementController movementController) : base(movementController)
+        public PlatformerWallSlideState(IPlatformerMovementController movementController) : base(movementController)
         {
         }
 
-        public override PlatformerStateType StateType => PlatformerStateType.Fall;
+        public override PlatformerStateType StateType =>  PlatformerStateType.WallSlide;
 
         public override void OnEnter()
         {
+
         }
 
         public override void OnUpdate()
@@ -22,14 +23,9 @@ namespace Gameplay.Platformer.States
                 return;
             }
 
-            if (HandleWallSlidingTransition())
+            if (_movementController.IsGrounded())
             {
-                return;
-            }
-
-            if (_movementController.IsGrounded() && !_movementController.IsFalling())
-            {
-                if (_movementController.IsMoving())
+                if (_movementController.IsIntendingToRun())
                 {
                     ChangeState(PlatformerStateType.Run);
                 }
@@ -37,7 +33,18 @@ namespace Gameplay.Platformer.States
                 {
                     ChangeState(PlatformerStateType.Idle);
                 }
+                return;
+            }
 
+            if (!_movementController.IsWallSliding())
+            {
+                ChangeState(PlatformerStateType.Fall);
+                return;
+            }
+
+            if (_movementController.IsRising())
+            {
+                ChangeState(PlatformerStateType.WallJump);
                 return;
             }
         }

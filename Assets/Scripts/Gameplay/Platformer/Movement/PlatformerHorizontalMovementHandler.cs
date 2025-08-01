@@ -53,8 +53,13 @@ namespace Gameplay.Platformer.Movement
             _enabled = enabled;
         }
 
-        public void Update(float deltaTime)
+        public void Update(float deltaTime, bool inputLocked = false)
         {
+            if (inputLocked)
+            {
+                return;
+            }
+
             if (!_enabled)
             {
                 return;

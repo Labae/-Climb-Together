@@ -1,13 +1,11 @@
-﻿using System;
-using Gameplay.Common.Enums;
-using Gameplay.Common.Interfaces;
+﻿using Gameplay.Common.Interfaces;
 using R3;
 using Systems.Animations;
 using Systems.Input.Utilities;
 
 namespace Gameplay.Common.DirectionProviders
 {
-    public class InputBasedDirectionProvider : IDirectionProvider, IDisposable
+    public class InputBasedDirectionProvider : IDirectionProvider
     {
         private readonly DirectionProvider _baseProvider;
         private readonly float _inputThreshold;

@@ -32,6 +32,7 @@ namespace Gameplay.Platformer.Movement
                 PlatformerGravityState.Falling => _physicsSettings.FallGravity,
                 PlatformerGravityState.Apex => _physicsSettings.ApexGravity,
                 PlatformerGravityState.Dashing => 0f,
+                PlatformerGravityState.WallSliding => _physicsSettings.WallSlideGravity,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

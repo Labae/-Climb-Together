@@ -20,5 +20,7 @@ namespace Data.Platformer.Settings
         [Range(-15f, -3f)]
         [Tooltip("Gravity at jump apex (weaker for floating feel)")]
         public float ApexGravity = -8f;
+
+        [Header("Wall Slide Handling")] public float WallSlideGravity = -5f;
     }
 }

@@ -75,9 +75,11 @@ namespace Data.Common
         public float DashEndSpeedRatio = 0.3f;
         public float DashEndVerticalSpeedRatio = 0.1f;
 
-        [Header("Dash Directions")]
-        public bool AllowDiagonalDash = true;
-        public bool AllowVerticalDash = true;
+        [Header("Wall Slide Settings")] public float WallSlideSpeed = 3f;
+
+        [Header("Wall Jump Settings")] public float WallJumpForce = 12f;
+        public Vector2 WallJumpDirection = new Vector2(0.8f, 1.0f);
+        public float WallJumpInputLockTime = 0.2f;
 
         [Range(0.2f, 1.5f)] public float KnockbackDuration = 0.5f;
 

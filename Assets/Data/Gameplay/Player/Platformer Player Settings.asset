@@ -70,8 +70,10 @@ MonoBehaviour:
       m_RotationOrder: 4
     DashEndSpeedRatio: 0.3
     DashEndVerticalSpeedRatio: 0.1
-    AllowDiagonalDash: 1
-    AllowVerticalDash: 1
+    WallSlideSpeed: 3
+    WallJumpForce: 16
+    WallJumpDirection: {x: 0.8, y: 1}
+    WallJumpInputLockTime: 0.2
     KnockbackDuration: 0.5
   Combat:
     MaxHealth: 6
@@ -80,10 +82,11 @@ MonoBehaviour:
     NormalGravity: -20
     TerminalVelocity: -15
     RaycastDistance: 1
-    GroundSnapDistance: 0.1
     GroundCheckDistnace: 0.05
+    WallCheckDistance: 0.1
     MaxHorizontalSpeed: 25
     MaxVerticalSpeed: 50
     JumpCutGravity: -30
     FallGravity: -25
     ApexGravity: -10
+    WallSlideGravity: -5
