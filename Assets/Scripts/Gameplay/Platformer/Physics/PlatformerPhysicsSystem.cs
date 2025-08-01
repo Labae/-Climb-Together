@@ -32,9 +32,10 @@ namespace Gameplay.Platformer.Physics
                 deltaTime,
                 _variableGravityHandler.GetCurrentGravity());
 
-            ApplyMovement(deltaTime);
-
-            _positionClamper.ClampPosition(_velocityHandler);
+            var position = _transform.position;
+            ApplyMovement(ref position, deltaTime);
+            _positionClamper.ClampPosition(ref position, _velocityHandler);
+            _transform.position = position;
 
             _groundStateHandler.UpdateGroundState(_velocityHandler);
         }

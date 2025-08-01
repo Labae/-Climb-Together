@@ -61,9 +61,12 @@ namespace Systems.Physics
 #endif
             _gravityHandler.ApplyGravity(_velocityHandler, _groundStateHandler.GetGroundState(), deltaTime);
 
-            ApplyMovement(deltaTime);
+            var position = _transform.position;
+            ApplyMovement(ref position, deltaTime);
 
-            _positionClamper.ClampPosition(_velocityHandler);
+            _positionClamper.ClampPosition(ref position, _velocityHandler);
+
+            _transform.position = position;
 
             _groundStateHandler.UpdateGroundState(_velocityHandler);
         }
@@ -93,10 +96,10 @@ namespace Systems.Physics
             _velocityHandler.AddVelocity(velocity);
         }
 
-        protected void ApplyMovement(float deltaTime)
+        protected void ApplyMovement(ref Vector3 position, float deltaTime)
         {
             var movement = _velocityHandler.GetVelocity() * deltaTime;
-            _transform.position += movement;
+            position = _transform.position + movement;
         }
 
         public CollisionResult CheckDirectionWithSurface(Vector2 direction)

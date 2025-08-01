@@ -22,9 +22,9 @@ namespace Systems.Physics
             _settings = settings;
         }
 
-        public bool ClampPosition(VelocityHandler velocityHandler)
+        public bool ClampPosition(ref Vector3 position, VelocityHandler velocityHandler)
         {
-            var originalPosition = _transform.position;
+            var originalPosition = position;
             var newPosition = originalPosition;
             bool wasAdjusted = false;
 
@@ -35,11 +35,7 @@ namespace Systems.Physics
             wasAdjusted |= TryClampHorizontal(ref newPosition, velocityHandler, colliderHalfSize, colliderOffset);
             wasAdjusted |= TryClampVertical(ref newPosition, velocityHandler, colliderHalfSize, colliderOffset);
 
-            if (wasAdjusted)
-            {
-                _transform.position = newPosition;
-            }
-
+            position = newPosition;
             return wasAdjusted;
         }
 

@@ -1,0 +1,33 @@
+{
+  "Rects": null,
+  "Def": {
+    "__cHei": 6,
+    "__cWid": 10,
+    "cachedPixelData": {
+      "opaqueTiles": "010111000011111111100101111110001011110011111100001110101100",
+      "averageColors": "f553f544f553f434f543f434666376636663f567f544f423f544f544f554f544f444f444f444f668f553f544f553f434f544f434f444f444f444f678f663f663f564f663f554f554f554f5546563f678f554f554f554f554f554f554856386633563f668f554f554f554f663f564f663f434f4343663f556"
+    },
+    "customData": [
+
+    ],
+    "embedAtlas": null,
+    "enumTags": [
+
+    ],
+    "identifier": "Tileset2",
+    "padding": 0,
+    "pxHei": 192,
+    "pxWid": 320,
+    "relPath": "../free-swamp-game-tileset-pixel-art/1 Tiles/Tileset.png",
+    "savedSelections": [
+
+    ],
+    "spacing": 0,
+    "tags": [
+
+    ],
+    "tagsSourceEnumUid": null,
+    "tileGridSize": 32,
+    "uid": 1
+  }
+}
