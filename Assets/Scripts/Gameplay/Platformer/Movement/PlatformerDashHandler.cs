@@ -35,10 +35,12 @@ namespace Gameplay.Platformer.Movement
         // 이벤트
         private readonly Subject<Vector2> _onDashStarted = new();
         private readonly Subject<Unit> _onDashEnded = new();
+        private readonly Subject<Unit> _onDashReset = new();
         private readonly CompositeDisposable _disposables = new();
 
         public Observable<Vector2> OnDashStarted => _onDashStarted.AsObservable();
         public Observable<Unit> OnDashEnded => _onDashEnded.AsObservable();
+        public Observable<Unit> OnDashReset => _onDashReset.AsObservable();
 
         public PlatformerDashHandler(
             PlatformerPhysicsSystem physicsSystem,
@@ -317,6 +319,7 @@ namespace Gameplay.Platformer.Movement
         private void ResetDashCount()
         {
             _currentDashCount = 0;
+            _onDashReset.OnNext(Unit.Default);
         }
 
         #endregion

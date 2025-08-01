@@ -1,6 +1,7 @@
 ﻿using System;
 using Cysharp.Text;
 using Data.Platformer.Enums;
+using Data.Platformer.Settings;
 using Data.Player.Animations;
 using Debugging;
 using Debugging.Enum;
@@ -12,6 +13,7 @@ using Systems.Animations;
 using Systems.StateMachine.Interfaces;
 using Systems.Visuals.Animation;
 using Systems.Visuals.Orientation;
+using UnityEngine;
 
 namespace Gameplay.Player.Core
 {
@@ -19,10 +21,12 @@ namespace Gameplay.Player.Core
     {
         private readonly IStateMachine<PlatformerStateType> _stateMachine;
         private readonly IDirectionProvider _directionProvider;
+        private readonly SpriteRenderer _spriteRenderer;
         private readonly ISpriteOrientation _spriteOrientation;
         private readonly ISpriteAnimator _spriteAnimator;
         private readonly IPlatformerMovementController _movementController;
         private readonly PlayerAnimationRegistry _animationRegistry;
+        private readonly PlatformerVisualSettings _visualSettings;
         private readonly CompositeDisposable _disposables = new();
 
         private PlatformerStateType _lastAnimationState;
@@ -30,18 +34,26 @@ namespace Gameplay.Player.Core
         public PlayerSpriteSystem(
             IStateMachine<PlatformerStateType> stateMachine,
             IDirectionProvider  directionProvider,
-            ISpriteOrientation spriteOrientation,
-            ISpriteAnimator spriteAnimator,
+            SpriteRenderer spriteRenderer,
             IPlatformerMovementController movementController,
-            PlayerAnimationRegistry animationRegistry
+            PlayerAnimationRegistry animationRegistry,
+            PlatformerVisualSettings visualSettings
         )
         {
             _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
             _directionProvider = directionProvider  ?? throw new ArgumentNullException(nameof(directionProvider));
-            _spriteOrientation = spriteOrientation ?? throw new ArgumentNullException(nameof(spriteOrientation));
-            _spriteAnimator = spriteAnimator ?? throw new ArgumentNullException(nameof(spriteAnimator));
+            _spriteRenderer = spriteRenderer ?? throw new ArgumentNullException(nameof(spriteRenderer));
             _movementController = movementController ?? throw new ArgumentNullException(nameof(movementController));
             _animationRegistry = animationRegistry ?? throw new ArgumentNullException(nameof(animationRegistry));
+            _visualSettings = visualSettings ?? throw new ArgumentNullException(nameof(visualSettings));
+
+            // 스프라이트 방향 시스템 설정
+            _spriteOrientation = new SpriteOrientation(spriteRenderer, FacingDirection.Right);
+
+            // 애니메이션 시스템 설정
+            _spriteAnimator = new SpriteAnimator(spriteRenderer);
+
+            _spriteRenderer.color = _visualSettings.NormalColor;
 
             SubscribeToEvents();
             GameLogger.Debug("[PlayerAnimationSystem] initialized.", LogCategory.Player);
@@ -61,6 +73,14 @@ namespace Gameplay.Player.Core
 
                 _movementController.OnSpecialActionStarted
                     .Subscribe(HandleSpecialActionAnimation)
+                    .AddTo(_disposables);
+
+                _movementController.OnDashStarted
+                    .Subscribe(_ => SetDashColor())
+                    .AddTo(_disposables);
+
+                _movementController.OnDashReset
+                    .Subscribe(_ => ResetToNormalColor())
                     .AddTo(_disposables);
 
                 GameLogger.Debug("[PlayerAnimationSystem] event subscribed.", LogCategory.Player);
@@ -149,6 +169,20 @@ namespace Gameplay.Player.Core
             _spriteAnimator.Play(animationData);
             _lastAnimationState = stateType;
         }
+
+        #region Color Management
+
+        private void SetDashColor()
+        {
+            _spriteRenderer.color = _visualSettings.DashColor;
+        }
+
+        private void ResetToNormalColor()
+        {
+            _spriteRenderer.color = _visualSettings.NormalColor;
+        }
+
+        #endregion
 
         public void Dispose()
         {

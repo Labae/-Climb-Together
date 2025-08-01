@@ -38,6 +38,7 @@ namespace Gameplay.Platformer.Movement
         public Observable<Unit> OnJumpStarted => _jumpHandler.OnJumpStarted;
         public Observable<Vector2> OnDashStarted => _dashHandler.OnDashStarted;
         public Observable<Unit> OnDashEnded => _dashHandler.OnDashEnded;
+        public Observable<Unit> OnDashReset => _dashHandler.OnDashReset;
         public Observable<WallSideType> OnWallSlideStarted => _wallHandler.OnWallSlideStarted;
         public Observable<Unit> OnWallSlideEnded => _wallHandler.OnWallSlideEnded;
         public Observable<Vector2> OnWallJumped => _wallHandler.OnWallJumped;

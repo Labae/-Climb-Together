@@ -4,6 +4,7 @@ using Core.Behaviours;
 using Cysharp.Text;
 using Data.Platformer.Abilities.Data.Player;
 using Data.Platformer.Enums;
+using Data.Platformer.Settings;
 using Data.Player.Animations;
 using Debugging;
 using Debugging.Enum;
@@ -55,8 +56,12 @@ namespace Gameplay.Player.Core
 
         #region Configuration
 
-        [Header("Required References")] [SerializeField, Required]
+        [Header("Required References")]
+        [SerializeField, Required]
         private PlayerAnimationRegistry _playerAnimationRegistry;
+
+        [SerializeField]
+        private PlatformerVisualSettings _visualSettings;
 
         [Header("Debug Options")] [SerializeField]
         private bool _enablePerformanceTracking = false;
@@ -244,19 +249,13 @@ namespace Gameplay.Player.Core
         {
             try
             {
-                // 스프라이트 방향 시스템 설정
-                var spriteOrientation = new SpriteOrientation(_spriteRenderer, FacingDirection.Right);
-
-                // 애니메이션 시스템 설정
-                var spriteAnimator = new SpriteAnimator(_spriteRenderer);
-
                 _spriteSystem = new PlayerSpriteSystem(
                     _stateMachine,
                     _directionProvider,
-                    spriteOrientation,
-                    spriteAnimator,
+                    _spriteRenderer,
                     _platformerMovementController,
-                    _playerAnimationRegistry);
+                    _playerAnimationRegistry,
+                    _visualSettings);
 
                 if (_enableDetailedLogging)
                 {
