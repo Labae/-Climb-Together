@@ -78,6 +78,12 @@ namespace Gameplay.Platformer.Movement
                 .Where(_ => !_isDashing)
                 .Subscribe(_ => ResetDashCount())
                 .AddTo(_disposables);
+
+            // 대시 중 착지 시 대시 카운트는 딜레이 리셋
+            _physicsSystem.OnLanded
+                .Where(_ => _isDashing)
+                .Subscribe(_ => ResetDashCountWithDelay())
+                .AddTo(_disposables);
         }
 
         private void UpdateDirectionalInput(Vector2 input)

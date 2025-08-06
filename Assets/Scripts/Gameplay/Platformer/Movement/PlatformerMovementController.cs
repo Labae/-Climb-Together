@@ -19,6 +19,7 @@ namespace Gameplay.Platformer.Movement
         private readonly IPlatformerInput _platformerInput;
         private readonly IDirectionProvider _directionProvider;
         private readonly PlatformerMovementSettings _settings;
+        private readonly PlatformerPhysicsSettings _physicsSettings;
 
         private readonly PlatformerHorizontalMovementHandler _horizontalMovementHandler;
         private readonly PlatformerJumpHandler _jumpHandler;
@@ -59,9 +60,10 @@ namespace Gameplay.Platformer.Movement
             _platformerInput = platformerInput;
             _directionProvider = directionProvider;
             _settings = settings;
+            _physicsSettings = physicsSettings;
 
             _horizontalMovementHandler = new PlatformerHorizontalMovementHandler(
-                _physicsSystem, _platformerInput, _settings, physicsSettings);
+                _physicsSystem, _platformerInput, OnSpecialActionStarted, _settings, _physicsSettings);
 
             _jumpHandler = new PlatformerJumpHandler(
                 _physicsSystem, _platformerInput, _settings);

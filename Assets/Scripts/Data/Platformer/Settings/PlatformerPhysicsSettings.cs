@@ -36,10 +36,6 @@ namespace Data.Platformer.Settings
         [Tooltip("벽 점프 후 관성 유지율")]
         public float WallJumpMomentumKeep = 0.98f;
 
-        [Range(0.8f, 1.0f)]
-        [Tooltip("대시 후 관성 유지율")]
-        public float DashMomentumKeep = 0.9f;
-
         [Range(0f, 1.0f)]
         [Tooltip("공중에서 방향 제어 강도 (0 = 제어 불가, 1 = 완전 제어)")]
         public float AirControlStrength = 0.3f;

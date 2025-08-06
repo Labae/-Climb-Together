@@ -25,18 +25,24 @@ namespace Gameplay.Platformer.Movement
         private float _currentHorizontalSpeed = 0f;
         private float _lastHorizontalSpeed = 0f;
         private float _targetHorizontalSpeed = 0f;
+
+        private float _currentResistance = 0f;
         private PlatformerMovementState _platformerMovementState = PlatformerMovementState.Idle;
 
+        private readonly Observable<SpecialActionType> _onSpecialActionStarted;
+
         public PlatformerHorizontalMovementHandler(PlatformerPhysicsSystem physicsSystem,
-            IPlatformerInput platformerInput, PlatformerMovementSettings settings,
+            IPlatformerInput platformerInput, Observable<SpecialActionType> specialActionStarted, PlatformerMovementSettings settings,
             PlatformerPhysicsSettings physicsSettings)
         {
             _physicsSystem = physicsSystem;
             _platformerInput = platformerInput;
             _settings = settings;
+            _onSpecialActionStarted = specialActionStarted;
             _physicsSettings = physicsSettings;
 
             SubscribeToInputs();
+            SubscribeToSpecialActionEvents();
         }
 
         private void SubscribeToInputs()
@@ -44,6 +50,31 @@ namespace Gameplay.Platformer.Movement
             _platformerInput.MovementInput
                 .Subscribe(HandleMovementInput)
                 .AddTo(_disposables);
+        }
+
+        private void SubscribeToSpecialActionEvents()
+        {
+            _onSpecialActionStarted.Subscribe(actionType =>
+            {
+                switch (actionType)
+                {
+                    case SpecialActionType.None:
+                        _currentResistance = _physicsSystem.IsGrounded.CurrentValue
+                            ? _physicsSettings.GroundFriction
+                            : _physicsSettings.AirResistance;
+                        break;
+                    case SpecialActionType.Dashing:
+                        _currentResistance = 1f;
+                        break;
+                    case SpecialActionType.Knockback:
+                        break;
+                    case SpecialActionType.WallJump:
+                        _currentResistance = _physicsSettings.WallJumpMomentumKeep;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null);
+                }
+            }).AddTo(_disposables);
         }
 
         private void HandleMovementInput(float input)
@@ -135,27 +166,16 @@ namespace Gameplay.Platformer.Movement
             bool isGrounded = _physicsSystem.IsGrounded.CurrentValue;
             var currentVelocity = _physicsSystem.Velocity.CurrentValue;
 
-            if (isGrounded)
+            var resistance = GetResistance(isGrounded, deltaTime);
+            var newHorizontalSpeed = currentVelocity.x * resistance;
+
+            if (Mathf.Abs(newHorizontalSpeed) < 0.1f)
             {
-                var frictionForce = _physicsSettings.GroundFriction;
-                var newHorizontalSpeed = currentVelocity.x * (1f -  frictionForce * deltaTime);
-
-                if (Mathf.Abs(newHorizontalSpeed) < 0.1f)
-                {
-                    newHorizontalSpeed = 0f;
-                }
-
-                _currentHorizontalSpeed = newHorizontalSpeed;
-                _physicsSystem.SetVelocity(new Vector3(_currentHorizontalSpeed, currentVelocity.y));
+                newHorizontalSpeed = 0f;
             }
-            else
-            {
-                var airResistance = _physicsSettings.AirResistance;
-                var newHorizontalSpeed = currentVelocity.x * airResistance;
 
-                _currentHorizontalSpeed = newHorizontalSpeed;
-                _physicsSystem.SetVelocity(new Vector3(_currentHorizontalSpeed, currentVelocity.y));
-            }
+            _currentHorizontalSpeed = newHorizontalSpeed;
+            _physicsSystem.SetVelocity(new Vector3(_currentHorizontalSpeed, currentVelocity.y));
 
             _targetHorizontalSpeed = _currentHorizontalSpeed;
             _lastHorizontalSpeed = _currentHorizontalSpeed;
@@ -227,6 +247,18 @@ namespace Gameplay.Platformer.Movement
             float baseSpeed = _settings.RunSpeed / _settings.TurnAroundTime;
             float airMultiplier = (_settings.AirAccelMultiplier + _settings.AirDecelMultiplier) * 0.5f;
             return isGrounded ? baseSpeed : baseSpeed / airMultiplier;
+        }
+
+        private float GetResistance(bool isGrounded, float deltaTime)
+        {
+            if (isGrounded)
+            {
+                return 1f - (_currentResistance * deltaTime);
+            }
+            else
+            {
+                return _currentResistance;
+            }
         }
 
         public bool IsRunning()
