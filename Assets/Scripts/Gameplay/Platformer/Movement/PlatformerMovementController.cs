@@ -1,5 +1,6 @@
 ﻿using System;
 using Data.Common;
+using Data.Platformer.Settings;
 using Gameplay.Common.Enums;
 using Gameplay.Common.Interfaces;
 using Gameplay.Platformer.Movement.Enums;
@@ -50,7 +51,8 @@ namespace Gameplay.Platformer.Movement
             PlatformerPhysicsSystem physicsSystem,
             IPlatformerInput platformerInput,
             IDirectionProvider directionProvider,
-            PlatformerMovementSettings settings
+            PlatformerMovementSettings settings,
+            PlatformerPhysicsSettings  physicsSettings
         )
         {
             _physicsSystem = physicsSystem;
@@ -59,7 +61,7 @@ namespace Gameplay.Platformer.Movement
             _settings = settings;
 
             _horizontalMovementHandler = new PlatformerHorizontalMovementHandler(
-                _physicsSystem, _platformerInput, _settings);
+                _physicsSystem, _platformerInput, _settings, physicsSettings);
 
             _jumpHandler = new PlatformerJumpHandler(
                 _physicsSystem, _platformerInput, _settings);
@@ -183,7 +185,6 @@ namespace Gameplay.Platformer.Movement
                     _wallHandler.SetEnabled(false);
                     break;
                 case SpecialActionType.WallJump:
-                    _horizontalMovementHandler.SetEnabled(false);
                     break;
                 case SpecialActionType.None:
                     break;
@@ -220,15 +221,15 @@ namespace Gameplay.Platformer.Movement
 
         public void Update(float deltaTime)
         {
-            _dashHandler.Update(deltaTime);
-            UpdateSpecialActions(deltaTime);
+            _wallHandler.Update(deltaTime);
 
-            if (_currentSpecialAction == SpecialActionType.None)
-            {
-                _horizontalMovementHandler.Update(deltaTime, _wallHandler.IsHorizontalInputLocked());
-                _jumpHandler.Update(deltaTime);
-                _wallHandler.Update(deltaTime);
-            }
+            bool isInputLocked = _wallHandler.IsHorizontalInputLocked();
+            _horizontalMovementHandler.Update(deltaTime, isInputLocked);
+
+            _jumpHandler.Update(deltaTime);
+            _dashHandler.Update(deltaTime);
+
+            UpdateSpecialActions(deltaTime);
         }
 
         private void UpdateSpecialActions(float deltaTime)

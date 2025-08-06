@@ -70,10 +70,10 @@ MonoBehaviour:
       m_RotationOrder: 4
     DashEndSpeedRatio: -0.94
     DashEndVerticalSpeedRatio: 0.1
-    WallSlideSpeed: 3
+    WallSlideSpeed: 1.5
     WallJumpForce: 12
     WallJumpDirection: {x: 0.8, y: 1}
-    WallJumpInputLockTime: 0.2
+    WallJumpInputLockTime: 0.1
     KnockbackDuration: 0.5
   Combat:
     MaxHealth: 6

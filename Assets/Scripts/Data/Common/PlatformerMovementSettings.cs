@@ -29,9 +29,6 @@ namespace Data.Common
         [ShowIf("ShowAirSettings")] [Range(0.1f, 3f)] [Tooltip("Deceleration time multiplier when in air")]
         public float AirDecelMultiplier = 2f;
 
-        [Space(5)] [Range(0.01f, 0.5f)] [Tooltip("Minimum speed threshold to be considered 'moving'")]
-        public float MovingThreshold = 0.1f;
-
         [Space(10)]
         [Header("Basic Jump")]
         [Range(1f, 5f)]
@@ -77,8 +74,9 @@ namespace Data.Common
 
         [Header("Wall Slide Settings")] public float WallSlideSpeed = 3f;
 
-        [Header("Wall Jump Settings")] public float WallJumpForce = 12f;
-        public Vector2 WallJumpDirection = new Vector2(0.8f, 1.0f);
+        [Header("Wall Jump Settings")] public float WallJumpHeight = 3.0f;
+        public float WallJumpHorizontalDistance = 2.5f;
+        public float WallJumpTimeToApex = 0.4f;
         public float WallJumpInputLockTime = 0.2f;
 
         [Range(0.2f, 1.5f)] public float KnockbackDuration = 0.5f;
@@ -86,6 +84,9 @@ namespace Data.Common
         private bool ShowAirSettings => AirMoveMultiplier < 1f;
         public float JumpPower => CalculateJumpPower();
         public float JumpGravity => CalculateJumpGravity();
+
+        public Vector2 WallJumpVelocity => CalculateWallJumpVelocity();
+        public float WallJumpGravity => CalculateWallJumpGravity();
 
         private float CalculateJumpPower()
         {
@@ -96,6 +97,19 @@ namespace Data.Common
         {
             // g = 2h / t^2
             return (2f * JumpHeight) / (TimeToJumpApex * TimeToJumpApex);
+        }
+
+        private Vector2 CalculateWallJumpVelocity()
+        {
+            var gravity = CalculateWallJumpGravity();
+            var verticalVelocity = Mathf.Sqrt(2f * gravity * WallJumpHeight);
+            var horizontalVelocity = WallJumpHorizontalDistance / WallJumpTimeToApex;
+            return new Vector2(horizontalVelocity, verticalVelocity);
+        }
+
+        private float CalculateWallJumpGravity()
+        {
+            return (2f * WallJumpHeight) / (WallJumpTimeToApex * WallJumpTimeToApex);
         }
     }
 }

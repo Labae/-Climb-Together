@@ -187,7 +187,8 @@ namespace Gameplay.Player.Core
                     _platformerPhysicsSystem,
                     _playerInputSystem,
                     _directionProvider,
-                    _settings.PlatformerMovement
+                    _settings.PlatformerMovement,
+                    _settings.PhysicsSettings
                 );
 
                 // 입력 활성화

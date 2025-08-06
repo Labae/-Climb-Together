@@ -1,6 +1,6 @@
 ﻿using System;
 using Data.Common;
-using Debugging;
+using Data.Platformer.Settings;
 using Gameplay.Platformer.Movement.Enums;
 using Gameplay.Platformer.Movement.Interface;
 using Gameplay.Platformer.Physics;
@@ -15,6 +15,7 @@ namespace Gameplay.Platformer.Movement
         private readonly PlatformerPhysicsSystem _physicsSystem;
         private readonly IPlatformerInput _platformerInput;
         private readonly PlatformerMovementSettings _settings;
+        private readonly PlatformerPhysicsSettings _physicsSettings;
 
         private readonly CompositeDisposable _disposables = new();
 
@@ -27,11 +28,13 @@ namespace Gameplay.Platformer.Movement
         private PlatformerMovementState _platformerMovementState = PlatformerMovementState.Idle;
 
         public PlatformerHorizontalMovementHandler(PlatformerPhysicsSystem physicsSystem,
-            IPlatformerInput platformerInput, PlatformerMovementSettings settings)
+            IPlatformerInput platformerInput, PlatformerMovementSettings settings,
+            PlatformerPhysicsSettings physicsSettings)
         {
             _physicsSystem = physicsSystem;
             _platformerInput = platformerInput;
             _settings = settings;
+            _physicsSettings = physicsSettings;
 
             SubscribeToInputs();
         }
@@ -55,18 +58,20 @@ namespace Gameplay.Platformer.Movement
 
         public void Update(float deltaTime, bool inputLocked = false)
         {
-            if (inputLocked)
-            {
-                return;
-            }
-
             if (!_enabled)
             {
                 return;
             }
 
-            ApplyCurrentMovementInput();
-            UpdateHorizontalMovement(deltaTime);
+            if (inputLocked)
+            {
+                UpdateHorizontalMovementWithMomentum(deltaTime);
+            }
+            else
+            {
+                ApplyCurrentMovementInput();
+                UpdateHorizontalMovement(deltaTime);
+            }
         }
 
         private void ApplyCurrentMovementInput()
@@ -119,6 +124,42 @@ namespace Gameplay.Platformer.Movement
             var currentVelocity = _physicsSystem.Velocity.CurrentValue;
             _physicsSystem.SetVelocity(new Vector3(_currentHorizontalSpeed, currentVelocity.y));
             _lastHorizontalSpeed = _currentHorizontalSpeed;
+        }
+
+        /// <summary>
+        /// 입력 락 상태에서의 이동 처리(관성 유지, 감속만)
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        private void UpdateHorizontalMovementWithMomentum(float deltaTime)
+        {
+            bool isGrounded = _physicsSystem.IsGrounded.CurrentValue;
+            var currentVelocity = _physicsSystem.Velocity.CurrentValue;
+
+            if (isGrounded)
+            {
+                var frictionForce = _physicsSettings.GroundFriction;
+                var newHorizontalSpeed = currentVelocity.x * (1f -  frictionForce * deltaTime);
+
+                if (Mathf.Abs(newHorizontalSpeed) < 0.1f)
+                {
+                    newHorizontalSpeed = 0f;
+                }
+
+                _currentHorizontalSpeed = newHorizontalSpeed;
+                _physicsSystem.SetVelocity(new Vector3(_currentHorizontalSpeed, currentVelocity.y));
+            }
+            else
+            {
+                var airResistance = _physicsSettings.AirResistance;
+                var newHorizontalSpeed = currentVelocity.x * airResistance;
+
+                _currentHorizontalSpeed = newHorizontalSpeed;
+                _physicsSystem.SetVelocity(new Vector3(_currentHorizontalSpeed, currentVelocity.y));
+            }
+
+            _targetHorizontalSpeed = _currentHorizontalSpeed;
+            _lastHorizontalSpeed = _currentHorizontalSpeed;
+            _isRunning = false;
         }
 
         private void UpdateMovementState()
