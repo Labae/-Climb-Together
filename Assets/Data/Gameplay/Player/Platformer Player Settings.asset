@@ -23,7 +23,6 @@ MonoBehaviour:
     TurnAroundTime: 0.08
     AirAccelMultiplier: 1.5
     AirDecelMultiplier: 2
-    MovingThreshold: 0.1
     JumpHeight: 2
     TimeToJumpApex: 0.25
     JumpBufferTime: 0.1
@@ -70,9 +69,10 @@ MonoBehaviour:
       m_RotationOrder: 4
     DashEndSpeedRatio: -0.94
     DashEndVerticalSpeedRatio: 0.1
-    WallSlideSpeed: 3
-    WallJumpForce: 12
-    WallJumpDirection: {x: 0.8, y: 1}
+    WallSlideSpeed: 1.5
+    WallJumpHeight: 3
+    WallJumpHorizontalDistance: 2.5
+    WallJumpTimeToApex: 0.4
     WallJumpInputLockTime: 0.2
     KnockbackDuration: 0.5
   Combat:
@@ -81,12 +81,16 @@ MonoBehaviour:
   PhysicsSettings:
     NormalGravity: -16
     TerminalVelocity: -20
-    RaycastDistance: 1
+    RaycastDistance: 0.25
     GroundCheckDistnace: 0.05
-    WallCheckDistance: 0.1
+    WallCheckDistance: 0.05
     MaxHorizontalSpeed: 25
     MaxVerticalSpeed: 50
     JumpCutGravity: -30
     FallGravity: -16
     ApexGravity: -12
     WallSlideGravity: -5
+    AirResistance: 0.995
+    GroundFriction: 0.85
+    WallJumpMomentumKeep: 1
+    AirControlStrength: 0.3

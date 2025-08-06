@@ -270,26 +270,25 @@ namespace Gameplay.Platformer.Movement
 
         private void PerformWallJump()
         {
-            var wallSideForJump = _currentWallSide !=  WallSideType.None ? _currentWallSide : _lastWallSide;
-            // 벽 반대방향으로 점프
-            var jumpDirection = wallSideForJump == WallSideType.Left
-                ? new Vector2(_settings.WallJumpDirection.x, _settings.WallJumpDirection.y)
-                : new Vector2(-_settings.WallJumpDirection.x, _settings.WallJumpDirection.y);
-
-            jumpDirection.Normalize();
-            var jumpVelocity = jumpDirection * _settings.WallJumpForce;
-            _physicsSystem.SetVelocity(jumpVelocity);
-            _physicsSystem.SetGravityState(PlatformerGravityState.JumpHold);
-
             // 벽 슬라이딩 종료
             EndWallSlide();
             _instantWallJumpBufferTimer = 0f;
             _lastWallSide = WallSideType.None;
 
+            var wallSideForJump = _currentWallSide !=  WallSideType.None ? _currentWallSide : _lastWallSide;
+            var wallJumpVelocity = _settings.WallJumpVelocity;
+
+            var jumpVelocity = wallSideForJump == WallSideType.Left ?
+                new Vector2(wallJumpVelocity.x, wallJumpVelocity.y) :
+                new Vector2(-wallJumpVelocity.x, wallJumpVelocity.y);
+
+            _physicsSystem.SetVelocity(jumpVelocity);
+            _physicsSystem.SetGravityState(PlatformerGravityState.JumpHold);
+
             // 입력 락 시작
             _wallJumpInputLockTimer = _settings.WallJumpInputLockTime;
 
-            _onWallJumped.OnNext(jumpDirection);
+            _onWallJumped.OnNext(jumpVelocity.normalized);
         }
 
         private void UpdateWallJumpInputLock(float deltaTime)
