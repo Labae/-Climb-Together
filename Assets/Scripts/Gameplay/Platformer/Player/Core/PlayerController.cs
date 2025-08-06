@@ -19,12 +19,10 @@ using Systems.Input.Interfaces;
 using Systems.Physics.Debugging;
 using Systems.StateMachine;
 using Systems.StateMachine.Interfaces;
-using Systems.Visuals.Animation;
-using Systems.Visuals.Orientation;
 using UnityEngine;
 using VContainer;
 
-namespace Gameplay.Player.Core
+namespace Gameplay.Platformer.Player.Core
 {
 #if UNITY_EDITOR
     [RequireComponent(typeof(PhysicsDebugGizmos))]
@@ -231,6 +229,8 @@ namespace Gameplay.Player.Core
                 _stateMachine.AddState(new PlatformerDashState(_platformerMovementController));
                 _stateMachine.AddState(new PlatformerWallSlideState(_platformerMovementController));
                 _stateMachine.AddState(new PlatformerWallJumpState(_platformerMovementController));
+
+                _stateMachine.TrySetInitialState(PlatformerStateType.Fall);
 
                 if (_enableDetailedLogging)
                 {

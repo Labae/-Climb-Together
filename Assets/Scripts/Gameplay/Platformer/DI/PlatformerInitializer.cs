@@ -1,16 +1,15 @@
 ﻿using Data.Platformer.Abilities.Data.Player;
 using Debugging;
 using Debugging.Enum;
-using Gameplay.Player;
-using Gameplay.Player.Core;
+using Gameplay.Platformer.Player.Core;
 using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace Gameplay.DI
+namespace Gameplay.Platformer.DI
 {
-    public class GameInitializer : IStartable
+    public class PlatformerInitializer : IStartable
     {
         [Inject] private CinemachineCamera _mainCamera;
         [Inject] private PlayerController _playerController;

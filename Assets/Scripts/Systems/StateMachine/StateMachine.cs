@@ -6,6 +6,7 @@ using Debugging.Enum;
 using R3;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Systems.StateMachine
 {
@@ -149,37 +150,34 @@ namespace Systems.StateMachine
                 GameLogger.Debug(ZString.Concat("Added state: ", state.StateType), _logCategory);
             }
 
-            // 초기 상태 설정 (개선된 로직)
-            TrySetInitialState(state);
-
             _states[state.StateType].SetChangeAction(ChangeState);
         }
 
-        private void TrySetInitialState(IState<T> state)
+        public void TrySetInitialState(T stateType)
         {
-            bool shouldSetAsInitial = _currentState.Value == null &&
-                (EqualityComparer<T>.Default.Equals(_currentStateType.Value, state.StateType) ||
-                 _states.Count == 1);
-
-            if (shouldSetAsInitial)
+            bool shouldSetAsInitial = _currentStateType.Value != null;
+            if (!shouldSetAsInitial)
             {
-                _currentState.Value = state;
+                return;
+            }
 
-                try
-                {
-                    state.OnEnter();
-                    _onStateTransition.OnNext((default(T), state.StateType));
+            var state = _states[stateType];
+            _currentState.Value = _states[stateType];
 
-                    if (_enableDetailedLogging)
-                    {
-                        GameLogger.Debug(ZString.Concat("Initial state set to: ", state.StateType), _logCategory);
-                    }
-                }
-                catch (Exception e)
+            try
+            {
+                state.OnEnter();
+                _onStateTransition.OnNext((default, state.StateType));
+
+                if (_enableDetailedLogging)
                 {
-                    GameLogger.Error(ZString.Concat("Error entering initial state ", state.StateType, ": ", e.Message), _logCategory);
-                    throw;
+                    GameLogger.Debug(ZString.Concat("Initial state set to: ", state.StateType), _logCategory);
                 }
+            }
+            catch (Exception e)
+            {
+                GameLogger.Error(ZString.Concat("Error entering initial state ", state.StateType, ": ", e.Message), _logCategory);
+                throw;
             }
         }
 

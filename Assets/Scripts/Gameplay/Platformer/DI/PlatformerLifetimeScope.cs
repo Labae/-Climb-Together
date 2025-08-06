@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Data.Platformer.Abilities.Data.Player;
-using Gameplay.Player.Core;
+using Gameplay.Platformer.Player.Core;
 using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace Gameplay.DI
+namespace Gameplay.Platformer.DI
 {
-    public class GameLifetimeScope : LifetimeScope
+    public class PlatformerLifetimeScope : LifetimeScope
     {
         [SerializeField, Required]
         private CinemachineCamera _mainCamera;
@@ -27,7 +27,7 @@ namespace Gameplay.DI
             builder.RegisterInstance(platformerPlayerSettings);
 
             builder.RegisterComponentInNewPrefab(_playerPrefab, Lifetime.Scoped);
-            builder.RegisterEntryPoint<GameInitializer>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<PlatformerInitializer>(Lifetime.Scoped);
         }
     }
 }

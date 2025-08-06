@@ -5,7 +5,7 @@ using Systems.Input.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Gameplay.Player.Core
+namespace Gameplay.Platformer.Player.Core
 {
     public class PlayerInputSystem : IInputSystem, IPlatformerInput, InputSystemActions.IPlatformerPlayerActions, IDisposable
     {

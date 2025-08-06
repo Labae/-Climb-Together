@@ -15,7 +15,7 @@ using Systems.Visuals.Animation;
 using Systems.Visuals.Orientation;
 using UnityEngine;
 
-namespace Gameplay.Player.Core
+namespace Gameplay.Platformer.Player.Core
 {
     public class PlayerSpriteSystem : IDisposable
     {
