@@ -14,5 +14,6 @@ namespace Debugging.Enum
         Enemy,
         StateTransition,
         Physics,
+        Battle,
     }
 }

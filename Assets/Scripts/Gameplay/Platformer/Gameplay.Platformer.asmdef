@@ -1,0 +1,27 @@
+{
+  "name": "Gameplay.Platformer",
+  "rootNamespace": "",
+  "references": [
+    "GUID:e99256c58ae56482ebb3c87d31f49dea",
+    "GUID:70db00c4816b14cd1bb8d32d9e8d2019",
+    "GUID:647bcb570c4ee4ab8933d1439f9f4b77",
+    "GUID:bfa724bf196a04d03afc4c4f934719ed",
+    "GUID:33661e06c33d31b4c9223810bf503247",
+    "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+    "GUID:77221876cc6b8244180b96e320b1bcd4",
+    "GUID:776d03a35f1b52c4a9aed9f56d7b4229",
+    "GUID:f51ebe6a0ceec4240a699833d6309b23",
+    "GUID:75469ad4d38634e559750d17036d5f7c",
+    "GUID:4307f53044263cf4b835bd812fc161a4",
+    "GUID:d882eeba8349246b89eede3a7f7ae633"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

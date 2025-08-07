@@ -41,6 +41,8 @@ namespace Systems.StateMachine.Interfaces
         /// <param name="stateType">변경할 상태 타입</param>
         void ForceChangeState(T stateType);
 
+        void TrySetInitialState(T stateType);
+
         #endregion
 
         #region Observables

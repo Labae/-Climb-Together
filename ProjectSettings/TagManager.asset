@@ -41,5 +41,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 370317875
+    locked: 0
+  - name: Entity
+    uniqueID: 1901842185
+    locked: 0
+  - name: Decal
+    uniqueID: 3952035601
+    locked: 0
+  - name: UI
+    uniqueID: 869969503
+    locked: 0
   m_RenderingLayers:
   - Default
