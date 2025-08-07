@@ -1,5 +1,7 @@
 ﻿using System;
+using Cysharp.Text;
 using Cysharp.Threading.Tasks;
+using Debugging;
 using R3;
 using Systems.UI.Interfaces;
 using UnityEngine;
@@ -13,7 +15,8 @@ namespace Systems.UI.Core
     public abstract class UIPopupBase : MonoBehaviour, IUIPopup
     {
         [Header("Popup Settings")] [SerializeField]
-        protected string _popupId = "DefaultPopup";
+        protected string _popupId = "";
+
         [SerializeField] protected bool _closeOnBackground = false;
         [SerializeField] protected bool _blockInput = true;
 
@@ -42,6 +45,14 @@ namespace Systems.UI.Core
         private void Start()
         {
             _uiManager ??= FindAnyObjectByType<UIManager>();
+        }
+
+        protected void OnValidate()
+        {
+            if (string.IsNullOrEmpty(_popupId))
+            {
+                _popupId = GetType().Name;
+            }
         }
 
         protected virtual void OnDestroy()
@@ -151,9 +162,16 @@ namespace Systems.UI.Core
 
         #region Utility Methods
 
-        protected void ClosePopup()
+        protected async void ClosePopup()
         {
-            _uiManager.HidePopupAsync(_popupId).Forget();
+            try
+            {
+                await _uiManager.HidePopupAsync(_popupId);
+            }
+            catch (Exception e)
+            {
+                GameLogger.Error(ZString.Format("Failed to close popup {0}: {1}", _popupId, e.Message));
+            }
         }
 
         protected void SendSignal<T>(T value)

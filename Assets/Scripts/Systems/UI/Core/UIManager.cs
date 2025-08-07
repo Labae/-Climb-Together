@@ -83,6 +83,10 @@ namespace Systems.UI.Core
         {
             if (_activePopups.TryGetValue(popupId, out var existingPopup))
             {
+                if (data != null)
+                {
+                    existingPopup.SetData(data);
+                }
                 GameLogger.Debug(ZString.Concat("Popup already active: ", popupId), LogCategory.System);
                 return existingPopup as T;
             }
