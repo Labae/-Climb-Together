@@ -1,16 +1,18 @@
-﻿using Gameplay.BattleSystem.Core;
+﻿using System.Collections.Generic;
+using Gameplay.BattleSystem.Core;
+using Gameplay.BattleSystem.Units;
 
 namespace Gameplay.BattleSystem.Events
 {
     public class BattleStartedEvent
     {
         public BattleUnit Player { get; }
-        public BattleUnit Enemy { get; }
+        public IReadOnlyList<EnemyUnit> Enemies { get; }
 
-        public BattleStartedEvent(BattleUnit player, BattleUnit enemy)
+        public BattleStartedEvent(BattleUnit player,  IReadOnlyList<EnemyUnit> enemies)
         {
             Player = player;
-            Enemy = enemy;
+            Enemies = enemies;
         }
     }
 

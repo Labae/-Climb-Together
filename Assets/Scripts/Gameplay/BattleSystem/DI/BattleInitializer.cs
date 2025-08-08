@@ -1,4 +1,5 @@
-﻿using Cysharp.Text;
+﻿using System.Collections.Generic;
+using Cysharp.Text;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Interfaces;
@@ -15,7 +16,7 @@ namespace Gameplay.BattleSystem.DI
         [Inject] private readonly IBattleManager _battleManager;
         [Inject] private readonly BattleUI _battleUI;
         [Inject] private readonly PlayerUnit _playerUnit;
-        [Inject] private readonly EnemyUnit _enemyUnit;
+        [Inject] private readonly List<EnemyUnit> _enemyUnits;  // 여러 적
 
         public void Start()
         {
@@ -24,6 +25,8 @@ namespace Gameplay.BattleSystem.DI
             InitializeBattleUI();
             SetupBattleUnits();
             InitializeBattleManager();
+
+            GameLogger.Info("=== Battle System Initialization Completed ===");
         }
 
         private void InitializeBattleUI()
@@ -45,26 +48,53 @@ namespace Gameplay.BattleSystem.DI
         {
             GameLogger.Info("Setting up Battle Units...", LogCategory.Battle);
 
+            // 플레이어 설정
             if (_playerUnit != null)
             {
                 _container.InjectGameObject(_playerUnit.gameObject);
-                GameLogger.Info(ZString.Concat("Player Unit: ", _playerUnit.UnitName), LogCategory.Battle);
-                GameLogger.Info(ZString.Format("Player HP: {0}", _playerUnit.Stats.MaxHealth), LogCategory.Battle);
+                GameLogger.Info(ZString.Format("✅ Player Unit: {0} (HP: {1})",
+                    _playerUnit.UnitName, _playerUnit.Stats.MaxHealth), LogCategory.Battle);
+
+                // 플레이어 약점 정보
+                if (_playerUnit.Weaknesses != null && _playerUnit.Weaknesses.Length > 0)
+                {
+                    GameLogger.Info(ZString.Format("Player weaknesses: {0}", string.Join(", ", _playerUnit.Weaknesses)), LogCategory.Battle);
+                }
             }
             else
             {
-                GameLogger.Error("Player Unit is null!", LogCategory.Battle);
+                GameLogger.Error("❌ Player Unit is null!", LogCategory.Battle);
             }
 
-            if (_enemyUnit != null)
+            // 적들 설정
+            if (_enemyUnits != null && _enemyUnits.Count > 0)
             {
-                _container.InjectGameObject(_enemyUnit.gameObject);
-                GameLogger.Info(ZString.Concat("Enemy Unit: ", _enemyUnit.UnitName), LogCategory.Battle);
-                GameLogger.Info(ZString.Format("Enemy HP: {0}", _enemyUnit.Stats.MaxHealth), LogCategory.Battle);
+                for (int i = 0; i < _enemyUnits.Count; i++)
+                {
+                    var enemy = _enemyUnits[i];
+                    if (enemy != null)
+                    {
+                        _container.InjectGameObject(enemy.gameObject);
+                        GameLogger.Info(ZString.Format("✅ Enemy {0}: {1} (HP: {2})",
+                            i + 1, enemy.UnitName, enemy.Stats.MaxHealth), LogCategory.Battle);
+
+                        // 적 약점 정보
+                        if (enemy.Weaknesses != null && enemy.Weaknesses.Length > 0)
+                        {
+                            GameLogger.Info(ZString.Format("{0} weaknesses: {1}",
+                                enemy.UnitName, string.Join(", ", enemy.Weaknesses)), LogCategory.Battle);
+                        }
+                    }
+                    else
+                    {
+                        GameLogger.Warning(ZString.Format("❌ Enemy {0} is null!", i + 1), LogCategory.Battle);
+                    }
+                }
+                GameLogger.Info(ZString.Format("Total {0} enemies set up", _enemyUnits.Count), LogCategory.Battle);
             }
             else
             {
-                GameLogger.Error("Enemy Unit is null!", LogCategory.Battle);
+                GameLogger.Error("❌ No enemy units found!", LogCategory.Battle);
             }
         }
 
@@ -75,11 +105,11 @@ namespace Gameplay.BattleSystem.DI
             if (_battleManager != null)
             {
                 _battleManager.Initialize();
-                GameLogger.Info("Battle Manager Initialized.", LogCategory.Battle);
+                GameLogger.Info("✅ Battle Manager Initialized.", LogCategory.Battle);
             }
             else
             {
-                GameLogger.Error("BattleManager is Null.", LogCategory.Battle);
+                GameLogger.Error("❌ BattleManager is Null.", LogCategory.Battle);
             }
         }
     }
