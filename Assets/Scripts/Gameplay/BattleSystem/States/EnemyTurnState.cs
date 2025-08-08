@@ -2,6 +2,8 @@
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.Interfaces;
+using Gameplay.BattleSystem.UI;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
 
@@ -9,15 +11,17 @@ namespace Gameplay.BattleSystem.States
 {
     public class EnemyTurnState : StateBase<BattleState>
     {
-        private readonly BattleManager _battleManager;
+        private readonly IBattleManager _battleManager;
+        private readonly BattleUI  _battleUI;
 
         private float _minTurnDelay = 1.2f;
         private float _maxTurnDelay = 1.7f;
         private float _timer;
 
-        public EnemyTurnState(BattleManager battleManager)
+        public EnemyTurnState(IBattleManager battleManager, BattleUI battleUI)
         {
             _battleManager = battleManager;
+            _battleUI = battleUI;
         }
 
         public override BattleState StateType => BattleState.EnemyTurn;
@@ -25,7 +29,7 @@ namespace Gameplay.BattleSystem.States
         public override void OnEnter()
         {
             GameLogger.Info("적 턴!", LogCategory.Battle);
-            _battleManager.HidePlayerActions();
+            _battleUI.HideActionButtons();
             _timer = Random.Range(_minTurnDelay, _maxTurnDelay);
         }
 

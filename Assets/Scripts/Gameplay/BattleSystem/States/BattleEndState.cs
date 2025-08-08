@@ -2,18 +2,21 @@
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.Interfaces;
+using Gameplay.BattleSystem.UI;
 using Systems.StateMachine.Interfaces;
 
 namespace Gameplay.BattleSystem.States
 {
     public class BattleEndState : StateBase<BattleState>
     {
-        private readonly BattleManager _battleManager;
+        private readonly IBattleManager _battleManager;
+        private readonly BattleUI _battleUI;
 
-
-        public BattleEndState(BattleManager battleManager)
+        public BattleEndState(IBattleManager battleManager, BattleUI battleUI)
         {
             _battleManager = battleManager;
+            _battleUI = battleUI;
         }
 
         public override BattleState StateType => BattleState.BattleEnd;
@@ -21,7 +24,7 @@ namespace Gameplay.BattleSystem.States
         public override void OnEnter()
         {
             GameLogger.Info("전투 종료!", LogCategory.Battle);
-            _battleManager.ShowBattleResult();
+            _battleUI.ShowBattleResult(_battleManager.Winner);
         }
 
         public override void OnUpdate()

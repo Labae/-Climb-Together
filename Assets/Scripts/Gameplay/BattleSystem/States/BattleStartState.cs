@@ -1,16 +1,16 @@
 ﻿using Debugging;
 using Debugging.Enum;
-using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.Interfaces;
 using Systems.StateMachine.Interfaces;
 
 namespace Gameplay.BattleSystem.States
 {
     public class BattleStartState : StateBase<BattleState>
     {
-        private readonly BattleManager _battleManager;
+        private readonly IBattleManager _battleManager;
 
-        public BattleStartState(BattleManager battleManager)
+        public BattleStartState(IBattleManager battleManager)
         {
             _battleManager = battleManager;
         }

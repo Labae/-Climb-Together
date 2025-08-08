@@ -2,17 +2,17 @@
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.UI;
 using Systems.StateMachine.Interfaces;
 
 namespace Gameplay.BattleSystem.States
 {
     public class PlayerTurnState : StateBase<BattleState>
     {
-        private readonly BattleManager _battleManager;
-
-        public PlayerTurnState(BattleManager battleManager)
+        private readonly BattleUI  _battleUI;
+        public PlayerTurnState(BattleUI battleUI)
         {
-            _battleManager = battleManager;
+            _battleUI = battleUI;
         }
 
         public override BattleState StateType => BattleState.PlayerTurn;
@@ -20,7 +20,7 @@ namespace Gameplay.BattleSystem.States
         public override void OnEnter()
         {
             GameLogger.Info("플레이어 턴!", LogCategory.Battle);
-            _battleManager.ShowPlayerActions();
+            _battleUI.ShowActionButtons();
         }
 
         public override void OnUpdate()

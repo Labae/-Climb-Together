@@ -24,13 +24,13 @@ namespace Core.DI
 
             builder.RegisterInstance(_projectConfig);
             builder.Register<GlobalInputSystem>(Lifetime.Singleton).AsImplementedInterfaces();
-            builder.Register<IEventBus, EventBus>(Lifetime.Singleton);
+            builder.Register<EventBus>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.RegisterEntryPoint<ProjectInitializer>();
 
-            RegisterUISystem(builder);
+            RegisterGlobalUISystem(builder);
         }
 
-        private void RegisterUISystem(IContainerBuilder builder)
+        private void RegisterGlobalUISystem(IContainerBuilder builder)
         {
             builder.RegisterInstance<IUIManager>(_uiManager);
         }
