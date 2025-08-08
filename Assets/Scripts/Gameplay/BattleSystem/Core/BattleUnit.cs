@@ -1,18 +1,23 @@
 ﻿using System;
 using Cysharp.Text;
 using Debugging;
+using Gameplay.BattleSystem.Events;
 using NaughtyAttributes;
+using Systems.EventBus;
 using UnityEngine;
+using VContainer;
 
 namespace Gameplay.BattleSystem.Core
 {
-    public class BattleUnit : MonoBehaviour
+    public abstract class BattleUnit : MonoBehaviour
     {
         [Header("Unit Data")] [SerializeField] private string _unitName = "Unit_";
         [SerializeField] private BattleStats _stats;
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
         [SerializeField, ReadOnly] private int _currentHealth;
+
+        [Inject] protected IEventBus _eventBus;
 
         public event Action<int, int> OnHealthChanged;
         public event Action<BattleUnit> OnUnitDefeated;
@@ -42,7 +47,10 @@ namespace Gameplay.BattleSystem.Core
             int damage = CalculateDamage(targetUnit);
             targetUnit.TakeDamage(damage);
 
+            // 공격 이벤트 발행
             GameLogger.Debug(ZString.Format("{0}이(가) {1}에게 {2} 데미지를 입혔습니다!", _unitName, targetUnit.UnitName, damage));
+
+            _eventBus.Publish(new UnitAttackedEvent(this, targetUnit));
         }
 
         private int CalculateDamage(BattleUnit targetUnit)
