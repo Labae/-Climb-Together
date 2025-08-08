@@ -77,6 +77,11 @@ namespace Gameplay.BattleSystem.Core
 
         public bool IsWeaknessHit(WeaponType weaponType)
         {
+            if (_weaknesses == null || _weaknesses.Length == 0)
+            {
+                return false;
+            }
+            
             return _weaknesses.Any(weakness => weakness == weaponType);
         }
 
