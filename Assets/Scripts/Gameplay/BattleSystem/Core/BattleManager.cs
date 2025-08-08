@@ -21,7 +21,7 @@ namespace Gameplay.BattleSystem.Core
     {
         private readonly IStateMachine<BattleState> _stateMachine;
         private readonly PlayerUnit _playerUnit;
-        private readonly List<EnemyUnit> _enemyUnits;
+        private readonly IReadOnlyList<EnemyUnit> _enemyUnits;
         private readonly BattleUI _battleUI;
 
         [Inject] private readonly IEventBus _eventBus;
@@ -31,7 +31,7 @@ namespace Gameplay.BattleSystem.Core
         private List<EnemyUnit> _activeEnemies;
 
         public PlayerUnit PlayerUnit => _playerUnit;
-        public List<EnemyUnit> EnemyUnits => _enemyUnits;
+        public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
 
         public EnemyUnit CurrentEnemy
             => _activeEnemies != null &&
@@ -43,7 +43,7 @@ namespace Gameplay.BattleSystem.Core
         public bool IsInitialized { get; private set; }
         public bool IsDisposed { get; private set; }
 
-        public event Action<PlayerUnit, List<EnemyUnit>> OnBattleStarted;
+        public event Action<PlayerUnit, IReadOnlyList<EnemyUnit>> OnBattleStarted;
         public event Action<BattleUnit> OnBattleEnded;
 
         public BattleManager(

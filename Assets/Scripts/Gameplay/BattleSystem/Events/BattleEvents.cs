@@ -7,9 +7,9 @@ namespace Gameplay.BattleSystem.Events
     public class BattleStartedEvent
     {
         public BattleUnit Player { get; }
-        public List<EnemyUnit> Enemies { get; }
+        public IReadOnlyList<EnemyUnit> Enemies { get; }
 
-        public BattleStartedEvent(BattleUnit player,  List<EnemyUnit> enemies)
+        public BattleStartedEvent(BattleUnit player,  IReadOnlyList<EnemyUnit> enemies)
         {
             Player = player;
             Enemies = enemies;

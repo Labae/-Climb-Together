@@ -14,11 +14,11 @@ namespace Gameplay.BattleSystem.Interfaces
 
 // 유닛 접근
         PlayerUnit PlayerUnit { get; }
-        List<EnemyUnit> EnemyUnits { get; }
+        IReadOnlyList<EnemyUnit> EnemyUnits { get; }
         EnemyUnit CurrentEnemy { get; }
 
         // 이벤트
-        event Action<PlayerUnit, List<EnemyUnit>> OnBattleStarted;
+        event Action<PlayerUnit, IReadOnlyList<EnemyUnit>> OnBattleStarted;
         event Action<BattleUnit> OnBattleEnded;
 
         void Initialize();
