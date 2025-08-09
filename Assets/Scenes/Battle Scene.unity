@@ -468,6 +468,7 @@ GameObject:
   - component: {fileID: 166610887}
   - component: {fileID: 166610889}
   - component: {fileID: 166610888}
+  - component: {fileID: 166610890}
   m_Layer: 5
   m_Name: Container - Enemy UI
   m_TagString: Untagged
@@ -534,6 +535,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &166610890
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 166610886}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &219705673
 GameObject:
   m_ObjectHideFlags: 0

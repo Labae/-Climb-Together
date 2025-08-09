@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Utilities;
+﻿using System.Collections.Generic;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using Debugging;
@@ -18,13 +16,14 @@ namespace Gameplay.BattleSystem.UI
         [Header("Enemy Name")] [SerializeField]
         private TextMeshProUGUI _enemyNameText;
 
-        [Header("Health Bar")]
-        [SerializeField] private RectTransform _healthBarContainer;
-        [SerializeField]
-        private Image _healthBarFill;
+        [Header("Health Bar")] [SerializeField]
+        private RectTransform _healthBarContainer;
 
-        [Header("Health Bar Animation Settings")]
-        [SerializeField] private float _healthAnimationDuration = 0.4f;
+        [SerializeField] private Image _healthBarFill;
+
+        [Header("Health Bar Animation Settings")] [SerializeField]
+        private float _healthAnimationDuration = 0.4f;
+
         [SerializeField] private float _healthColorDuration = 0.3f;
         [SerializeField] private float _shakeStrength = 10f;
         [SerializeField] private float _shakeDuration = 0.3f;
@@ -32,21 +31,25 @@ namespace Gameplay.BattleSystem.UI
 
         [Header("Health Bar Colors")] [SerializeField]
         private Color _healthFullColor = new Color(0.2f, 0.8f, 0.2f);
+
         [SerializeField] private Color _healthMediumColor = new Color(0.9f, 0.7f, 0.1f);
         [SerializeField] private Color _healthLowColor = new Color(0.9f, 0.2f, 0.2f);
         [SerializeField] private Color _healthWarningColor = new Color(0.9f, 0.2f, 0.2f, 0.3f);
 
-        [Header("Low Health Warning")]
-        [SerializeField] private bool _enableLowHealthWarning = true;
+        [Header("Low Health Warning")] [SerializeField]
+        private bool _enableLowHealthWarning = true;
+
         [SerializeField] private float _warningThreshold = 0.3f;
         [SerializeField] private float _warningBlinkSpeed = 1.5f;
 
-        [Header("Shield System")]
-        [SerializeField] private RectTransform _shieldContainer;
+        [Header("Shield System")] [SerializeField]
+        private RectTransform _shieldContainer;
+
         [SerializeField] private GameObject _shieldIconPrefab;
 
-        [Header("Shield Animation Settings")]
-        [SerializeField] private float _shieldAnimationDuration = 0.5f;
+        [Header("Shield Animation Settings")] [SerializeField]
+        private float _shieldAnimationDuration = 0.5f;
+
         [SerializeField] private float _shieldAnimationDelay = 0.5f;
         [SerializeField] private Ease _shieldPopEase = Ease.Linear;
         [SerializeField] private Ease _shieldDestroyEase = Ease.Linear;
@@ -80,8 +83,8 @@ namespace Gameplay.BattleSystem.UI
             SetupShieldIcons();
 
             SubscribeToUnitEvents();
-
             UpdateAllUI();
+
             _isInitialized = true;
         }
 
@@ -218,6 +221,10 @@ namespace Gameplay.BattleSystem.UI
             }
         }
 
+        #endregion
+
+        #region Health Bar Animation Methods
+
         private async UniTaskVoid UpdateHealthDisplayAnimated(int currentHealth, int maxHealth)
         {
             if (_healthBarFill == null)
@@ -227,7 +234,7 @@ namespace Gameplay.BattleSystem.UI
 
             _healthAnimation?.Kill();
 
-            var targetFillAmount = (float)currentHealth /  maxHealth;
+            var targetFillAmount = (float)currentHealth / maxHealth;
             var currentFillAmount = _healthBarFill.fillAmount;
 
             bool tookDamage = targetFillAmount < currentFillAmount;
@@ -244,7 +251,7 @@ namespace Gameplay.BattleSystem.UI
                 .SetEase(_healthEase));
 
             // 색상 변화 애니메이션
-            sequence.Join(AnimateHealthBarColor(currentHealth,maxHealth).SetEase(_healthEase));
+            sequence.Join(AnimateHealthBarColor(currentHealth, maxHealth).SetEase(_healthEase));
 
             _healthAnimation = sequence;
             await sequence.ToUniTask();
@@ -344,8 +351,13 @@ namespace Gameplay.BattleSystem.UI
                 var originalColor = GetHealthColor(_healthBarFill.fillAmount);
                 _healthBarFill.color = originalColor;
             }
+
             GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 낮은 체력 경고 중단"), LogCategory.Battle);
         }
+
+        #endregion
+
+        #region Shield Animation Methods
 
         private async UniTask UpdateShieldDisplayAnimated(int targetShieldCount)
         {
@@ -362,10 +374,6 @@ namespace Gameplay.BattleSystem.UI
             }
         }
 
-        #endregion
-
-        #region Shield Animation Methods
-
         private async UniTask AnimateShieldCreation(int createCount)
         {
             var sequence = DOTween.Sequence();
@@ -374,7 +382,7 @@ namespace Gameplay.BattleSystem.UI
             {
                 var iconObj = Instantiate(_shieldIconPrefab, _shieldContainer);
                 var iconImage = iconObj.GetComponent<Image>();
-                var iconTransform =  iconObj.transform;
+                var iconTransform = iconObj.transform;
 
                 if (iconImage != null)
                 {
@@ -382,7 +390,8 @@ namespace Gameplay.BattleSystem.UI
 
                     iconTransform.localScale = Vector3.zero;
 
-                    sequence.Insert(i * _shieldAnimationDelay, iconTransform.DOScale(Vector3.one, _shieldAnimationDuration)).SetEase(_shieldPopEase);
+                    sequence.Insert(i * _shieldAnimationDelay,
+                        iconTransform.DOScale(Vector3.one, _shieldAnimationDuration)).SetEase(_shieldPopEase);
                 }
                 else
                 {
@@ -394,7 +403,7 @@ namespace Gameplay.BattleSystem.UI
             _currentAnimation = sequence;
             await sequence.ToUniTask();
 
-            GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 실드 생성 애니메이션 완료"),  LogCategory.Battle);
+            GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 실드 생성 애니메이션 완료"), LogCategory.Battle);
         }
 
         private async UniTask AnimateShieldDestruction(int destroyCount)
@@ -415,7 +424,8 @@ namespace Gameplay.BattleSystem.UI
                 {
                     _shieldIcons.RemoveAt(lastIndex);
 
-                    sequence.Insert(i * _shieldAnimationDelay, iconToDestroy.transform.DOScale(Vector3.zero, _shieldAnimationDuration))
+                    sequence.Insert(i * _shieldAnimationDelay,
+                            iconToDestroy.transform.DOScale(Vector3.zero, _shieldAnimationDuration))
                         .SetEase(_shieldDestroyEase)
                         .OnComplete(() =>
                         {
@@ -430,7 +440,7 @@ namespace Gameplay.BattleSystem.UI
             _currentAnimation = sequence;
             await sequence.ToUniTask();
 
-            GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 실드 파괴 애니메이션 완료"),  LogCategory.Battle);
+            GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 실드 파괴 애니메이션 완료"), LogCategory.Battle);
         }
 
         #endregion
@@ -447,6 +457,7 @@ namespace Gameplay.BattleSystem.UI
                     DestroyImmediate(icon.gameObject);
                 }
             }
+
             _shieldIcons.Clear();
         }
 

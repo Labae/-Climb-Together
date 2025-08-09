@@ -6,6 +6,7 @@ using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using Debugging;
 using Debugging.Enum;
+using DG.Tweening;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Units;
@@ -43,9 +44,16 @@ namespace Gameplay.BattleSystem.UI
         [SerializeField] private Button _mainMenuButton;
 
         [Header("Enemy Stats UI")] [SerializeField]
-        private Transform _enemyStatsContainer;
+        private RectTransform _enemyStatsContainer;
 
         [SerializeField] private GameObject _enemyStatsUIPrefab;
+
+        [Header("Enemy UI Entrance Animation Settings")] [SerializeField]
+        private bool _enableUIEntranceAnimation = true;
+
+        [SerializeField] private float _entranceAnimationDuration = 0.3f;
+        [SerializeField] private float _entranceMoveDistance = 50f;
+        [SerializeField] private Ease _entranceEase = Ease.OutBack;
 
         // Events
         public event Action<WeaponType> OnAttackButtonClicked;
@@ -113,6 +121,14 @@ namespace Gameplay.BattleSystem.UI
 
             await ClearEnemyStatsUIs();
 
+            var canvasGroup = _enemyStatsContainer.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                return;
+            }
+
+            canvasGroup.alpha = 0f;
+
             for (int i = 0; i < enemyUnits.Count; i++)
             {
                 var enemy = enemyUnits[i];
@@ -120,6 +136,11 @@ namespace Gameplay.BattleSystem.UI
                 {
                     await CreateEnemyStatsUIs(enemy, i);
                 }
+            }
+
+            if (_enableUIEntranceAnimation)
+            {
+                await PlayEntranceAnimation(canvasGroup);
             }
         }
 
@@ -383,6 +404,31 @@ namespace Gameplay.BattleSystem.UI
                 _battleResultText.color = originalColor;
                 await UniTask.WaitForSeconds(0.2f);
             }
+        }
+
+        #endregion
+
+        #region Entrance Animation Methods
+
+        private async UniTask PlayEntranceAnimation(CanvasGroup canvasGroup)
+        {
+            var originalPosition = _enemyStatsContainer.anchoredPosition;
+            var startPosition = originalPosition + Vector2.up * _entranceMoveDistance;
+            var originalScale = transform.localScale;
+
+            _enemyStatsContainer.anchoredPosition = startPosition;
+            transform.localScale = originalScale * 0.8f;
+
+            var sequence = DOTween.Sequence();
+
+            sequence.Append(_enemyStatsContainer.DOAnchorPos(originalPosition, _entranceAnimationDuration))
+                .SetEase(_entranceEase);
+            sequence.Join(_enemyStatsContainer.DOScale(originalScale, _entranceAnimationDuration))
+                .SetEase(_entranceEase);
+            sequence.Join(canvasGroup.DOFade(1f, _entranceAnimationDuration))
+                .SetEase(_entranceEase);
+
+            await sequence.ToUniTask();
         }
 
         #endregion
