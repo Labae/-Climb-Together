@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Utilities;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
@@ -38,15 +39,20 @@ namespace Gameplay.BattleSystem.UI
 
         [Header("Result Buttons")] [SerializeField]
         private Button _continueButton;
-
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _mainMenuButton;
+
+        [Header("Enemy Stats UI")] [SerializeField]
+        private Transform _enemyStatsContainer;
+
+        [SerializeField] private GameObject _enemyStatsUIPrefab;
 
         // Events
         public event Action<WeaponType> OnAttackButtonClicked;
         public event Action<EnemyUnit, WeaponType> OnTargetSelected;
 
         private List<Button> _activeTargetButtons = new();
+        private List<EnemyStatsUI> _enemyStatsUIs = new();
         private WeaponType _selectedWeaponType; // 현재 선택된 무기
 
         private void Awake()
@@ -94,6 +100,64 @@ namespace Gameplay.BattleSystem.UI
             if (_bowButton != null) _bowButton.gameObject.SetActive(active);
             if (_fireButton != null) _fireButton.gameObject.SetActive(active);
         }
+
+        #region Enemy Stats UI Management
+
+        public async UniTask SetupEnemyStatsUIs(List<EnemyUnit> enemyUnits)
+        {
+            if (_enemyStatsContainer == null || _enemyStatsUIPrefab == null)
+            {
+                GameLogger.Error("Enemy Stats Container 또는 EnemyStatsUIPrefab이 Null입니다", LogCategory.Battle);
+                return;
+            }
+
+            await ClearEnemyStatsUIs();
+
+            for (int i = 0; i < enemyUnits.Count; i++)
+            {
+                var enemy = enemyUnits[i];
+                if (enemy != null)
+                {
+                    await CreateEnemyStatsUIs(enemy, i);
+                }
+            }
+        }
+
+        private async UniTask CreateEnemyStatsUIs(EnemyUnit enemy, int index)
+        {
+            var uiObject = Instantiate(_enemyStatsUIPrefab, _enemyStatsContainer);
+            var statsUI = uiObject.GetComponent<EnemyStatsUI>();
+            if (statsUI != null)
+            {
+                statsUI.Initialize(enemy);
+                _enemyStatsUIs.Add(statsUI);
+                GameLogger.Debug(ZString.Format("Enemy Stats UI 생성: {0} (인덱스: {1})"
+                    , enemy.UnitName, index), LogCategory.Battle);
+            }
+            else
+            {
+                GameLogger.Error("EnemyStatsUI를 찾을 수 없습니다", LogCategory.Battle);
+                Destroy(uiObject);
+            }
+
+            await UniTask.Yield();
+        }
+
+        private async UniTask ClearEnemyStatsUIs()
+        {
+            foreach (var statsUI in _enemyStatsUIs)
+            {
+                if (statsUI != null)
+                {
+                    Destroy(statsUI.gameObject);
+                }
+            }
+
+            _enemyStatsUIs.Clear();
+            await UniTask.Yield();
+        }
+
+        #endregion
 
         #region Target Selection
 
@@ -326,6 +390,7 @@ namespace Gameplay.BattleSystem.UI
         private void OnDestroy()
         {
             ClearTargetButtons();
+            ClearEnemyStatsUIs().Forget();
         }
     }
 }

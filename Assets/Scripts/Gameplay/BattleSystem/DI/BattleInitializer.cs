@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Text;
+using Cysharp.Threading.Tasks;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Interfaces;
@@ -90,6 +91,8 @@ namespace Gameplay.BattleSystem.DI
                         GameLogger.Warning(ZString.Format("❌ Enemy {0} is null!", i + 1), LogCategory.Battle);
                     }
                 }
+
+                _battleUI.SetupEnemyStatsUIs(_enemyUnits).Forget();
                 GameLogger.Info(ZString.Format("Total {0} enemies set up", _enemyUnits.Count), LogCategory.Battle);
             }
             else
