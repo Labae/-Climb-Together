@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using Debugging;
 using Debugging.Enum;
@@ -22,6 +23,12 @@ namespace Gameplay.BattleSystem.UI
         [Header("Shield System")]
         [SerializeField] private RectTransform _shieldContainer;
         [SerializeField] private GameObject _shieldIconPrefab;
+
+        [Header("Animation Settings")]
+        [SerializeField] private float _shieldAnimationDuration = 0.5f;
+        [SerializeField] private float _shieldAnimationDelay = 0.5f;
+        [SerializeField] private Ease _shieldPopEase = Ease.Linear;
+        [SerializeField] private Ease _shieldDestroyEase = Ease.Linear;
 
         private BattleUnit _targetUnit;
         private readonly List<Image> _shieldIcons = new();
@@ -144,7 +151,7 @@ namespace Gameplay.BattleSystem.UI
                 return;
             }
 
-            UpdateShieldDisplay(currentShield);
+            UpdateShieldDisplayAnimated(currentShield).Forget();
         }
 
         private void OnUnitBroken(BattleUnit obj)
@@ -153,7 +160,6 @@ namespace Gameplay.BattleSystem.UI
 
         private void OnUnitRecovered(BattleUnit unit)
         {
-            UpdateShieldDisplay(unit.MaxShield);
         }
 
         private void OnUnitDefeated(BattleUnit obj)
@@ -176,7 +182,6 @@ namespace Gameplay.BattleSystem.UI
             }
 
             UpdateHealthDisplay(_targetUnit.Stats.MaxHealth, _targetUnit.Stats.MaxHealth);
-            UpdateShieldDisplay(_targetUnit.CurrentShield);
         }
 
         private void UpdateHealthDisplay(int currentHealth, int maxHealth)
@@ -187,26 +192,90 @@ namespace Gameplay.BattleSystem.UI
             }
         }
 
-        private void UpdateShieldDisplay(int currentShield)
+        private async UniTask UpdateShieldDisplayAnimated(int targetShieldCount)
         {
-            // remove
-            while (_shieldIcons.Count > currentShield)
-            {
-                int lastIndex = _shieldIcons.Count - 1;
-                if (_shieldIcons[lastIndex] != null)
-                {
-                    DestroyImmediate(_shieldIcons[lastIndex].gameObject);
-                }
-                _shieldIcons.RemoveAt(lastIndex);
-            }
+            _currentAnimation?.Kill();
 
-            // add
-            while (_shieldIcons.Count < currentShield)
+            int currentCount = _shieldIcons.Count;
+            if (targetShieldCount > currentCount)
+            {
+                await AnimateShieldCreation(targetShieldCount - currentCount);
+            }
+            else if (targetShieldCount < currentCount)
+            {
+                await AnimateShieldDestruction(currentCount - targetShieldCount);
+            }
+        }
+
+        #endregion
+
+        #region Shield Animation Methods
+
+        private async UniTask AnimateShieldCreation(int createCount)
+        {
+            var sequence = DOTween.Sequence();
+
+            for (int i = 0; i < createCount; i++)
             {
                 var iconObj = Instantiate(_shieldIconPrefab, _shieldContainer);
                 var iconImage = iconObj.GetComponent<Image>();
-                _shieldIcons.Add(iconImage);
+                var iconTransform =  iconObj.transform;
+
+                if (iconImage != null)
+                {
+                    _shieldIcons.Add(iconImage);
+
+                    iconTransform.localScale = Vector3.zero;
+
+                    sequence.Insert(i * _shieldAnimationDelay, iconTransform.DOScale(Vector3.one, _shieldAnimationDuration)).SetEase(_shieldPopEase);
+                }
+                else
+                {
+                    GameLogger.Warning("Shield Icon에 Image가 없습니다", LogCategory.Battle);
+                    Destroy(iconObj.gameObject);
+                }
             }
+
+            _currentAnimation = sequence;
+            await sequence.ToUniTask();
+
+            GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 실드 생성 애니메이션 완료"),  LogCategory.Battle);
+        }
+
+        private async UniTask AnimateShieldDestruction(int destroyCount)
+        {
+            if (destroyCount <= 0 || _shieldIcons.Count == 0)
+            {
+                return;
+            }
+
+            var sequence = DOTween.Sequence();
+
+            for (int i = 0; i < destroyCount && _shieldIcons.Count > 0; i++)
+            {
+                var lastIndex = _shieldIcons.Count - 1;
+                var iconToDestroy = _shieldIcons[lastIndex];
+
+                if (iconToDestroy != null)
+                {
+                    _shieldIcons.RemoveAt(lastIndex);
+
+                    sequence.Insert(i * _shieldAnimationDelay, iconToDestroy.transform.DOScale(Vector3.zero, _shieldAnimationDuration))
+                        .SetEase(_shieldDestroyEase)
+                        .OnComplete(() =>
+                        {
+                            if (iconToDestroy != null)
+                            {
+                                DestroyImmediate(iconToDestroy.gameObject);
+                            }
+                        });
+                }
+            }
+
+            _currentAnimation = sequence;
+            await sequence.ToUniTask();
+
+            GameLogger.Debug(ZString.Concat(_targetUnit.UnitName, " 실드 파괴 애니메이션 완료"),  LogCategory.Battle);
         }
 
         #endregion
@@ -215,6 +284,7 @@ namespace Gameplay.BattleSystem.UI
 
         private void ClearShieldIcons()
         {
+            _currentAnimation?.Kill();
             foreach (var icon in _shieldIcons)
             {
                 if (icon != null)
@@ -227,6 +297,8 @@ namespace Gameplay.BattleSystem.UI
 
         private void OnDestroy()
         {
+            _currentAnimation?.Kill();
+
             UnsubscribeToUnitEvents();
             ClearShieldIcons();
         }

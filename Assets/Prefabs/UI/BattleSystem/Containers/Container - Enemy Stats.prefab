@@ -63,11 +63,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4ae24dbcea9457981248746452603ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _contentContainer: {fileID: 8144389336125697214}
   _enemyNameText: {fileID: 8340108170851400771}
   _healthBarFill: {fileID: 1332291676120019009}
   _shieldContainer: {fileID: 6617011059708554819}
   _shieldIconPrefab: {fileID: 4834234150742525366, guid: 4adbb4d0ec98d48098c3bf3594aebbc7, type: 3}
+  _shieldAnimationDuration: 0.3
+  _shieldAnimationDelay: 0.1
+  _shieldPopEase: 27
+  _shieldDestroyEase: 26
 --- !u!1 &3865219952668484655
 GameObject:
   m_ObjectHideFlags: 0
