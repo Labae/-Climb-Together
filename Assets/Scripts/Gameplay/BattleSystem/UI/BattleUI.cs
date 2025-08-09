@@ -419,10 +419,10 @@ namespace Gameplay.BattleSystem.UI
         {
             var originalPosition = _enemyStatsContainer.anchoredPosition;
             var startPosition = originalPosition + Vector2.up * _entranceMoveDistance;
-            var originalScale = transform.localScale;
+            var originalScale = _enemyStatsContainer.localScale;
 
             _enemyStatsContainer.anchoredPosition = startPosition;
-            transform.localScale = originalScale * 0.8f;
+            _enemyStatsContainer.localScale = originalScale * 0.8f;
 
             var sequence = DOTween.Sequence();
 

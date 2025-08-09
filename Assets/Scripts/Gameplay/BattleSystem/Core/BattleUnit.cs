@@ -86,7 +86,6 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            int damage = CalculateDamage(targetUnit, weaponType);
             bool isWeaknessHit = targetUnit.IsWeaknessHit(weaponType);
 
             // 실드 처리
@@ -99,6 +98,7 @@ namespace Gameplay.BattleSystem.Core
             }
 
             // 데미지 처리
+            int damage = CalculateDamage(targetUnit, weaponType);
             targetUnit.TakeDamage(damage);
 
             string hitType = isWeaknessHit ? "약점 공격" : "일반 공격";
