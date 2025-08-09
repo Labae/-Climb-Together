@@ -1,8 +1,8 @@
 ﻿using System;
 using Data.Common;
 using Gameplay.Platformer.Movement.Enums;
-using Gameplay.Platformer.Physics;
 using Gameplay.Platformer.Movement.Interface;
+using Gameplay.Platformer.Physics;
 using R3;
 using Systems.Input.Utilities;
 using UnityEngine;

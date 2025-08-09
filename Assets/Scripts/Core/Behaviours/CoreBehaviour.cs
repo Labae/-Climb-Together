@@ -108,7 +108,7 @@ namespace Core.Behaviours
                 OnInitialize();
                 OnInitialized?.Invoke();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 _isInitialized = false;
                 var sb = ZString.CreateStringBuilder();

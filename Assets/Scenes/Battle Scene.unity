@@ -4259,6 +4259,10 @@ MonoBehaviour:
   _mainMenuButton: {fileID: 97689679}
   _enemyStatsContainer: {fileID: 166610887}
   _enemyStatsUIPrefab: {fileID: 1665332147737052575, guid: 82b671ce3df0d4bbd99adc63d556daf7, type: 3}
+  _enableUIEntranceAnimation: 1
+  _entranceAnimationDuration: 1
+  _entranceMoveDistance: 50
+  _entranceEase: 27
 --- !u!114 &2012909200
 MonoBehaviour:
   m_ObjectHideFlags: 0

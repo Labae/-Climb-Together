@@ -9,7 +9,7 @@ namespace Gameplay.Platformer.States
         {
         }
 
-        public override PlatformerStateType StateType =>  PlatformerStateType.WallSlide;
+        public override PlatformerStateType StateType => PlatformerStateType.WallSlide;
 
         public override void OnEnter()
         {

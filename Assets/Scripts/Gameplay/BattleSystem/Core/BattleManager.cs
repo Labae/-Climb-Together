@@ -165,7 +165,7 @@ namespace Gameplay.BattleSystem.Core
 
             if (_activeEnemies.Count > 1)
             {
-                GameLogger.Debug(ZString.Format("Showing target selection for {0} enemies", _activeEnemies.Count),  LogCategory.Battle);
+                GameLogger.Debug(ZString.Format("Showing target selection for {0} enemies", _activeEnemies.Count), LogCategory.Battle);
                 _battleUI.ShowTargetSelection(_activeEnemies, weaponType);
             }
             else if (_activeEnemies.Count == 1)
@@ -187,7 +187,7 @@ namespace Gameplay.BattleSystem.Core
         {
             if (target == null || !target.IsAlive)
             {
-                GameLogger.Warning("Invalid target for player attack",  LogCategory.Battle);
+                GameLogger.Warning("Invalid target for player attack", LogCategory.Battle);
                 return;
             }
 

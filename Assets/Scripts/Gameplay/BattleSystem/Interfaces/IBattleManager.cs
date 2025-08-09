@@ -12,7 +12,7 @@ namespace Gameplay.BattleSystem.Interfaces
         bool IsInitialized { get; }
         bool IsDisposed { get; }
 
-// 유닛 접근
+        // 유닛 접근
         PlayerUnit PlayerUnit { get; }
         IReadOnlyList<EnemyUnit> EnemyUnits { get; }
         EnemyUnit CurrentEnemy { get; }

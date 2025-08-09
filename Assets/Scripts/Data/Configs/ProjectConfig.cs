@@ -1,7 +1,7 @@
-﻿using NaughtyAttributes;
-using UnityEngine;
+﻿using Debugging;
 using Debugging.Enum;
-using Debugging;
+using NaughtyAttributes;
+using UnityEngine;
 
 namespace Data.Configs
 {

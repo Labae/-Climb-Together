@@ -96,7 +96,7 @@ namespace Systems.Physics
 
             var normal = hit.normal;
 
-            if (normal.y  > slopeThreshold)
+            if (normal.y > slopeThreshold)
             {
                 return SurfaceType.Ground;
             }

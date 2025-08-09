@@ -14,14 +14,16 @@ namespace Gameplay.BattleSystem.Core
 {
     public abstract class BattleUnit : MonoBehaviour
     {
-        [Header("Unit Data")] [SerializeField] private string _unitName = "Unit_";
+        [Header("Unit Data")][SerializeField] private string _unitName = "Unit_";
         [SerializeField] private BattleStats _stats;
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
-        [Header("Weakness System")] [SerializeField]
+        [Header("Weakness System")]
+        [SerializeField]
         private WeaponType[] _weaknesses;
 
-        [Header("Shield System")] [SerializeField]
+        [Header("Shield System")]
+        [SerializeField]
         private int _maxShield = 3;
 
         [SerializeField] private int _breakDuration = 2;

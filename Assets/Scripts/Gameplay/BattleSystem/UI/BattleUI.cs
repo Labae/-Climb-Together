@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Core.Utilities;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
@@ -18,37 +17,43 @@ namespace Gameplay.BattleSystem.UI
 {
     public class BattleUI : MonoBehaviour
     {
-        [Header("Action Buttons")] [SerializeField]
+        [Header("Action Buttons")]
+        [SerializeField]
         private Button _swordButton;
 
         [SerializeField] private Button _bowButton;
         [SerializeField] private Button _fireButton;
 
-        [Header("Target Selection")] [SerializeField]
+        [Header("Target Selection")]
+        [SerializeField]
         private GameObject _targetSelectionPanel;
 
         [SerializeField] private Button _targetButtonPrefab;
         [SerializeField] private Transform _targetButtonParent;
         [SerializeField] private TextMeshProUGUI _targetSelectionTitle;
 
-        [Header("Battle Result")] [SerializeField]
+        [Header("Battle Result")]
+        [SerializeField]
         private GameObject _battleResultContainer;
 
         [SerializeField] private TextMeshProUGUI _battleResultText; // ← 메인 텍스트
         [SerializeField] private TextMeshProUGUI _battleSubText; // ← 서브 텍스트
         [SerializeField] private TextMeshProUGUI _battleStatsText; // ← 통계 텍스트
 
-        [Header("Result Buttons")] [SerializeField]
+        [Header("Result Buttons")]
+        [SerializeField]
         private Button _continueButton;
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _mainMenuButton;
 
-        [Header("Enemy Stats UI")] [SerializeField]
+        [Header("Enemy Stats UI")]
+        [SerializeField]
         private RectTransform _enemyStatsContainer;
 
         [SerializeField] private GameObject _enemyStatsUIPrefab;
 
-        [Header("Enemy UI Entrance Animation Settings")] [SerializeField]
+        [Header("Enemy UI Entrance Animation Settings")]
+        [SerializeField]
         private bool _enableUIEntranceAnimation = true;
 
         [SerializeField] private float _entranceAnimationDuration = 0.3f;

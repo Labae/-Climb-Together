@@ -61,7 +61,8 @@ namespace Gameplay.Platformer.Player.Core
         [SerializeField]
         private PlatformerVisualSettings _visualSettings;
 
-        [Header("Debug Options")] [SerializeField]
+        [Header("Debug Options")]
+        [SerializeField]
         private bool _enablePerformanceTracking = false;
 
         [SerializeField] private bool _enableDetailedLogging = false;

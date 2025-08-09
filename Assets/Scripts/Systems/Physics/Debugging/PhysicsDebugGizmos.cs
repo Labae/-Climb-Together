@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Systems.Physics.Debugging
 {
@@ -13,7 +12,7 @@ namespace Systems.Physics.Debugging
 
         public void Initialize(PhysicsSystemBase system)
         {
-            _physicsSystem =  system;
+            _physicsSystem = system;
         }
 
         private void OnDrawGizmos()

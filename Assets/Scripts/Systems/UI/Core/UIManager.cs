@@ -14,7 +14,8 @@ namespace Systems.UI.Core
     /// </summary>
     public class UIManager : MonoBehaviour, IUIManager
     {
-        [Header("UI Manager Settings")] [SerializeField]
+        [Header("UI Manager Settings")]
+        [SerializeField]
         private Canvas _uiCanvas;
 
         [SerializeField] private Transform _popupParent;

@@ -275,7 +275,7 @@ namespace Gameplay.Platformer.Movement
             _instantWallJumpBufferTimer = 0f;
             _lastWallSide = WallSideType.None;
 
-            var wallSideForJump = _currentWallSide !=  WallSideType.None ? _currentWallSide : _lastWallSide;
+            var wallSideForJump = _currentWallSide != WallSideType.None ? _currentWallSide : _lastWallSide;
             var wallJumpVelocity = _settings.WallJumpVelocity;
 
             var jumpVelocity = wallSideForJump == WallSideType.Left ?
@@ -302,7 +302,7 @@ namespace Gameplay.Platformer.Movement
         private void StartInstantWallJumpBuffer(WallSideType wallSide)
         {
             _instantWallJumpBufferTimer = _instantWallJumpBufferTime;
-            _lastWallSide =  wallSide;
+            _lastWallSide = wallSide;
         }
 
         private void UpdateInstantWallJumpBuffer(float deltaTime)
