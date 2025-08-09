@@ -1,6 +1,5 @@
 ﻿using Data.Common;
 using Systems.Physics.Enums;
-using Systems.Physics.Utilities;
 using UnityEngine;
 
 namespace Systems.Physics

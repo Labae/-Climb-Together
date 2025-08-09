@@ -6,7 +6,6 @@ using Debugging.Enum;
 using R3;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Systems.StateMachine
 {

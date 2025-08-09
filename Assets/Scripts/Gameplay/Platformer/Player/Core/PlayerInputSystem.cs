@@ -17,7 +17,7 @@ namespace Gameplay.Platformer.Player.Core
         public Observable<float> MovementInput => _movementInput.AsObservable();
         public Observable<bool> JumpPressed => _jumpInput.AsObservable();
         public Observable<Unit> DashPressed => _dashInput.AsObservable();
-        public Observable<Vector2> DirectionalInput =>  _directionalInput.AsObservable();
+        public Observable<Vector2> DirectionalInput => _directionalInput.AsObservable();
 
         public bool IsInputEnabled { get; private set; } = false;
 

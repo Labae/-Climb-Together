@@ -9,7 +9,7 @@ namespace Core.Utilities
 
         public static Vector3 ToVector3(this Vector2 from)
         {
-            return new  Vector3(from.x, from.y, 0f);
+            return new Vector3(from.x, from.y, 0f);
         }
 
         #endregion

@@ -165,7 +165,7 @@ namespace Gameplay.BattleSystem.Core
 
             if (_activeEnemies.Count > 1)
             {
-                GameLogger.Debug(ZString.Format("Showing target selection for {0} enemies", _activeEnemies.Count),  LogCategory.Battle);
+                GameLogger.Debug(ZString.Format("Showing target selection for {0} enemies", _activeEnemies.Count), LogCategory.Battle);
                 _battleUI.ShowTargetSelection(_activeEnemies, weaponType);
             }
             else if (_activeEnemies.Count == 1)
@@ -187,7 +187,7 @@ namespace Gameplay.BattleSystem.Core
         {
             if (target == null || !target.IsAlive)
             {
-                GameLogger.Warning("Invalid target for player attack",  LogCategory.Battle);
+                GameLogger.Warning("Invalid target for player attack", LogCategory.Battle);
                 return;
             }
 
@@ -237,10 +237,21 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            GameLogger.Debug($"{currentEnemy.UnitName}이(가) 플레이어를 공격합니다!", LogCategory.Battle);
+
+            currentEnemy.OnTurnStart();
+            if (currentEnemy.IsBroken)
+            {
+                GameLogger.Info(ZString.Format("{0}은(는) 브레이크 상태로 턴을 건너뜁니다! (남은 턴: {1})",
+                    currentEnemy.UnitName, currentEnemy.BreakTurnsRemaining), LogCategory.Battle);
+                currentEnemy.OnTurnEnd();
+                AdvanceToNextEnemyTurn();
+                return;
+            }
 
             // 적 공격 실행 (기본 검 공격)
             currentEnemy.AttackTarget(_playerUnit, WeaponType.Sword);
+            GameLogger.Debug($"{currentEnemy.UnitName}이(가) 플레이어를 공격합니다!", LogCategory.Battle);
+            currentEnemy.OnTurnEnd();
 
             // 플레이어가 죽었으면 게임 종료
             if (!_playerUnit.IsAlive)

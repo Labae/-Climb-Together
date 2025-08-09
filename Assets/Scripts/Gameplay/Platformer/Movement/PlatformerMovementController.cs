@@ -53,7 +53,7 @@ namespace Gameplay.Platformer.Movement
             IPlatformerInput platformerInput,
             IDirectionProvider directionProvider,
             PlatformerMovementSettings settings,
-            PlatformerPhysicsSettings  physicsSettings
+            PlatformerPhysicsSettings physicsSettings
         )
         {
             _physicsSystem = physicsSystem;
@@ -137,7 +137,7 @@ namespace Gameplay.Platformer.Movement
 
         private void HandleWallSlideStarted(WallSideType wallSide)
         {
-            var facingDirection = wallSide == WallSideType.Left ? FacingDirection.Left :  FacingDirection.Right;
+            var facingDirection = wallSide == WallSideType.Left ? FacingDirection.Left : FacingDirection.Right;
             _directionProvider.SetDirection(facingDirection);
         }
 
@@ -145,7 +145,7 @@ namespace Gameplay.Platformer.Movement
         {
             StartSpecialAction(SpecialActionType.WallJump, _settings.WallJumpInputLockTime);
 
-            var facingDirection = direction.x > 0 ? FacingDirection.Right :  FacingDirection.Left;
+            var facingDirection = direction.x > 0 ? FacingDirection.Right : FacingDirection.Left;
             _directionProvider.SetDirection(facingDirection);
         }
 

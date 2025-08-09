@@ -6,7 +6,8 @@ namespace Data.Common
     [System.Serializable]
     public class PlatformerMovementSettings
     {
-        [Header("Basic Movement")] [Range(1f, 20f)]
+        [Header("Basic Movement")]
+        [Range(1f, 20f)]
         public float RunSpeed = 8f;
 
         [Range(0.1f, 1f)] public float AirMoveMultiplier = 0.7f;
@@ -17,16 +18,23 @@ namespace Data.Common
         [Tooltip("Time to reach maximum speed from standstill")]
         public float AccelTime = 0.1f;
 
-        [Range(0.05f, 0.8f)] [Tooltip("Time to come to a complete stop from maximum speed")]
+        [Range(0.05f, 0.8f)]
+        [Tooltip("Time to come to a complete stop from maximum speed")]
         public float DecelTime = 0.15f;
 
-        [Range(0.02f, 0.3f)] [Tooltip("Time to change direction (turnaround time)")]
+        [Range(0.02f, 0.3f)]
+        [Tooltip("Time to change direction (turnaround time)")]
         public float TurnAroundTime = 0.08f;
 
-        [Space(5)] [ShowIf("ShowAirSettings")] [Range(0.05f, 2f)] [Tooltip("Acceleration time multiplier when in air")]
+        [Space(5)]
+        [ShowIf("ShowAirSettings")]
+        [Range(0.05f, 2f)]
+        [Tooltip("Acceleration time multiplier when in air")]
         public float AirAccelMultiplier = 1.5f;
 
-        [ShowIf("ShowAirSettings")] [Range(0.1f, 3f)] [Tooltip("Deceleration time multiplier when in air")]
+        [ShowIf("ShowAirSettings")]
+        [Range(0.1f, 3f)]
+        [Tooltip("Deceleration time multiplier when in air")]
         public float AirDecelMultiplier = 2f;
 
         [Space(10)]
@@ -53,7 +61,8 @@ namespace Data.Common
         [Tooltip("Minimum time to stay in apex state")]
         public float ApexDuration = 0.1f;
 
-        [Space(10)] [Header("Special Actions")]
+        [Space(10)]
+        [Header("Special Actions")]
 
         [Header("Dash System")]
         [Range(8f, 25f)]

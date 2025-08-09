@@ -33,7 +33,7 @@ namespace Gameplay.Platformer.Player.Core
 
         public PlayerSpriteSystem(
             IStateMachine<PlatformerStateType> stateMachine,
-            IDirectionProvider  directionProvider,
+            IDirectionProvider directionProvider,
             SpriteRenderer spriteRenderer,
             IPlatformerMovementController movementController,
             PlayerAnimationRegistry animationRegistry,
@@ -41,7 +41,7 @@ namespace Gameplay.Platformer.Player.Core
         )
         {
             _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
-            _directionProvider = directionProvider  ?? throw new ArgumentNullException(nameof(directionProvider));
+            _directionProvider = directionProvider ?? throw new ArgumentNullException(nameof(directionProvider));
             _spriteRenderer = spriteRenderer ?? throw new ArgumentNullException(nameof(spriteRenderer));
             _movementController = movementController ?? throw new ArgumentNullException(nameof(movementController));
             _animationRegistry = animationRegistry ?? throw new ArgumentNullException(nameof(animationRegistry));

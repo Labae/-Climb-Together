@@ -7,7 +7,7 @@ namespace Systems.Physics
 {
     public class VelocityHandler : IDisposable
     {
-        private Vector3 _currentVelocity =  Vector3.zero;
+        private Vector3 _currentVelocity = Vector3.zero;
         private readonly PhysicsSettings _settings;
 
         public bool HorizontalLocked { get; private set; } = false;
@@ -99,8 +99,8 @@ namespace Systems.Physics
                 _currentVelocity.y = 0f;
             }
 
-            _currentVelocity.x = Mathf.Clamp(_currentVelocity.x, -_settings.MaxHorizontalSpeed,  _settings.MaxHorizontalSpeed);
-            _currentVelocity.y =  Mathf.Clamp(_currentVelocity.y, -_settings.MaxVerticalSpeed, _settings.MaxVerticalSpeed);
+            _currentVelocity.x = Mathf.Clamp(_currentVelocity.x, -_settings.MaxHorizontalSpeed, _settings.MaxHorizontalSpeed);
+            _currentVelocity.y = Mathf.Clamp(_currentVelocity.y, -_settings.MaxVerticalSpeed, _settings.MaxVerticalSpeed);
         }
 
         public void Dispose()

@@ -5,6 +5,7 @@ using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using Debugging;
 using Debugging.Enum;
+using DG.Tweening;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Units;
@@ -16,37 +17,55 @@ namespace Gameplay.BattleSystem.UI
 {
     public class BattleUI : MonoBehaviour
     {
-        [Header("Action Buttons")] [SerializeField]
+        [Header("Action Buttons")]
+        [SerializeField]
         private Button _swordButton;
 
         [SerializeField] private Button _bowButton;
         [SerializeField] private Button _fireButton;
 
-        [Header("Target Selection")] [SerializeField]
+        [Header("Target Selection")]
+        [SerializeField]
         private GameObject _targetSelectionPanel;
 
         [SerializeField] private Button _targetButtonPrefab;
         [SerializeField] private Transform _targetButtonParent;
         [SerializeField] private TextMeshProUGUI _targetSelectionTitle;
 
-        [Header("Battle Result")] [SerializeField]
+        [Header("Battle Result")]
+        [SerializeField]
         private GameObject _battleResultContainer;
 
         [SerializeField] private TextMeshProUGUI _battleResultText; // ← 메인 텍스트
         [SerializeField] private TextMeshProUGUI _battleSubText; // ← 서브 텍스트
         [SerializeField] private TextMeshProUGUI _battleStatsText; // ← 통계 텍스트
 
-        [Header("Result Buttons")] [SerializeField]
+        [Header("Result Buttons")]
+        [SerializeField]
         private Button _continueButton;
-
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _mainMenuButton;
+
+        [Header("Enemy Stats UI")]
+        [SerializeField]
+        private RectTransform _enemyStatsContainer;
+
+        [SerializeField] private GameObject _enemyStatsUIPrefab;
+
+        [Header("Enemy UI Entrance Animation Settings")]
+        [SerializeField]
+        private bool _enableUIEntranceAnimation = true;
+
+        [SerializeField] private float _entranceAnimationDuration = 0.3f;
+        [SerializeField] private float _entranceMoveDistance = 50f;
+        [SerializeField] private Ease _entranceEase = Ease.OutBack;
 
         // Events
         public event Action<WeaponType> OnAttackButtonClicked;
         public event Action<EnemyUnit, WeaponType> OnTargetSelected;
 
         private List<Button> _activeTargetButtons = new();
+        private List<EnemyStatsUI> _enemyStatsUIs = new();
         private WeaponType _selectedWeaponType; // 현재 선택된 무기
 
         private void Awake()
@@ -94,6 +113,77 @@ namespace Gameplay.BattleSystem.UI
             if (_bowButton != null) _bowButton.gameObject.SetActive(active);
             if (_fireButton != null) _fireButton.gameObject.SetActive(active);
         }
+
+        #region Enemy Stats UI Management
+
+        public async UniTask SetupEnemyStatsUIs(List<EnemyUnit> enemyUnits)
+        {
+            if (_enemyStatsContainer == null || _enemyStatsUIPrefab == null)
+            {
+                GameLogger.Error("Enemy Stats Container 또는 EnemyStatsUIPrefab이 Null입니다", LogCategory.Battle);
+                return;
+            }
+
+            await ClearEnemyStatsUIs();
+
+            var canvasGroup = _enemyStatsContainer.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                return;
+            }
+
+            canvasGroup.alpha = 0f;
+
+            for (int i = 0; i < enemyUnits.Count; i++)
+            {
+                var enemy = enemyUnits[i];
+                if (enemy != null)
+                {
+                    await CreateEnemyStatsUIs(enemy, i);
+                }
+            }
+
+            if (_enableUIEntranceAnimation)
+            {
+                await PlayEntranceAnimation(canvasGroup);
+            }
+        }
+
+        private async UniTask CreateEnemyStatsUIs(EnemyUnit enemy, int index)
+        {
+            var uiObject = Instantiate(_enemyStatsUIPrefab, _enemyStatsContainer);
+            var statsUI = uiObject.GetComponent<EnemyStatsUI>();
+            if (statsUI != null)
+            {
+                statsUI.Initialize(enemy);
+                _enemyStatsUIs.Add(statsUI);
+                GameLogger.Debug(ZString.Format("Enemy Stats UI 생성: {0} (인덱스: {1})"
+                    , enemy.UnitName, index), LogCategory.Battle);
+            }
+            else
+            {
+                GameLogger.Error("EnemyStatsUI를 찾을 수 없습니다", LogCategory.Battle);
+                Destroy(uiObject);
+            }
+
+            await UniTask.Yield();
+        }
+
+        private async UniTask ClearEnemyStatsUIs()
+        {
+            foreach (var statsUI in _enemyStatsUIs)
+            {
+                if (statsUI != null)
+                {
+                    Destroy(statsUI.gameObject);
+                }
+            }
+
+            _enemyStatsUIs.Clear();
+            await UniTask.Yield();
+        }
+
+        #endregion
 
         #region Target Selection
 
@@ -323,9 +413,35 @@ namespace Gameplay.BattleSystem.UI
 
         #endregion
 
+        #region Entrance Animation Methods
+
+        private async UniTask PlayEntranceAnimation(CanvasGroup canvasGroup)
+        {
+            var originalPosition = _enemyStatsContainer.anchoredPosition;
+            var startPosition = originalPosition + Vector2.up * _entranceMoveDistance;
+            var originalScale = _enemyStatsContainer.localScale;
+
+            _enemyStatsContainer.anchoredPosition = startPosition;
+            _enemyStatsContainer.localScale = originalScale * 0.8f;
+
+            var sequence = DOTween.Sequence();
+
+            sequence.Append(_enemyStatsContainer.DOAnchorPos(originalPosition, _entranceAnimationDuration))
+                .SetEase(_entranceEase);
+            sequence.Join(_enemyStatsContainer.DOScale(originalScale, _entranceAnimationDuration))
+                .SetEase(_entranceEase);
+            sequence.Join(canvasGroup.DOFade(1f, _entranceAnimationDuration))
+                .SetEase(_entranceEase);
+
+            await sequence.ToUniTask();
+        }
+
+        #endregion
+
         private void OnDestroy()
         {
             ClearTargetButtons();
+            ClearEnemyStatsUIs().Forget();
         }
     }
 }

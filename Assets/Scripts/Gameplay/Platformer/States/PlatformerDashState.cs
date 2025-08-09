@@ -18,7 +18,7 @@ namespace Gameplay.Platformer.States
         public override void OnEnter()
         {
             _movementController.OnSpecialActionEnded
-                .Where(specialActionEnded => specialActionEnded ==  SpecialActionType.Dashing)
+                .Where(specialActionEnded => specialActionEnded == SpecialActionType.Dashing)
                 .Subscribe(_ => HandleDashEnded())
                 .AddTo(_disposables);
         }

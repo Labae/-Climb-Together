@@ -1,4 +1,5 @@
-﻿using Debugging;
+﻿using Cysharp.Text;
+using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Interfaces;
@@ -15,6 +16,7 @@ namespace Gameplay.BattleSystem.States
 
         private readonly float _minTurnDelay = 1.0f;
         private readonly float _maxTurnDelay = 1.5f;
+        private readonly float _breakTurnDelay = 0.8f;
         private float _timer;
         private bool _actionExecuted = false;
 
@@ -31,12 +33,23 @@ namespace Gameplay.BattleSystem.States
             // BattleManager에서 현재 적 정보 가져오기
             var currentEnemy = _battleManager.CurrentEnemy;
 
-            string enemyName = currentEnemy?.UnitName ?? "적";
-            GameLogger.Info($"🔥 {enemyName} 턴!", LogCategory.Battle);
+            if (currentEnemy != null)
+            {
+                var stateInfo = currentEnemy.IsBroken
+                    ? ZString.Format(" (브레이크 {0}턴 남음)", currentEnemy.BreakTurnsRemaining)
+                    : "";
+                GameLogger.Info(ZString.Format("{0}턴 시작!{1}", currentEnemy.UnitName, stateInfo), LogCategory.Battle);
+                _timer = currentEnemy.IsBroken ? _breakTurnDelay : Random.Range(_minTurnDelay, _maxTurnDelay);
+            }
+            else
+            {
+                GameLogger.Warning("현재 적이 Null입니다!", LogCategory.Battle);
+                _timer = _minTurnDelay;
+            }
 
             _battleUI.HideActionButtons();
-            _timer = Random.Range(_minTurnDelay, _maxTurnDelay);
             _actionExecuted = false;
+            GameLogger.Debug(ZString.Format("적 턴 대기시간: {0}", _timer), LogCategory.Battle);
         }
 
         public override void OnUpdate()
@@ -49,6 +62,7 @@ namespace Gameplay.BattleSystem.States
                 return;
             }
 
+            GameLogger.Debug("적 행동 실행", LogCategory.Battle);
             _battleManager.ExecuteEnemyAction();
             _actionExecuted = true;
             _timer = 0f;

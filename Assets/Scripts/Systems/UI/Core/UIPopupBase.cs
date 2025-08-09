@@ -14,7 +14,8 @@ namespace Systems.UI.Core
     /// </summary>
     public abstract class UIPopupBase : MonoBehaviour, IUIPopup
     {
-        [Header("Popup Settings")] [SerializeField]
+        [Header("Popup Settings")]
+        [SerializeField]
         protected string _popupId = "";
 
         [SerializeField] protected bool _closeOnBackground = false;
