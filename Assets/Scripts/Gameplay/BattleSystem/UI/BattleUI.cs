@@ -209,7 +209,7 @@ namespace Gameplay.BattleSystem.UI
             // 각 적에 대한 버튼 생성
             foreach (var enemy in availableTargets)
             {
-                if (enemy != null && enemy.IsAlive)
+                if (enemy != null && enemy.Health.IsAlive)
                 {
                     CreateTargetButton(enemy);
                 }
@@ -246,9 +246,9 @@ namespace Gameplay.BattleSystem.UI
 
         private bool IsWeakToSelectedWeapon(EnemyUnit enemy)
         {
-            if (enemy.Weaknesses == null) return false;
+            if (enemy.Weakness.Weaknesses == null) return false;
 
-            foreach (var weakness in enemy.Weaknesses)
+            foreach (var weakness in enemy.Weakness.Weaknesses)
             {
                 if (weakness == _selectedWeaponType)
                 {

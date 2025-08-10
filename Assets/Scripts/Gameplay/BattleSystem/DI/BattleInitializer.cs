@@ -11,7 +11,7 @@ using VContainer.Unity;
 
 namespace Gameplay.BattleSystem.DI
 {
-    public class BattleInitializer : IStartable
+    public class BattleInitializer : IInitializable
     {
         [Inject] private readonly IObjectResolver _container;
         [Inject] private readonly IBattleManager _battleManager;
@@ -19,7 +19,7 @@ namespace Gameplay.BattleSystem.DI
         [Inject] private readonly PlayerUnit _playerUnit;
         [Inject] private readonly List<EnemyUnit> _enemyUnits;  // 여러 적
 
-        public void Start()
+        public void Initialize()
         {
             GameLogger.Info("=== Battle System Initialization Started ===");
 
@@ -53,14 +53,6 @@ namespace Gameplay.BattleSystem.DI
             if (_playerUnit != null)
             {
                 _container.InjectGameObject(_playerUnit.gameObject);
-                GameLogger.Info(ZString.Format("✅ Player Unit: {0} (HP: {1})",
-                    _playerUnit.UnitName, _playerUnit.Stats.MaxHealth), LogCategory.Battle);
-
-                // 플레이어 약점 정보
-                if (_playerUnit.Weaknesses != null && _playerUnit.Weaknesses.Length > 0)
-                {
-                    GameLogger.Info(ZString.Format("Player weaknesses: {0}", string.Join(", ", _playerUnit.Weaknesses)), LogCategory.Battle);
-                }
             }
             else
             {
@@ -76,15 +68,6 @@ namespace Gameplay.BattleSystem.DI
                     if (enemy != null)
                     {
                         _container.InjectGameObject(enemy.gameObject);
-                        GameLogger.Info(ZString.Format("✅ Enemy {0}: {1} (HP: {2})",
-                            i + 1, enemy.UnitName, enemy.Stats.MaxHealth), LogCategory.Battle);
-
-                        // 적 약점 정보
-                        if (enemy.Weaknesses != null && enemy.Weaknesses.Length > 0)
-                        {
-                            GameLogger.Info(ZString.Format("{0} weaknesses: {1}",
-                                enemy.UnitName, string.Join(", ", enemy.Weaknesses)), LogCategory.Battle);
-                        }
                     }
                     else
                     {

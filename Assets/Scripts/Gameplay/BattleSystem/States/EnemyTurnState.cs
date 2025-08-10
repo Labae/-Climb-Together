@@ -35,11 +35,11 @@ namespace Gameplay.BattleSystem.States
 
             if (currentEnemy != null)
             {
-                var stateInfo = currentEnemy.IsBroken
-                    ? ZString.Format(" (브레이크 {0}턴 남음)", currentEnemy.BreakTurnsRemaining)
+                var stateInfo = currentEnemy.Shield.IsBroken
+                    ? ZString.Format(" (브레이크 {0}턴 남음)", currentEnemy.Shield.BreakTurnsRemaining)
                     : "";
                 GameLogger.Info(ZString.Format("{0}턴 시작!{1}", currentEnemy.UnitName, stateInfo), LogCategory.Battle);
-                _timer = currentEnemy.IsBroken ? _breakTurnDelay : Random.Range(_minTurnDelay, _maxTurnDelay);
+                _timer = currentEnemy.Shield.IsBroken ? _breakTurnDelay : Random.Range(_minTurnDelay, _maxTurnDelay);
             }
             else
             {

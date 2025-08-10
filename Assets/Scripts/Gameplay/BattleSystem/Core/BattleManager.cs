@@ -55,7 +55,7 @@ namespace Gameplay.BattleSystem.Core
             _playerUnit = playerUnit ?? throw new ArgumentNullException(nameof(playerUnit));
             _enemyUnits = enemyUnits ?? throw new ArgumentNullException(nameof(enemyUnits));
 
-            _activeEnemies = _enemyUnits.Where(e => e != null && e.IsAlive).ToList();
+            _activeEnemies = _enemyUnits.Where(e => e != null).ToList();
 
             _stateMachine = new StateMachine<BattleState>(
                 initialState: BattleState.BattleStart);
@@ -113,14 +113,14 @@ namespace Gameplay.BattleSystem.Core
         {
             if (_playerUnit != null)
             {
-                _playerUnit.OnUnitDefeated += OnPlayerDefeated;
+                _playerUnit.Health.OnUnitDefeated += OnPlayerDefeated;
             }
 
             foreach (var enemyUnit in _enemyUnits)
             {
                 if (enemyUnit != null)
                 {
-                    enemyUnit.OnUnitDefeated += OnEnemyDefeated;
+                    enemyUnit.Health.OnUnitDefeated += () => OnEnemyDefeated(enemyUnit);
                 }
             }
 
@@ -185,7 +185,7 @@ namespace Gameplay.BattleSystem.Core
 
         private void ExecutePlayerAttack(EnemyUnit target, WeaponType weaponType)
         {
-            if (target == null || !target.IsAlive)
+            if (target == null || !target.Health.IsAlive)
             {
                 GameLogger.Warning("Invalid target for player attack", LogCategory.Battle);
                 return;
@@ -194,10 +194,10 @@ namespace Gameplay.BattleSystem.Core
             GameLogger.Debug(ZString.Format("Player attacking {0} with {1}", target.UnitName, weaponType), LogCategory.Battle);
 
             // 공격 실행
-            _playerUnit.AttackTarget(target, weaponType);
+            _playerUnit.Combat.ExecuteAttack(_playerUnit, target, weaponType);
 
             // 타겟이 죽었으면 활성 목록에서 제거
-            if (!target.IsAlive)
+            if (!target.Health.IsAlive)
             {
                 _activeEnemies.Remove(target);
             }
@@ -211,7 +211,7 @@ namespace Gameplay.BattleSystem.Core
             }
 
             // 플레이어가 죽었는지 확인
-            if (!_playerUnit.IsAlive)
+            if (!_playerUnit.Health.IsAlive)
             {
                 Winner = _activeEnemies.Count > 0 ? _activeEnemies[0] : null;
                 _stateMachine.ChangeState(BattleState.BattleEnd);
@@ -230,7 +230,7 @@ namespace Gameplay.BattleSystem.Core
             }
 
             var currentEnemy = CurrentEnemy;
-            if (currentEnemy == null || !currentEnemy.IsAlive)
+            if (currentEnemy == null || !currentEnemy.Health.IsAlive)
             {
                 GameLogger.Warning("현재 적이 null이거나 죽었습니다. 다음 턴으로 진행", LogCategory.Battle);
                 AdvanceToNextEnemyTurn();
@@ -238,23 +238,23 @@ namespace Gameplay.BattleSystem.Core
             }
 
 
-            currentEnemy.OnTurnStart();
-            if (currentEnemy.IsBroken)
+            currentEnemy.Turn.OnTurnStart();
+            if (currentEnemy.Shield.IsBroken)
             {
                 GameLogger.Info(ZString.Format("{0}은(는) 브레이크 상태로 턴을 건너뜁니다! (남은 턴: {1})",
-                    currentEnemy.UnitName, currentEnemy.BreakTurnsRemaining), LogCategory.Battle);
-                currentEnemy.OnTurnEnd();
+                    currentEnemy.UnitName, currentEnemy.Shield.BreakTurnsRemaining), LogCategory.Battle);
+                currentEnemy.Turn.OnTurnEnd();
                 AdvanceToNextEnemyTurn();
                 return;
             }
 
             // 적 공격 실행 (기본 검 공격)
-            currentEnemy.AttackTarget(_playerUnit, WeaponType.Sword);
+            currentEnemy.Combat.ExecuteAttack(currentEnemy, _playerUnit, WeaponType.Sword);
             GameLogger.Debug($"{currentEnemy.UnitName}이(가) 플레이어를 공격합니다!", LogCategory.Battle);
-            currentEnemy.OnTurnEnd();
+            currentEnemy.Turn.OnTurnEnd();
 
             // 플레이어가 죽었으면 게임 종료
-            if (!_playerUnit.IsAlive)
+            if (!_playerUnit.Health.IsAlive)
             {
                 Winner = currentEnemy;
                 _stateMachine.ChangeState(BattleState.BattleEnd);
@@ -267,7 +267,7 @@ namespace Gameplay.BattleSystem.Core
 
         public bool HasMoreEnemyTurns()
         {
-            _activeEnemies = _activeEnemies.Where(e => e != null && e.IsAlive).ToList();
+            _activeEnemies = _activeEnemies.Where(e => e != null && e.Health.IsAlive).ToList();
 
             // 모든 적이 죽었으면 false
             if (_activeEnemies.Count == 0)
@@ -297,7 +297,7 @@ namespace Gameplay.BattleSystem.Core
         private void StartEnemyTurns()
         {
             // 죽은 적들 정리
-            _activeEnemies = _activeEnemies.Where(e => e != null && e.IsAlive).ToList();
+            _activeEnemies = _activeEnemies.Where(e => e != null && e.Health.IsAlive).ToList();
 
             if (_activeEnemies.Count == 0)
             {
@@ -317,7 +317,7 @@ namespace Gameplay.BattleSystem.Core
         private void AdvanceToNextEnemyTurn()
         {
             // 죽은 적들을 활성 목록에서 정리
-            _activeEnemies = _activeEnemies.Where(e => e != null && e.IsAlive).ToList();
+            _activeEnemies = _activeEnemies.Where(e => e != null && e.Health.IsAlive).ToList();
 
             // 모든 적이 죽었으면 플레이어 승리
             if (_activeEnemies.Count == 0)
@@ -351,7 +351,7 @@ namespace Gameplay.BattleSystem.Core
                 return false;
             }
 
-            if (!_playerUnit.IsAlive || _activeEnemies.Count == 0)
+            if (!_playerUnit.Health.IsAlive || _activeEnemies.Count == 0)
             {
                 GameLogger.Warning("Cannot execute player action: Player dead or no enemies", LogCategory.Battle);
                 return false;
@@ -374,7 +374,7 @@ namespace Gameplay.BattleSystem.Core
                 return false;
             }
 
-            if (!_playerUnit.IsAlive || _activeEnemies.Count == 0)
+            if (!_playerUnit.Health.IsAlive || _activeEnemies.Count == 0)
             {
                 GameLogger.Warning("Cannot execute enemy action: Invalid state", LogCategory.Battle);
                 return false;
@@ -414,7 +414,7 @@ namespace Gameplay.BattleSystem.Core
             }
         }
 
-        private void OnPlayerDefeated(BattleUnit unit)
+        private void OnPlayerDefeated()
         {
             GameLogger.Debug("Player has been defeated!", LogCategory.Battle);
             Winner = _activeEnemies.Count > 0 ? _activeEnemies[0] : null;
@@ -431,7 +431,7 @@ namespace Gameplay.BattleSystem.Core
             sb.AppendLine("=== BattleManager Debug Info ===");
             sb.AppendLine(ZString.Format("Initialized: {0}", IsInitialized));
             sb.AppendLine(ZString.Format("Disposed: {0}", IsDisposed));
-            sb.AppendLine(ZString.Format("Player: {0} (Alive: {1})", _playerUnit?.UnitName ?? "null", _playerUnit?.IsAlive ?? false));
+            sb.AppendLine(ZString.Format("Player: {0} (Alive: {1})", _playerUnit?.UnitName ?? "null", _playerUnit?.Health.IsAlive ?? false));
             sb.AppendLine(ZString.Format("Total Enemies: {0}", _enemyUnits?.Count ?? 0));
             sb.AppendLine(ZString.Format("Active Enemies: {0}", _activeEnemies?.Count ?? 0));
 
@@ -440,7 +440,7 @@ namespace Gameplay.BattleSystem.Core
                 for (int i = 0; i < _activeEnemies.Count; i++)
                 {
                     sb.AppendLine(ZString.Format("  Enemy {0}: {1} (HP: {2})",
-                        i, _activeEnemies[i]?.UnitName ?? "null", _activeEnemies[i]?.IsAlive ?? false));
+                        i, _activeEnemies[i]?.UnitName ?? "null", _activeEnemies[i]?.Health.IsAlive ?? false));
                 }
             }
 
@@ -473,15 +473,7 @@ namespace Gameplay.BattleSystem.Core
 
                 if (_playerUnit != null)
                 {
-                    _playerUnit.OnUnitDefeated -= OnPlayerDefeated;
-                }
-
-                foreach (var enemy in _enemyUnits)
-                {
-                    if (enemy != null)
-                    {
-                        enemy.OnUnitDefeated -= OnEnemyDefeated;
-                    }
+                    _playerUnit.Health.OnUnitDefeated -= OnPlayerDefeated;
                 }
 
                 Winner = null;
