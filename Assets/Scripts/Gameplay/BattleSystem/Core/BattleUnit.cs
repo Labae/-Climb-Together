@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Cysharp.Text;
+using Data.BattleSystem.Configs;
 using Gameplay.BattleSystem.Components;
 using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Interfaces;
@@ -11,20 +13,8 @@ namespace Gameplay.BattleSystem.Core
 {
     public abstract class BattleUnit : MonoBehaviour
     {
-        [Header("Unit Data")] [SerializeField] private string _unitName = "Unit_";
-        [SerializeField] private BattleStats _stats;
-        [SerializeField] private SpriteRenderer _spriteRenderer;
-
-        [Header("Weakness System")] [SerializeField]
-        private WeaponType[] _weaknesses;
-
-        [Header("Shield System")] [SerializeField]
-        private int _maxShield = 3;
-
-        [SerializeField] private int _breakDuration = 2;
-        [SerializeField] private float _breakDamageMultiplier = 2f;
-
-        [Inject] protected IEventBus _eventBus;
+        [Header("Unit Configuration")]
+        [SerializeField, Required] private UnitConfig _unitConfig;
 
         // Components
         public IHealthComponent Health { get; private set; }
@@ -33,32 +23,28 @@ namespace Gameplay.BattleSystem.Core
         public ICombatComponent Combat { get; private set; }
         public ITurnComponent Turn { get; private set; }
 
-        public string UnitName => _unitName;
-        public BattleStats Stats => _stats;
+        public string UnitName => _unitConfig?.UnitName ?? "Unknown Unit";
+        public BattleStats Stats => _unitConfig?.Stats;
+        public UnitConfig UnitConfig => _unitConfig;
 
         private void Awake()
         {
             InitializeComponents();
         }
 
-        private void Start()
-        {
-            Health.Initialize(_stats.MaxHealth);
-            Weakness.Initialize(_weaknesses);
-            Shield.Initialize(_maxShield, _breakDuration, _breakDamageMultiplier);
-            Combat.Initialize(_stats, _unitName, _eventBus);
-            Turn.Initialize(_unitName, Shield);
-        }
-
         private void InitializeComponents()
         {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-
             Health = new HealthComponent();
             Weakness = new WeaknessComponent();
             Shield = new ShieldComponent();
             Combat = new CombatComponent();
             Turn = new TurnComponent();
+
+            Health.Initialize(_unitConfig.Stats.MaxHealth);
+            Weakness.Initialize(_unitConfig.Weaknesses);
+            Shield.Initialize(_unitConfig.MaxShield, _unitConfig.BreakDuration, _unitConfig.BreakDamageMultiplier);
+            Combat.Initialize(_unitConfig.Stats);
+            Turn.Initialize(_unitConfig.UnitName, Shield);
         }
 
         #region Debugging
@@ -66,7 +52,7 @@ namespace Gameplay.BattleSystem.Core
         public string GetDebugInfo()
         {
             using var sb = ZString.CreateStringBuilder();
-            sb.AppendLine(ZString.Format("=== {0} Debug Info ===", _unitName));
+            sb.AppendLine(ZString.Format("=== {0} Debug Info ===", UnitName));
             sb.AppendLine(Health.ToString());
             sb.AppendLine(Shield.ToString());
             sb.AppendLine(Weakness.ToString());

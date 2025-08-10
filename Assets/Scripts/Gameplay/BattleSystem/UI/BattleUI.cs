@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Utilities;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
+using Data.BattleSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using DG.Tweening;

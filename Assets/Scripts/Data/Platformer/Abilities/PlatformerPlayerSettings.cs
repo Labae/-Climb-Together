@@ -6,7 +6,7 @@ namespace Data.Platformer.Abilities
 {
     namespace Data.Player
     {
-        [CreateAssetMenu(fileName = nameof(PlatformerPlayerSettings), menuName = "Gameplay/Player/" + nameof(PlatformerPlayerSettings))]
+        [CreateAssetMenu(fileName = nameof(PlatformerPlayerSettings), menuName = "Gameplay/Platformer/Player/" + nameof(PlatformerPlayerSettings))]
         public class PlatformerPlayerSettings : ScriptableObject
         {
             [Header("Player Info")] public string PlayerName = "MegaPlayer";

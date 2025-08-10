@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Text;
+using Data.BattleSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Enum;
@@ -193,8 +194,20 @@ namespace Gameplay.BattleSystem.Core
 
             GameLogger.Debug(ZString.Format("Player attacking {0} with {1}", target.UnitName, weaponType), LogCategory.Battle);
 
-            // 공격 실행
-            _playerUnit.Combat.ExecuteAttack(_playerUnit, target, weaponType);
+            // 1. 약점 확인
+            bool isWeaknessHit = target.Weakness.IsWeaknessHit(weaponType);
+
+            // 2. 실드 처리
+            if (isWeaknessHit && target.Shield.CurrentShield > 0)
+            {
+                target.Shield.DamageShield(1);
+                GameLogger.Debug(ZString.Format("{0}의 실드 파괴! 남은 실드: {1}",
+                    target.UnitName, target.Shield.CurrentShield), LogCategory.Battle);
+            }
+
+            // 3. 데미지 처리
+            int damage = _playerUnit.Combat.CalculateDamage(target, weaponType);
+            target.Health.TakeDamage(damage);
 
             // 타겟이 죽었으면 활성 목록에서 제거
             if (!target.Health.IsAlive)
@@ -217,6 +230,8 @@ namespace Gameplay.BattleSystem.Core
                 _stateMachine.ChangeState(BattleState.BattleEnd);
                 return;
             }
+
+            PublishAttackEvent(_playerUnit, target, target.Weakness.IsWeaknessHit(weaponType), weaponType);
 
             // 적 턴 시작 - 첫 번째 적부터!
             StartEnemyTurns();
@@ -249,7 +264,23 @@ namespace Gameplay.BattleSystem.Core
             }
 
             // 적 공격 실행 (기본 검 공격)
-            currentEnemy.Combat.ExecuteAttack(currentEnemy, _playerUnit, WeaponType.Sword);
+
+            var weaponType = WeaponType.Sword;
+            // 1. 약점 확인
+            bool isWeaknessHit = _playerUnit.Weakness.IsWeaknessHit(weaponType);
+
+            // 2. 실드 처리
+            if (isWeaknessHit && _playerUnit.Shield.CurrentShield > 0)
+            {
+                _playerUnit.Shield.DamageShield(1);
+                GameLogger.Debug(ZString.Format("{0}의 실드 파괴! 남은 실드: {1}",
+                    _playerUnit.UnitName, _playerUnit.Shield.CurrentShield), LogCategory.Battle);
+            }
+
+            // 3. 데미지 처리
+            int damage = _playerUnit.Combat.CalculateDamage(_playerUnit, weaponType);
+            _playerUnit.Health.TakeDamage(damage);
+
             GameLogger.Debug($"{currentEnemy.UnitName}이(가) 플레이어를 공격합니다!", LogCategory.Battle);
             currentEnemy.Turn.OnTurnEnd();
 
@@ -260,6 +291,8 @@ namespace Gameplay.BattleSystem.Core
                 _stateMachine.ChangeState(BattleState.BattleEnd);
                 return;
             }
+
+            PublishAttackEvent(currentEnemy, _playerUnit, _playerUnit.Weakness.IsWeaknessHit(weaponType), weaponType);
 
             // 다음 적 턴으로 진행
             AdvanceToNextEnemyTurn();
@@ -290,6 +323,18 @@ namespace Gameplay.BattleSystem.Core
         {
             _currentEnemyIndex = 0;
             GameLogger.Debug("적 턴 인덱스가 0으로 리셋되었습니다", LogCategory.Battle);
+        }
+
+        private void PublishAttackEvent(BattleUnit attacker, BattleUnit target, bool isWeaknessHit, WeaponType weaponType)
+        {
+            // 로그 출력
+            string hitType = isWeaknessHit ? "약점 공격" : "일반 공격";
+            string breakStatus = target.Shield.IsBroken ? "(브레이크 상태)" : "";
+            GameLogger.Debug(ZString.Format("{0}이(가) {1}에게 {2}로 데미지를 입혔습니다! ({3}){4}",
+                attacker.UnitName, target.UnitName, weaponType, hitType, breakStatus), LogCategory.Battle);
+
+            // 공격 이벤트 발행
+            _eventBus.Publish(new UnitAttackedEvent(attacker, target));
         }
 
         #endregion

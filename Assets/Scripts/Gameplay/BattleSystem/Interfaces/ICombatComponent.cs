@@ -1,4 +1,6 @@
-﻿using Gameplay.BattleSystem.Core;
+﻿using Data.BattleSystem.Configs;
+using Data.BattleSystem.Enums;
+using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
 using Systems.EventBus;
 
@@ -8,8 +10,7 @@ namespace Gameplay.BattleSystem.Interfaces
     {
         BattleStats Stats { get; }
 
-        void Initialize(BattleStats stats, string unitName, IEventBus eventBus);
+        void Initialize(BattleStats stats);
         int CalculateDamage(BattleUnit target, WeaponType weaponType);
-        void ExecuteAttack(BattleUnit attacker, BattleUnit target, WeaponType weaponType);
     }
 }

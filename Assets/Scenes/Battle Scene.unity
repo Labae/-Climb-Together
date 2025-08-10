@@ -713,21 +713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e003c61e7444daebfc9a9e9fb4c65bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitName: "\uB9C8\uBC95\uC0AC"
-  _stats:
-    _maxHealth: 100
-    _attack: 10
-    _defense: 1
-    _speed: 1
-  _spriteRenderer: {fileID: 375565456}
-  _weaknesses: 00000000
-  _maxShield: 1
-  _breakDuration: 2
-  _breakDamageMultiplier: 2
-  _currentHealth: 0
-  _currentShield: 0
-  _currentState: 0
-  _breakTurnsRemaining: 0
+  _unitConfig: {fileID: 11400000, guid: 782f8b32d5d6448e98ddd3d255fc88f3, type: 2}
 --- !u!212 &375565456
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3696,21 +3682,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e003c61e7444daebfc9a9e9fb4c65bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitName: "\uC2AC\uB77C\uC784"
-  _stats:
-    _maxHealth: 20
-    _attack: 5
-    _defense: 1
-    _speed: 1
-  _spriteRenderer: {fileID: 1864356761}
-  _weaknesses: 02000000
-  _maxShield: 3
-  _breakDuration: 2
-  _breakDamageMultiplier: 2
-  _currentHealth: 0
-  _currentShield: 0
-  _currentState: 0
-  _breakTurnsRemaining: 0
+  _unitConfig: {fileID: 0}
 --- !u!212 &1864356761
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4449,21 +4421,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9d7de5623c427bbe605006a9e5c31f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitName: Hero
-  _stats:
-    _maxHealth: 50
-    _attack: 15
-    _defense: 8
-    _speed: 1
-  _spriteRenderer: {fileID: 2064142145}
-  _weaknesses: 02000000
-  _maxShield: 3
-  _breakDuration: 2
-  _breakDamageMultiplier: 2
-  _currentHealth: 0
-  _currentShield: 0
-  _currentState: 0
-  _breakTurnsRemaining: 0
+  _unitConfig: {fileID: 11400000, guid: 9cbd57b9e158a46df84b525a084c32e6, type: 2}
 --- !u!1 &2070610869
 GameObject:
   m_ObjectHideFlags: 0
@@ -4564,21 +4522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e003c61e7444daebfc9a9e9fb4c65bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitName: "\uBBF8\uB77C"
-  _stats:
-    _maxHealth: 40
-    _attack: 7
-    _defense: 1
-    _speed: 1
-  _spriteRenderer: {fileID: 2070610870}
-  _weaknesses: 01000000
-  _maxShield: 3
-  _breakDuration: 2
-  _breakDamageMultiplier: 2
-  _currentHealth: 0
-  _currentShield: 0
-  _currentState: 0
-  _breakTurnsRemaining: 0
+  _unitConfig: {fileID: 11400000, guid: bb4d39a7ca6234933931e4504cfa3426, type: 2}
 --- !u!1 &2076583466
 GameObject:
   m_ObjectHideFlags: 0

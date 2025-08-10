@@ -1,4 +1,6 @@
 ﻿using Cysharp.Text;
+using Data.BattleSystem.Configs;
+using Data.BattleSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core;
@@ -13,16 +15,12 @@ namespace Gameplay.BattleSystem.Components
     public class CombatComponent : ICombatComponent
     {
         private BattleStats _stats;
-        private string _unitName;
-        private IEventBus _eventBus;
 
         public BattleStats Stats => _stats;
 
-        public void Initialize(BattleStats stats, string unitName, IEventBus eventBus)
+        public void Initialize(BattleStats stats)
         {
             _stats = stats ?? throw new System.ArgumentNullException(nameof(stats));
-            _unitName = unitName ?? "Unknown Unit";
-            _eventBus = eventBus ?? throw new System.ArgumentNullException(nameof(eventBus));
         }
 
         public int CalculateDamage(BattleUnit target, WeaponType weaponType)
@@ -51,44 +49,6 @@ namespace Gameplay.BattleSystem.Components
             // 최소 1데미지 보장
             int finalDamage = Mathf.Max(1, calculatedDamage);
             return finalDamage;
-        }
-
-        public void ExecuteAttack(BattleUnit attacker, BattleUnit target, WeaponType weaponType)
-        {
-            if (attacker == null || target == null)
-            {
-                GameLogger.Warning("Cannot execute attack: attacker or target is null.", LogCategory.Battle);
-                return;
-            }
-
-            if (!attacker.Health.IsAlive || !target.Health.IsAlive)
-            {
-                GameLogger.Warning("Cannot execute attack: attacker or target is not alive.", LogCategory.Battle);
-                return;
-            }
-
-            bool isWeaknessHit = target.Weakness.IsWeaknessHit(weaponType);
-
-            // 실드 처리
-            if (isWeaknessHit && target.Shield.CurrentShield > 0)
-            {
-                target.Shield.DamageShield(1);
-                GameLogger.Debug(ZString.Format("{0}의 실드 파괴! 남은 실드: {1}",
-                    target.UnitName, target.Shield.CurrentShield), LogCategory.Battle);
-            }
-
-            // 데미지 처리
-            int damage = CalculateDamage(target, weaponType);
-            target.Health.TakeDamage(damage);
-
-            // 로그 출력
-            string hitType = isWeaknessHit ? "약점 공격" : "일반 공격";
-            string breakStatus = target.Shield.IsBroken ? "(브레이크 상태)" : "";
-            GameLogger.Debug(ZString.Format("{0}이(가) {1}에게 {2}로 {3} 데미지를 입혔습니다! ({4}){5}",
-                _unitName, target.UnitName, weaponType, damage, hitType, breakStatus), LogCategory.Battle);
-
-            // 공격 이벤트 발행
-            _eventBus.Publish(new UnitAttackedEvent(attacker, target));
         }
 
         public override string ToString()
