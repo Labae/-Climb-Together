@@ -45,7 +45,7 @@ namespace Gameplay.BattleSystem.States
                 else
                 {
                     GameLogger.Debug("EnemyTurnTransition: 모든 적 턴 완료, 플레이어 턴으로 이동", LogCategory.Battle);
-                    _battleManager.ResetEnemyTurnIndex();  // 인덱스 리셋
+                    _battleManager.ResetTurnIndex();  // 인덱스 리셋
                     ChangeState(BattleState.PlayerTurn);
                 }
             }
