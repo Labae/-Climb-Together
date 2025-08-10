@@ -5,6 +5,7 @@ using Debugging.Enum;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Events;
 using Systems.EventBus;
+using VContainer;
 
 namespace Gameplay.BattleSystem.Services
 {
@@ -13,12 +14,8 @@ namespace Gameplay.BattleSystem.Services
     /// </summary>
     public class AttackService
     {
+        [Inject]
         private readonly IEventBus _eventBus;
-
-        public AttackService(IEventBus eventBus)
-        {
-            _eventBus = eventBus;
-        }
 
         public AttackResult ExecuteAttack(BattleUnit attacker, BattleUnit target, WeaponType weaponType)
         {

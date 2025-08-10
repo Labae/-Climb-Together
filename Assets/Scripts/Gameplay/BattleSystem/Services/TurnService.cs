@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Text;
 using Debugging;
 using Debugging.Enum;
-using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Units;
 
 namespace Gameplay.BattleSystem.Services
@@ -13,7 +11,7 @@ namespace Gameplay.BattleSystem.Services
     /// </summary>
     public class TurnService
     {
-        private readonly List<EnemyUnit> _activeEnemies;
+        private List<EnemyUnit> _activeEnemies;
         private int _currentEnemyIndex = 0;
 
         public int CurrentEnemyIndex => _currentEnemyIndex;
@@ -24,7 +22,7 @@ namespace Gameplay.BattleSystem.Services
                 : null;
         public int ActiveEnemyCount => _activeEnemies.Count;
 
-        public TurnService(List<EnemyUnit> activeEnemies)
+        public void Initialize(List<EnemyUnit> activeEnemies)
         {
             _activeEnemies = activeEnemies;
         }

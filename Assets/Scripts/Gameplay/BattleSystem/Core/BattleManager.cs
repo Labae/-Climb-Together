@@ -29,9 +29,12 @@ namespace Gameplay.BattleSystem.Core
         [Inject] private readonly IEventBus _eventBus;
 
         // Services
-        private AttackService _attackService;
-        private TurnService _turnService;
-        private BattleConditionService _conditionService;
+        [Inject]
+        private readonly AttackService _attackService;
+        [Inject]
+        private readonly TurnService _turnService;
+        [Inject]
+        private readonly BattleConditionService _conditionService;
 
         public PlayerUnit PlayerUnit => _playerUnit;
         public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
@@ -72,7 +75,7 @@ namespace Gameplay.BattleSystem.Core
 
             try
             {
-                InitializeServices();
+                _turnService.Initialize(_enemyUnits.Where(e => e != null && e.Health.IsAlive).ToList());
                 SetupUIEvents();
                 SetupStateMachine();
                 PublishBattleStartedEvent();
@@ -86,13 +89,6 @@ namespace Gameplay.BattleSystem.Core
                     LogCategory.Battle);
                 throw;
             }
-        }
-
-        private void InitializeServices()
-        {
-            _attackService = new AttackService(_eventBus);
-            _turnService = new TurnService(_enemyUnits.Where(e => e != null && e.Health.IsAlive).ToList());
-            _conditionService = new BattleConditionService();
         }
 
         private void SetupStateMachine()
