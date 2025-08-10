@@ -68,6 +68,7 @@ namespace Gameplay.BattleSystem.Components
 
             int previousShield = _currentShield;
             _currentShield = Mathf.Max(0, _currentShield - amount);
+            int appliedShieldDamage = previousShield - _currentShield;
 
             if (previousShield == _currentShield)
             {
@@ -75,7 +76,7 @@ namespace Gameplay.BattleSystem.Components
             }
 
             OnShieldChanged?.Invoke(previousShield, _currentShield);
-            OnShieldDamaged?.Invoke(amount);
+            OnShieldDamaged?.Invoke(appliedShieldDamage);
 
             if (_currentShield <= 0 && _currentState == UnitState.Normal)
             {
@@ -118,11 +119,7 @@ namespace Gameplay.BattleSystem.Components
             GameLogger.Info("브레이크 해제! 실드 복구 완료", LogCategory.Battle);
 
             OnUnitRecovered?.Invoke();
-
-            if (_maxShield > 0)
-            {
-                OnShieldChanged?.Invoke(0, _maxShield);
-            }
+            OnShieldChanged?.Invoke(_currentShield, _maxShield);
         }
 
         public void ForceRecover()

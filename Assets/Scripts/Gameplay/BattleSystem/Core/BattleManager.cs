@@ -120,19 +120,7 @@ namespace Gameplay.BattleSystem.Core
         {
             if (_battleUI != null)
             {
-                _battleUI.OnAttackButtonClicked += (weaponType) =>
-                {
-                    var activeEnemies = _turnService.GetActiveEnemies();
-                    if (activeEnemies.Count == 1)
-                    {
-                        ExecutePlayerAttack(activeEnemies[0], weaponType);
-                    }
-                    else
-                    {
-                        _battleUI.ShowTargetSelection(activeEnemies, weaponType);
-                    }
-                };
-
+                _battleUI.OnAttackButtonClicked += OnPlayerAttackClicked;
                 _battleUI.OnTargetSelected += ExecutePlayerAttack;
                 _playerUnit.Health.OnUnitDefeated += () => EndBattle(null, "Player defeated");
                 GameLogger.Debug("Battle UI events connected", LogCategory.Battle);
@@ -181,6 +169,19 @@ namespace Gameplay.BattleSystem.Core
         #endregion
 
         #region Battle Actions
+
+        private void OnPlayerAttackClicked(WeaponType weaponType)
+        {
+            var activeEnemies = _turnService.GetActiveEnemies();
+            if (activeEnemies.Count == 1)
+            {
+                ExecutePlayerAttack(activeEnemies[0], weaponType);
+            }
+            else
+            {
+                _battleUI.ShowTargetSelection(activeEnemies, weaponType);
+            }
+        }
 
         private void ExecutePlayerAttack(EnemyUnit target, WeaponType weaponType)
         {
@@ -290,8 +291,8 @@ namespace Gameplay.BattleSystem.Core
             {
                 if (_battleUI != null)
                 {
-                    _battleUI.OnAttackButtonClicked -= null;
-                    _battleUI.OnTargetSelected -= null;
+                    _battleUI.OnAttackButtonClicked -= OnPlayerAttackClicked;
+                    _battleUI.OnTargetSelected -= ExecutePlayerAttack;
                 }
 
                 Winner = null;

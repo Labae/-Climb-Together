@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Data.BattleSystem.Enums;
 using UnityEngine;
 
@@ -15,12 +16,12 @@ namespace Data.BattleSystem.Configs
         [Header("Stats")] [SerializeField] private BattleStats _stats;
 
         [Header("Weakness System")] [SerializeField]
-        private WeaponType[] _weaknesses;
+        private WeaponType[] _weaknesses = Array.Empty<WeaponType>();
 
-        [Header("Shield System")] [SerializeField]
+        [Header("Shield System")] [SerializeField] [Min(0)]
         private int _maxShield = 3;
 
-        [SerializeField] private int _breakDuration = 2;
+        [SerializeField] [Min(0)] private int _breakDuration = 2;
         [SerializeField] [Range(1f, 5f)] private float _breakDamageMultiplier = 2f;
 
         public string UnitName => _unitName;
