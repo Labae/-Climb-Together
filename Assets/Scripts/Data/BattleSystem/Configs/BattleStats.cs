@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Gameplay.BattleSystem.Core
+namespace Data.BattleSystem.Configs
 {
     [Serializable]
     public class BattleStats

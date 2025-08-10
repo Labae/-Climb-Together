@@ -1,4 +1,4 @@
-﻿namespace Gameplay.BattleSystem.Enum
+﻿namespace Data.BattleSystem.Enums
 {
     public enum WeaponType
     {

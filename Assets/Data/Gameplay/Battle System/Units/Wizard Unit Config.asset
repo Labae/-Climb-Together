@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c045dbbf55994018bf37dda4e2d0e37b, type: 3}
+  m_Name: Wizard Unit Config
+  m_EditorClassIdentifier: 
+  _unitName: Wizard
+  _unitIcon: {fileID: 4335250483284255847, guid: f1e3d86b3f93549f8a831ea30d39cc81, type: 3}
+  _description: 
+  _stats:
+    _maxHealth: 50
+    _attack: 10
+    _defense: 5
+    _speed: 1
+  _weaknesses: 01000000
+  _maxShield: 5
+  _breakDuration: 3
+  _breakDamageMultiplier: 1.4

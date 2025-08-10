@@ -24,7 +24,7 @@ namespace Gameplay.BattleSystem.Interfaces
         void Initialize();
         void ExecuteEnemyAction();
         bool HasMoreEnemyTurns();
-        void ResetEnemyTurnIndex();
+        void ResetTurnIndex();
         string GetDebugInfo();
     }
 }

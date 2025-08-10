@@ -13,18 +13,15 @@ namespace Gameplay.BattleSystem.UI
 {
     public class EnemyStatsUI : MonoBehaviour
     {
-        [Header("Enemy Name")]
-        [SerializeField]
+        [Header("Enemy Name")] [SerializeField]
         private TextMeshProUGUI _enemyNameText;
 
-        [Header("Health Bar")]
-        [SerializeField]
+        [Header("Health Bar")] [SerializeField]
         private RectTransform _healthBarContainer;
 
         [SerializeField] private Image _healthBarFill;
 
-        [Header("Health Bar Animation Settings")]
-        [SerializeField]
+        [Header("Health Bar Animation Settings")] [SerializeField]
         private float _healthAnimationDuration = 0.4f;
 
         [SerializeField] private float _healthColorDuration = 0.3f;
@@ -32,29 +29,25 @@ namespace Gameplay.BattleSystem.UI
         [SerializeField] private float _shakeDuration = 0.3f;
         [SerializeField] private Ease _healthEase = Ease.OutQuart;
 
-        [Header("Health Bar Colors")]
-        [SerializeField]
+        [Header("Health Bar Colors")] [SerializeField]
         private Color _healthFullColor = new Color(0.2f, 0.8f, 0.2f);
 
         [SerializeField] private Color _healthMediumColor = new Color(0.9f, 0.7f, 0.1f);
         [SerializeField] private Color _healthLowColor = new Color(0.9f, 0.2f, 0.2f);
         [SerializeField] private Color _healthWarningColor = new Color(0.9f, 0.2f, 0.2f, 0.3f);
 
-        [Header("Low Health Warning")]
-        [SerializeField]
+        [Header("Low Health Warning")] [SerializeField]
         private bool _enableLowHealthWarning = true;
 
         [SerializeField] private float _warningThreshold = 0.3f;
         [SerializeField] private float _warningBlinkSpeed = 1.5f;
 
-        [Header("Shield System")]
-        [SerializeField]
+        [Header("Shield System")] [SerializeField]
         private RectTransform _shieldContainer;
 
         [SerializeField] private GameObject _shieldIconPrefab;
 
-        [Header("Shield Animation Settings")]
-        [SerializeField]
+        [Header("Shield Animation Settings")] [SerializeField]
         private float _shieldAnimationDuration = 0.5f;
 
         [SerializeField] private float _shieldAnimationDelay = 0.5f;
@@ -122,7 +115,7 @@ namespace Gameplay.BattleSystem.UI
             // 기초 아이콘 정리
             ClearShieldIcons();
 
-            int maxShield = _targetUnit.MaxShield;
+            int maxShield = _targetUnit.Shield.MaxShield;
             for (int i = 0; i < maxShield; i++)
             {
                 var iconObj = Instantiate(_shieldIconPrefab, _shieldContainer);
@@ -142,12 +135,12 @@ namespace Gameplay.BattleSystem.UI
                 return;
             }
 
-            _targetUnit.OnHealthChanged += OnHealthChanged;
-            _targetUnit.OnShieldChanged += OnShieldChanged;
-            _targetUnit.OnUnitBroken += OnUnitBroken;
-            _targetUnit.OnUnitRecovered += OnUnitRecovered;
-            _targetUnit.OnUnitDefeated += OnUnitDefeated;
-            _targetUnit.OnShieldDamaged += OnShieldDamaged;
+            _targetUnit.Health.OnHealthChanged += OnHealthChanged;
+            _targetUnit.Health.OnUnitDefeated += OnUnitDefeated;
+            _targetUnit.Shield.OnShieldChanged += OnShieldChanged;
+            _targetUnit.Shield.OnUnitBroken += OnUnitBroken;
+            _targetUnit.Shield.OnUnitRecovered += OnUnitRecovered;
+            _targetUnit.Shield.OnShieldDamaged += OnShieldDamaged;
         }
 
         private void UnsubscribeToUnitEvents()
@@ -157,12 +150,12 @@ namespace Gameplay.BattleSystem.UI
                 return;
             }
 
-            _targetUnit.OnHealthChanged -= OnHealthChanged;
-            _targetUnit.OnShieldChanged -= OnShieldChanged;
-            _targetUnit.OnUnitBroken -= OnUnitBroken;
-            _targetUnit.OnUnitRecovered -= OnUnitRecovered;
-            _targetUnit.OnUnitDefeated -= OnUnitDefeated;
-            _targetUnit.OnShieldDamaged -= OnShieldDamaged;
+            _targetUnit.Health.OnHealthChanged -= OnHealthChanged;
+            _targetUnit.Health.OnUnitDefeated -= OnUnitDefeated;
+            _targetUnit.Shield.OnShieldChanged -= OnShieldChanged;
+            _targetUnit.Shield.OnUnitBroken -= OnUnitBroken;
+            _targetUnit.Shield.OnUnitRecovered -= OnUnitRecovered;
+            _targetUnit.Shield.OnShieldDamaged -= OnShieldDamaged;
         }
 
         #endregion
@@ -189,19 +182,19 @@ namespace Gameplay.BattleSystem.UI
             UpdateShieldDisplayAnimated(currentShield).Forget();
         }
 
-        private void OnUnitBroken(BattleUnit obj)
+        private void OnUnitBroken()
         {
         }
 
-        private void OnUnitRecovered(BattleUnit unit)
+        private void OnUnitRecovered()
         {
         }
 
-        private void OnUnitDefeated(BattleUnit obj)
+        private void OnUnitDefeated()
         {
         }
 
-        private void OnShieldDamaged(BattleUnit unit, int amount)
+        private void OnShieldDamaged(int amount)
         {
         }
 

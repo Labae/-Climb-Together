@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gameplay.BattleSystem.Core;
+using Gameplay.BattleSystem.Services;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
 using NaughtyAttributes;
@@ -25,6 +26,7 @@ namespace Gameplay.BattleSystem.DI
         {
             RegisterUnits(builder);
             RegisterBattleUI(builder);
+            RegisterServices(builder);
             RegisterBattleManager(builder);
             RegisterInitializer(builder);
         }
@@ -50,6 +52,13 @@ namespace Gameplay.BattleSystem.DI
             {
                 builder.RegisterInstance(_battleUI);
             }
+        }
+
+        private void RegisterServices(IContainerBuilder builder)
+        {
+            builder.Register<AttackService>(Lifetime.Scoped);
+            builder.Register<TurnService>(Lifetime.Scoped);
+            builder.Register<BattleConditionService>(Lifetime.Scoped);
         }
 
         private void RegisterBattleManager(IContainerBuilder builder)
