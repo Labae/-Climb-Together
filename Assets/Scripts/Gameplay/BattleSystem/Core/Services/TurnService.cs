@@ -12,7 +12,7 @@ namespace Gameplay.BattleSystem.Core.Services
     /// <summary>
     /// 턴 관리 전담 서비스
     /// </summary>
-    public class TurnService
+    public class TurnService : IDisposable
     {
         [Inject] private readonly TurnOrderService _turnOrderService;
 
@@ -90,6 +90,16 @@ namespace Gameplay.BattleSystem.Core.Services
         public List<EnemyUnit> GetActiveEnemies()
         {
             return _enemyUnits?.Where(e => e != null && e.Health.IsAlive).ToList() ?? new List<EnemyUnit>();
+        }
+
+        public void Dispose()
+        {
+            if (_turnOrderService != null)
+            {
+                _turnOrderService.OnTurnChanged -= OnTurnChangedInternal;
+                _turnOrderService.OnTurnOrderUpdated -= OnTurnOrderUpdatedInternal;
+                _turnOrderService.OnRoundChanged -= OnRoundChangedInternal;
+            }
         }
     }
 }

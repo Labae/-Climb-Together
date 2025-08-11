@@ -26,7 +26,7 @@ namespace Data.WeaponSystem
         [Header("Speed Settings")]
         [SerializeField]
         [Range(-10, 10)]
-        private int speedBonus = 0;
+        private int _speedBonus = 0;
 
         [Header("Special Effects")]
         [SerializeField]
@@ -52,7 +52,7 @@ namespace Data.WeaponSystem
         public string WeaponName => _weaponName;
         public string Description => _description;
         public int FlatDamageBonus => _flatDamageBonus;
-        public int SpeedBonus => speedBonus;
+        public int SpeedBonus => _speedBonus;
         public bool CanIgnoreArmor => _canIgnoreArmor;
         public float ArmorPenetration => _armorPenetration;
         public float CriticalChance => _criticalChance;

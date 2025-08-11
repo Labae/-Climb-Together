@@ -78,13 +78,12 @@ namespace Gameplay.BattleSystem.Core
 
             try
             {
-                InitializeTurnSystem();
                 SetupUIEvents();
                 SetupStateMachine();
                 SubscribeBattleEvents();
+                InitializeTurnSystem();
 
                 _battleEventService.PublishBattleStarted(_playerUnit, _enemyUnits.ToArray<BattleUnit>());
-                OnTurnChanged(_turnOrderService.CurrentTurn);
 
                 IsInitialized = true;
                 GameLogger.Debug("Battle Manager is initialized", LogCategory.Battle);
@@ -104,6 +103,15 @@ namespace Gameplay.BattleSystem.Core
 
             _turnService.OnTurnChanged += OnTurnChanged;
             _turnService.OnRoundChanged += OnRoundChanged;
+
+            if ( _turnService.IsPlayerTurn)
+            {
+                _stateMachine.ChangeState(BattleState.PlayerTurn);
+            }
+            else
+            {
+                _stateMachine.ChangeState(BattleState.EnemyTurnTransition);
+            }
         }
 
         private void OnTurnChanged(TurnOrderEntry turnEntry)

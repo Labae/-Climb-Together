@@ -60,13 +60,7 @@ namespace Gameplay.BattleSystem.Core.Services
             for (int i = 0; i < sortedUnits.Count; i++)
             {
                 var unit = sortedUnits[i];
-                var entry = new TurnOrderEntry()
-                {
-                    Unit = unit,
-                    Speed = unit.GetBehaviourSpeed(),
-                    OrderIndex = i,
-                    IsPlayer = unit is PlayerUnit,
-                };
+                var entry = new TurnOrderEntry(unit, unit.GetBehaviourSpeed(), i, unit is PlayerUnit);
                 _turnOrder.Add(entry);
             }
 
@@ -126,8 +120,6 @@ namespace Gameplay.BattleSystem.Core.Services
                     if (_currentTurnIndex >= _turnOrder.Count)
                     {
                         _currentTurnIndex = 0;
-                        _roundNumber++;
-                        OnRoundChanged?.Invoke(_roundNumber);
                     }
                 }
             }
@@ -142,11 +134,19 @@ namespace Gameplay.BattleSystem.Core.Services
     [Serializable]
     public class TurnOrderEntry
     {
-        public BattleUnit Unit { get; set; }
-        public int Speed { get; set; }
-        public int OrderIndex { get; set; }
-        public bool IsPlayer { get; set; }
+        public BattleUnit Unit { get; private set; }
+        public int Speed { get; private set; }
+        public int OrderIndex { get; private set; }
+        public bool IsPlayer { get; private set; }
 
         public bool IsValid => Unit != null && Unit.Health.IsAlive;
+
+        public TurnOrderEntry(BattleUnit unit, int speed, int orderIndex, bool isPlayer)
+        {
+            Unit = unit;
+            Speed = speed;
+            OrderIndex = orderIndex;
+            IsPlayer = isPlayer;
+        }
     }
 }

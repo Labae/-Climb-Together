@@ -40,6 +40,10 @@ namespace Gameplay.BattleSystem.States
                 GameLogger.Debug("EnemyTurnTransition: 다음 적 턴으로 이동", LogCategory.Battle);
                 ChangeState(BattleState.EnemyTurn);
             }
+            else
+            {
+                GameLogger.Warning("EnemyTurnTransition: No more enemy turns but state was entered", LogCategory.Battle);
+            }
             _timer = 0f;
         }
 
