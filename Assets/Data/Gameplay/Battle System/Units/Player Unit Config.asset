@@ -17,7 +17,7 @@ MonoBehaviour:
   _description: 
   _stats:
     _maxHealth: 100
-    _attack: 20
+    _attack: 3
     _defense: 5
     _speed: 1
   _weaknesses: 

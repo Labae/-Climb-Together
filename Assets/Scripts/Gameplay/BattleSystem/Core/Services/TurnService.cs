@@ -4,7 +4,7 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Units;
 
-namespace Gameplay.BattleSystem.Services
+namespace Gameplay.BattleSystem.Core.Services
 {
     /// <summary>
     /// 턴 관리 전담 서비스

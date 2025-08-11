@@ -2,12 +2,11 @@
 using Data.BattleSystem.Enums;
 using Debugging;
 using Debugging.Enum;
-using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Events;
 using Systems.EventBus;
 using VContainer;
 
-namespace Gameplay.BattleSystem.Services
+namespace Gameplay.BattleSystem.Core.Services
 {
     /// <summary>
     /// 공격 로직 전담 서비스
