@@ -77,5 +77,16 @@ namespace Gameplay.BattleSystem.Core
         }
 
         #endregion
+
+        public int GetBehaviourSpeed()
+        {
+            int bonus = 0;
+            if (EquippedWeapon != null)
+            {
+                bonus += EquippedWeapon.SpeedBonus;
+            }
+
+            return Stats.Speed + bonus;
+        }
     }
 }

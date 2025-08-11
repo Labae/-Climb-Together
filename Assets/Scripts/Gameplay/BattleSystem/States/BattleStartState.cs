@@ -20,8 +20,6 @@ namespace Gameplay.BattleSystem.States
         public override void OnEnter()
         {
             GameLogger.Info("전투 시작!", LogCategory.Battle);
-
-            ChangeState(BattleState.PlayerTurn);
         }
 
         public override void OnUpdate()

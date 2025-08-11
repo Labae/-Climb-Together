@@ -28,23 +28,24 @@ namespace Gameplay.BattleSystem.Core
         private readonly BattleUI _battleUI;
         private readonly CompositeDisposable _disposables = new();
 
-        [Inject]
-        private readonly IEventBus _eventBus;
+        [Inject] private readonly IEventBus _eventBus;
 
         // Services
-        [Inject]
-        private readonly BattleEventService _battleEventService;
-        [Inject]
-        private readonly AttackService _attackService;
-        [Inject]
-        private readonly TurnService _turnService;
-        [Inject]
-        private readonly BattleConditionService _conditionService;
+        [Inject] private readonly BattleEventService _battleEventService;
+        [Inject] private readonly AttackService _attackService;
+        [Inject] private readonly TurnOrderService _turnOrderService;
+        [Inject] private readonly TurnService _turnService;
+        [Inject] private readonly BattleConditionService _conditionService;
 
         public PlayerUnit PlayerUnit => _playerUnit;
         public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
 
-        public EnemyUnit CurrentEnemy => _turnService?.CurrentEnemy;
+        public TurnOrderEntry CurrentTurn => _turnOrderService.CurrentTurn;
+        public BattleUnit CurrentUnit => _turnService.CurrentUnit;
+        public bool IsPlayerTurn => _turnService.IsPlayerTurn;
+        public bool IsEnemyTurn => _turnService.IsEnemyTurn;
+
+        public EnemyUnit CurrentEnemy => _turnService.CurrentEnemy;
         public BattleUnit Winner { get; private set; }
         public bool IsInitialized { get; private set; }
         public bool IsDisposed { get; private set; }
@@ -77,12 +78,14 @@ namespace Gameplay.BattleSystem.Core
 
             try
             {
-                _turnService.Initialize(_enemyUnits.Where(e => e != null && e.Health.IsAlive).ToList());
+                InitializeTurnSystem();
                 SetupUIEvents();
                 SetupStateMachine();
                 SubscribeBattleEvents();
 
                 _battleEventService.PublishBattleStarted(_playerUnit, _enemyUnits.ToArray<BattleUnit>());
+                OnTurnChanged(_turnOrderService.CurrentTurn);
+
                 IsInitialized = true;
                 GameLogger.Debug("Battle Manager is initialized", LogCategory.Battle);
             }
@@ -92,6 +95,35 @@ namespace Gameplay.BattleSystem.Core
                     LogCategory.Battle);
                 throw;
             }
+        }
+
+        private void InitializeTurnSystem()
+        {
+            var aliveEnemies = _enemyUnits.Where(e => e != null && e.Health.IsAlive).ToList();
+            _turnService.Initialize(_playerUnit, aliveEnemies);
+
+            _turnService.OnTurnChanged += OnTurnChanged;
+            _turnService.OnRoundChanged += OnRoundChanged;
+        }
+
+        private void OnTurnChanged(TurnOrderEntry turnEntry)
+        {
+            GameLogger.Info(ZString.Format("{0}의 턴!", turnEntry
+                .Unit.UnitName));
+
+            if (turnEntry.IsPlayer)
+            {
+                _stateMachine.ChangeState(BattleState.PlayerTurn);
+            }
+            else
+            {
+                _stateMachine.ChangeState(BattleState.EnemyTurnTransition);
+            }
+        }
+
+        private void OnRoundChanged(int round)
+        {
+            GameLogger.Info(ZString.Format("=== 라운드 {0} 시작!", round));
         }
 
         private void SubscribeBattleEvents()
@@ -110,8 +142,8 @@ namespace Gameplay.BattleSystem.Core
             _stateMachine.AddState(new BattleStartState(this));
             _stateMachine.AddState(new BattleEndState(this, _battleUI));
             _stateMachine.AddState(new PlayerTurnState(_battleUI));
+            _stateMachine.AddState(new EnemyTurnTransitionState(_turnService));
             _stateMachine.AddState(new EnemyTurnState(this, _battleUI));
-            _stateMachine.AddState(new EnemyTurnTransitionState(this));
 
             GameLogger.Info("Starting Battle State Machine...", LogCategory.Battle);
             _stateMachine.TrySetInitialState(BattleState.BattleStart);
@@ -134,36 +166,11 @@ namespace Gameplay.BattleSystem.Core
             {
                 _battleUI.OnAttackButtonClicked += OnPlayerAttackClicked;
                 _battleUI.OnTargetSelected += ExecutePlayerAttack;
-                _playerUnit.Health.OnUnitDefeated += () => _battleEventService.PublishBattleEnded(null, "Player defeated");
+                _playerUnit.Health.OnUnitDefeated +=
+                    () => _battleEventService.PublishBattleEnded(null, "Player defeated");
                 GameLogger.Debug("Battle UI events connected", LogCategory.Battle);
             }
         }
-
-        #region Turn Management
-
-        private void StartEnemyTurns()
-        {
-            _turnService.ResetTurnIndex();
-            _stateMachine.ChangeState(BattleState.EnemyTurn);
-        }
-
-        private void AdvanceToNextEnemyTurn()
-        {
-            _turnService.AdvanceToNextEnemy();
-            _stateMachine.ChangeState(BattleState.EnemyTurnTransition);
-        }
-
-        public bool HasMoreEnemyTurns()
-        {
-            return _turnService.HasMoreEnemyTurns();
-        }
-
-        public void ResetTurnIndex()
-        {
-            _turnService.ResetTurnIndex();
-        }
-
-        #endregion
 
         #region Battle Actions
 
@@ -195,15 +202,7 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            var endCondition = _conditionService.CheckBattleEndCondition(_playerUnit, _turnService);
-            if (endCondition.ShouldEndBattle)
-            {
-                _battleEventService.PublishBattleEnded(endCondition.Winner, endCondition.Reason);
-                return;
-            }
-
-            // 적 턴 시작 - 첫 번째 적부터!
-            StartEnemyTurns();
+            FinishTurn();
         }
 
         public void ExecuteEnemyAction()
@@ -213,10 +212,11 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            var currentEnemy = _turnService.CurrentEnemy;
+            var currentEnemy = _turnService.CurrentUnit;
             if (currentEnemy == null)
             {
-                AdvanceToNextEnemyTurn();
+                GameLogger.Warning("현재 적이 없습니다!",  LogCategory.Battle);
+                FinishTurn();
                 return;
             }
 
@@ -226,13 +226,19 @@ namespace Gameplay.BattleSystem.Core
             {
                 GameLogger.Info(ZString.Format("{0} 브레이크 상태로 턴 건너뜀", currentEnemy.UnitName), LogCategory.Battle);
                 currentEnemy.Turn.OnTurnEnd();
-                AdvanceToNextEnemyTurn();
+                FinishTurn();
                 return;
             }
 
             _ = _attackService.ExecuteAttack(currentEnemy, _playerUnit, currentEnemy.EquippedWeapon);
             currentEnemy.Turn.OnTurnEnd();
 
+            // 다음 적 턴으로 진행
+            FinishTurn();
+        }
+
+        private void FinishTurn()
+        {
             var endCondition = _conditionService.CheckBattleEndCondition(_playerUnit, _turnService);
             if (endCondition.ShouldEndBattle)
             {
@@ -240,8 +246,7 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            // 다음 적 턴으로 진행
-            AdvanceToNextEnemyTurn();
+            _turnService.AdvanceToNextTurn();
         }
 
         #endregion
@@ -291,7 +296,11 @@ namespace Gameplay.BattleSystem.Core
                     _battleUI.OnAttackButtonClicked -= OnPlayerAttackClicked;
                     _battleUI.OnTargetSelected -= ExecutePlayerAttack;
                 }
-                _disposables.Dispose(); ;
+
+                _turnService.OnTurnChanged -= OnTurnChanged;
+                _turnService.OnRoundChanged -= OnRoundChanged;
+
+                _disposables.Dispose();
 
                 Winner = null;
                 IsInitialized = false;
