@@ -1,4 +1,4 @@
-﻿using Data.Common;
+﻿using Data.Platformer.Common;
 
 namespace Systems.Physics
 {

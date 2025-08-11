@@ -1,5 +1,5 @@
 ﻿using Cysharp.Text;
-using Data.BattleSystem.Enums;
+using Data.WeaponSystem;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Events;
@@ -34,25 +34,28 @@ namespace Gameplay.BattleSystem.Core.Services
                 LogCategory.Battle);
         }
 
-        public void PublishAttackAttempted(BattleUnit attacker, BattleUnit target, WeaponType weaponType)
+        public void PublishAttackAttempted(BattleUnit attacker, BattleUnit target, WeaponData weaponData)
         {
-            var evt = new AttackAttemptedEvent(attacker, target, weaponType);
+            var evt = new AttackAttemptedEvent(attacker, target, weaponData);
             _eventBus.Publish(evt);
         }
 
-        public void PublishAttackCompleted(AttackResult result)
+        public void PublishAttackCompleted(BattleAttackResult result)
         {
-            var evt = new AttackCompletedEvent(result.Attacker, result.Target,
-                result.WeaponType, result.Damage, result.IsWeaknessHit, result.WasTargetKilled);
+            var evt = new AttackCompletedEvent(
+                result.Attacker,
+                result.Target,
+                result.WeaponData,
+                result.FinalDamage,
+                result.IsWeaknessHit,
+                result.WasTargetKilled,
+                result.IsCritical,
+                result.WasShieldBroken
+                );
             // 공격 이벤트 발행
             _eventBus.Publish(evt);
 
-            // 로그 출력
-            string hitType = result.IsWeaknessHit ? "약점 공격" : "일반 공격";
-            string breakStatus = result.Target.Shield.IsBroken ? "(브레이크 상태)" : "";
-            string killStatus = result.WasTargetKilled ? " [처치!]" : "";
-            GameLogger.Debug(ZString.Format("{0}이(가) {1}에게 {2}로 {3} 데미지를 입혔습니다! ({4}){5}{6}",
-                result.Attacker.UnitName, result.Target.UnitName, result.WeaponType, result.Damage, hitType, breakStatus, killStatus), LogCategory.Battle);
+            GameLogger.Debug(result.GetAttackDescription(), LogCategory.Battle);
         }
     }
 }

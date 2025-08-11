@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39ac6fcb79b44dbe83433a41ca5eabe4, type: 3}
+  m_Name: RubyStaff Weapon Data
+  m_EditorClassIdentifier: 
+  _weaponType: 2
+  _weaponName: RubyStaff
+  _weaponIcon: {fileID: 21300000, guid: 9d88219331500463d9237eff0a4c7bf8, type: 3}
+  _description: "\uAC15\uB825\uD558\uC9C0\uB9CC \uB290\uB9B0 \uD654\uC5FC \uB9C8\uBC95\n"
+  _flatDamageBonus: 8
+  _speedModifier: -2
+  _canIgnoreArmor: 1
+  _armorPenetration: 0
+  _criticalChance: 0.1
+  _criticalMultiplier: 2.2
+  shieldDamage: 2

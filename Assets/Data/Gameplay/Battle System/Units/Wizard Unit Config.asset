@@ -9,18 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c045dbbf55994018bf37dda4e2d0e37b, type: 3}
+  m_Script: {fileID: 11500000, guid: 9686ce91cd3e407099a16a65eb3cd837, type: 3}
   m_Name: Wizard Unit Config
   m_EditorClassIdentifier: 
   _unitName: Wizard
-  _unitIcon: {fileID: 4335250483284255847, guid: f1e3d86b3f93549f8a831ea30d39cc81, type: 3}
+  _unitIcon: {fileID: 4859937266021203065, guid: 8b9836848e54c4a00aae0bb69d08e78b, type: 3}
   _description: 
   _stats:
-    _maxHealth: 50
+    _maxHealth: 20
     _attack: 10
-    _defense: 5
-    _speed: 1
-  _weaknesses: 01000000
-  _maxShield: 5
-  _breakDuration: 3
-  _breakDamageMultiplier: 1.4
+    _defense: 1
+    _speed: -2
+  _weaknesses: 00000000
+  _maxShield: 3
+  _breakDuration: 2
+  _breakDamageMultiplier: 2
+  _equippedWeaponType: {fileID: 11400000, guid: e732a255584234916933fc02c14c1176, type: 2}

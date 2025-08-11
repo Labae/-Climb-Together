@@ -34,7 +34,7 @@ namespace Gameplay.BattleSystem.Core.Services
 
             if (_activeEnemies.Count != beforeCount)
             {
-                GameLogger.Debug(ZString.Format("Active enemies updated: {0} -> {1}",  beforeCount, _activeEnemies.Count));
+                GameLogger.Debug(ZString.Format("Active enemies updated: {0} -> {1}", beforeCount, _activeEnemies.Count));
             }
 
             if (_currentEnemyIndex >= _activeEnemies.Count)

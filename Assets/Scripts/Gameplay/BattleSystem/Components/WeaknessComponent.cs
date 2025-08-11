@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Cysharp.Text;
-using Data.BattleSystem.Enums;
-using Gameplay.BattleSystem.Enum;
+using Data.WeaponSystem.Enums;
 using Gameplay.BattleSystem.Interfaces;
 
 namespace Gameplay.BattleSystem.Components

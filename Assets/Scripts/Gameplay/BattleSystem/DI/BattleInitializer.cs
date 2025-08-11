@@ -23,8 +23,8 @@ namespace Gameplay.BattleSystem.DI
         {
             GameLogger.Info("=== Battle System Initialization Started ===");
 
-            InitializeBattleUI();
             SetupBattleUnits();
+            InitializeBattleUI();
             InitializeBattleManager();
 
             GameLogger.Info("=== Battle System Initialization Completed ===");
@@ -36,7 +36,8 @@ namespace Gameplay.BattleSystem.DI
 
             if (_battleUI != null)
             {
-                _battleUI.Initialize();
+                _battleUI.Initialize(_playerUnit);
+                _battleUI.SetupEnemyStats(_enemyUnits).Forget();
                 GameLogger.Info("Battle UI Initialized.", LogCategory.Battle);
             }
             else
@@ -53,6 +54,7 @@ namespace Gameplay.BattleSystem.DI
             if (_playerUnit != null)
             {
                 _container.InjectGameObject(_playerUnit.gameObject);
+                _playerUnit.Initialize();
             }
             else
             {
@@ -68,6 +70,7 @@ namespace Gameplay.BattleSystem.DI
                     if (enemy != null)
                     {
                         _container.InjectGameObject(enemy.gameObject);
+                        enemy.Initialize();
                     }
                     else
                     {
@@ -75,7 +78,6 @@ namespace Gameplay.BattleSystem.DI
                     }
                 }
 
-                _battleUI.SetupEnemyStats(_enemyUnits).Forget();
                 GameLogger.Info(ZString.Format("Total {0} enemies set up", _enemyUnits.Count), LogCategory.Battle);
             }
             else

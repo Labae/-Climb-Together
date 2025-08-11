@@ -1,5 +1,5 @@
 ﻿using System;
-using Data.Common;
+using Data.Platformer.Common;
 using UnityEngine;
 
 namespace Data.Platformer.Settings

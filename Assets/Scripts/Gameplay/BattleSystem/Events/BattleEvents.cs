@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using Data.BattleSystem.Enums;
+using Data.WeaponSystem;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
-using Gameplay.BattleSystem.Units;
 
 namespace Gameplay.BattleSystem.Events
 {
@@ -47,13 +45,13 @@ namespace Gameplay.BattleSystem.Events
         public override string EventName => nameof(AttackAttemptedEvent);
         public BattleUnit Attacker { get; }
         public BattleUnit Victim { get; }
-        public WeaponType WeaponType { get; }
+        public WeaponData WeaponData { get; }
 
-        public AttackAttemptedEvent(BattleUnit attacker, BattleUnit victim, WeaponType weaponType)
+        public AttackAttemptedEvent(BattleUnit attacker, BattleUnit victim, WeaponData weaponData)
         {
             Attacker = attacker;
             Victim = victim;
-            WeaponType = weaponType;
+            WeaponData = weaponData;
         }
     }
 
@@ -62,19 +60,31 @@ namespace Gameplay.BattleSystem.Events
         public override string EventName => nameof(AttackCompletedEvent);
         public BattleUnit Attacker { get; }
         public BattleUnit Victim { get; }
-        public WeaponType WeaponType { get; }
+        public WeaponData WeaponData { get; }
         public int Damage { get; }
         public bool IsWeaknessHit { get; }
         public bool WasTargetKilled { get; }
+        public bool IsCritical { get; }
+        public bool WasShieldBroken { get; }
 
-        public AttackCompletedEvent(BattleUnit attacker, BattleUnit victim, WeaponType weaponType, int damage, bool isWeaknessHit, bool wasTargetKilled)
+        public AttackCompletedEvent(
+            BattleUnit attacker,
+            BattleUnit victim,
+            WeaponData weaponData,
+            int damage,
+            bool isWeaknessHit,
+            bool wasTargetKilled,
+            bool isCritical,
+            bool wasShieldBroken)
         {
             Attacker = attacker;
             Victim = victim;
-            WeaponType = weaponType;
+            WeaponData = weaponData;
             Damage = damage;
             IsWeaknessHit = isWeaknessHit;
             WasTargetKilled = wasTargetKilled;
+            IsCritical = isCritical;
+            WasShieldBroken = wasShieldBroken;
         }
     }
 
