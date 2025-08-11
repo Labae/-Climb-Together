@@ -2,7 +2,6 @@
 using Cysharp.Text;
 using Data.BattleSystem.Configs.Core;
 using Data.WeaponSystem;
-using Data.WeaponSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Components;

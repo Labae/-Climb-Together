@@ -10,24 +10,27 @@ namespace Data.BattleSystem.Configs.Core
         [Header("Basic Info")]
         [SerializeField] private string _unitName = "New Unit";
         [SerializeField] private Sprite _unitIcon;
-        [SerializeField] [TextArea(2, 4)] private string _description;
+        [SerializeField][TextArea(2, 4)] private string _description;
 
-        [Header("Stats")] [SerializeField] private BattleStats _stats;
+        [Header("Stats")][SerializeField] private BattleStats _stats;
 
-        [Header("Weakness System")] [SerializeField]
+        [Header("Weakness System")]
+        [SerializeField]
         private WeaponType[] _weaknesses = Array.Empty<WeaponType>();
 
-        [Header("Shield System")] [SerializeField] [Min(0)]
+        [Header("Shield System")]
+        [SerializeField]
+        [Min(0)]
         private int _maxShield = 3;
 
-        [SerializeField] [Min(0)] private int _breakDuration = 2;
-        [SerializeField] [Range(1f, 5f)] private float _breakDamageMultiplier = 2f;
+        [SerializeField][Min(0)] private int _breakDuration = 2;
+        [SerializeField][Range(1f, 5f)] private float _breakDamageMultiplier = 2f;
 
         public string UnitName => _unitName;
         public Sprite UnitIcon => _unitIcon;
         public string Description => _description;
         public BattleStats Stats => _stats;
-        public WeaponType[]  Weaknesses => _weaknesses;
+        public WeaponType[] Weaknesses => _weaknesses;
         public int MaxShield => _maxShield;
         public int BreakDuration => _breakDuration;
         public float BreakDamageMultiplier => _breakDamageMultiplier;

@@ -1,5 +1,4 @@
 ﻿using Data.WeaponSystem.Enums;
-using Gameplay.BattleSystem.Enum;
 
 namespace Gameplay.BattleSystem.Interfaces
 {

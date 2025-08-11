@@ -1,13 +1,10 @@
-﻿using System;
-using Data.BattleSystem.Configs.Player;
-using Data.WeaponSystem;
+﻿using Data.BattleSystem.Configs.Player;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Player;
 using NaughtyAttributes;
 using UnityEngine;
-using VContainer;
 
 namespace Gameplay.BattleSystem.Units
 {

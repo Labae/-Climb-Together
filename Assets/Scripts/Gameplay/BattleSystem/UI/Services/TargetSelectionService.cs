@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Cysharp.Text;
 using Data.WeaponSystem;
-using Data.WeaponSystem.Enums;
 using Gameplay.BattleSystem.Units;
 using Systems.UI.Core;
 using TMPro;

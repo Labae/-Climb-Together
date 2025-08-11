@@ -13,25 +13,29 @@ namespace Gameplay.BattleSystem.UI
 {
     public class BattleUI : MonoBehaviour
     {
-        [Header("Action Buttons")] [SerializeField]
+        [Header("Action Buttons")]
+        [SerializeField]
         private Transform _actionButtonContainer;
         [SerializeField]
         private Transform _weaponButtonParent;
         [SerializeField] private Button _weaponButtonPrefab;
 
-        [Header("Target Selection")] [SerializeField]
+        [Header("Target Selection")]
+        [SerializeField]
         private Transform _targetSelectionPanel;
 
         [SerializeField] private Transform _targetButtonsContainer;
         [SerializeField] private GameObject _targetButtonPrefab;
 
-        [Header("Battle Result")] [SerializeField]
+        [Header("Battle Result")]
+        [SerializeField]
         private Transform _battleResultContainer;
 
         [SerializeField] private TextMeshProUGUI _battleResultText;
         [SerializeField] private TextMeshProUGUI _battleResultSubText;
 
-        [Header("Enemy Status UI")] [SerializeField]
+        [Header("Enemy Status UI")]
+        [SerializeField]
         private Transform _enemyStatsContainer;
 
         [SerializeField] private GameObject _enemyStatsUIPrefab;

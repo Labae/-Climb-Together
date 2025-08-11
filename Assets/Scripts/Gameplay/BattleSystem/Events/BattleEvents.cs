@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Data.WeaponSystem;
-using Data.WeaponSystem.Enums;
 using Gameplay.BattleSystem.Core;
-using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.Enum;
-using Gameplay.BattleSystem.Units;
 
 namespace Gameplay.BattleSystem.Events
 {

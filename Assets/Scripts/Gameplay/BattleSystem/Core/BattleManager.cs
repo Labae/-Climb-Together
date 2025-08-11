@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Text;
 using Data.WeaponSystem;
-using Data.WeaponSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core.Services;
@@ -135,7 +134,7 @@ namespace Gameplay.BattleSystem.Core
             {
                 _battleUI.OnAttackButtonClicked += OnPlayerAttackClicked;
                 _battleUI.OnTargetSelected += ExecutePlayerAttack;
-                _playerUnit.Health.OnUnitDefeated += () =>  _battleEventService.PublishBattleEnded(null, "Player defeated");
+                _playerUnit.Health.OnUnitDefeated += () => _battleEventService.PublishBattleEnded(null, "Player defeated");
                 GameLogger.Debug("Battle UI events connected", LogCategory.Battle);
             }
         }
@@ -231,7 +230,7 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            var result = _attackService.ExecuteAttack(currentEnemy, _playerUnit, currentEnemy.EquippedWeapon);
+            _ = _attackService.ExecuteAttack(currentEnemy, _playerUnit, currentEnemy.EquippedWeapon);
             currentEnemy.Turn.OnTurnEnd();
 
             var endCondition = _conditionService.CheckBattleEndCondition(_playerUnit, _turnService);
@@ -292,7 +291,7 @@ namespace Gameplay.BattleSystem.Core
                     _battleUI.OnAttackButtonClicked -= OnPlayerAttackClicked;
                     _battleUI.OnTargetSelected -= ExecutePlayerAttack;
                 }
-                _disposables.Dispose();;
+                _disposables.Dispose(); ;
 
                 Winner = null;
                 IsInitialized = false;

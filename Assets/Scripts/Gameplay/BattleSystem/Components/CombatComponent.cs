@@ -1,5 +1,4 @@
 ﻿using Cysharp.Text;
-using Data.BattleSystem.Configs;
 using Data.BattleSystem.Configs.Core;
 using Data.WeaponSystem;
 using Data.WeaponSystem.Enums;
@@ -30,7 +29,7 @@ namespace Gameplay.BattleSystem.Components
                 {
                     FinalDamage = 0,
                     IsCritical = false,
-                    WeaponData =null,
+                    WeaponData = null,
                 };
             }
 

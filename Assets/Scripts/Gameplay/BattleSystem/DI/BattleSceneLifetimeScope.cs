@@ -3,7 +3,6 @@ using System.Linq;
 using Data.WeaponSystem;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Core.Services;
-using Gameplay.BattleSystem.Player;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
 using NaughtyAttributes;
@@ -15,16 +14,20 @@ namespace Gameplay.BattleSystem.DI
 {
     public class BattleSceneLifetimeScope : LifetimeScope
     {
-        [Header("Weapon System")] [SerializeField, Required]
+        [Header("Weapon System")]
+        [SerializeField, Required]
         private WeaponDatabase _weaponDatabase;
 
-        [Header("Battle Units")] [SerializeField, Required]
+        [Header("Battle Units")]
+        [SerializeField, Required]
         private PlayerUnit _playerUnit;
 
-        [Header("Enemy Units")] [SerializeField]
+        [Header("Enemy Units")]
+        [SerializeField]
         private EnemyUnit[] _enemyUnits = Array.Empty<EnemyUnit>(); // 여러 적 배열
 
-        [Header("UI")] [SerializeField, Required]
+        [Header("UI")]
+        [SerializeField, Required]
         private BattleUI _battleUI;
 
         protected override void Configure(IContainerBuilder builder)

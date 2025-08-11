@@ -7,7 +7,8 @@ namespace Data.WeaponSystem
     [CreateAssetMenu(fileName = "New Weapon Data", menuName = "Gameplay/WeaponSystem/WeaponData")]
     public class WeaponData : ScriptableObject
     {
-        [Header("Basic Info")] [SerializeField]
+        [Header("Basic Info")]
+        [SerializeField]
         private WeaponType _weaponType;
 
         [SerializeField] private string _weaponName;

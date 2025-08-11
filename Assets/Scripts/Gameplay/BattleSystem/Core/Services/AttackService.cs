@@ -1,6 +1,5 @@
 ﻿using Cysharp.Text;
 using Data.WeaponSystem;
-using Data.WeaponSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using VContainer;
@@ -48,12 +47,12 @@ namespace Gameplay.BattleSystem.Core.Services
 
                 if (shieldBroken)
                 {
-                    GameLogger.Debug(ZString.Format("{0}의 실드 완전 파괴", target.UnitName),  LogCategory.Battle);
+                    GameLogger.Debug(ZString.Format("{0}의 실드 완전 파괴", target.UnitName), LogCategory.Battle);
                 }
                 else
                 {
                     GameLogger.Debug(ZString.Format("{0}의 실드 {1} 데미지! 남은 실드: {2}",
-                        target.UnitName, shieldDamage, target.Shield.CurrentShield),  LogCategory.Battle);
+                        target.UnitName, shieldDamage, target.Shield.CurrentShield), LogCategory.Battle);
                 }
             }
 
