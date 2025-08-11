@@ -1,7 +1,7 @@
 ﻿using Debugging;
 using Debugging.Enum;
+using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.Enum;
-using Gameplay.BattleSystem.Interfaces;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
 
@@ -9,15 +9,15 @@ namespace Gameplay.BattleSystem.States
 {
     public class EnemyTurnTransitionState : StateBase<BattleState>
     {
-        private readonly IBattleManager _battleManager;
+        private readonly TurnService _turnService;
         private readonly float _delay = 0.1f;
         private float _timer;
 
         public override BattleState StateType => BattleState.EnemyTurnTransition;
 
-        public EnemyTurnTransitionState(IBattleManager battleManager)
+        public EnemyTurnTransitionState(TurnService turnService)
         {
-            _battleManager = battleManager;
+            _turnService = turnService;
         }
 
         public override void OnEnter()
@@ -35,24 +35,14 @@ namespace Gameplay.BattleSystem.States
                 return;
             }
 
-            if (_battleManager != null)
+            if (_turnService.HasMoreEnemyTurns())
             {
-                if (_battleManager.HasMoreEnemyTurns())
-                {
-                    GameLogger.Debug("EnemyTurnTransition: 다음 적 턴으로 이동", LogCategory.Battle);
-                    ChangeState(BattleState.EnemyTurn);
-                }
-                else
-                {
-                    GameLogger.Debug("EnemyTurnTransition: 모든 적 턴 완료, 플레이어 턴으로 이동", LogCategory.Battle);
-                    _battleManager.ResetTurnIndex();  // 인덱스 리셋
-                    ChangeState(BattleState.PlayerTurn);
-                }
+                GameLogger.Debug("EnemyTurnTransition: 다음 적 턴으로 이동", LogCategory.Battle);
+                ChangeState(BattleState.EnemyTurn);
             }
             else
             {
-                GameLogger.Error("EnemyTurnTransition: BattleManager를 찾을 수 없음", LogCategory.Battle);
-                ChangeState(BattleState.PlayerTurn);  // 안전을 위해 플레이어 턴으로
+                GameLogger.Warning("EnemyTurnTransition: No more enemy turns but state was entered", LogCategory.Battle);
             }
             _timer = 0f;
         }
