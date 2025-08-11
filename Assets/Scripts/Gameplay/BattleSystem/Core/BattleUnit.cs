@@ -1,11 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Cysharp.Text;
-using Data.BattleSystem.Configs;
+using Data.BattleSystem.Configs.Core;
+using Data.WeaponSystem;
+using Data.WeaponSystem.Enums;
+using Debugging;
+using Debugging.Enum;
 using Gameplay.BattleSystem.Components;
-using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Interfaces;
-using Systems.EventBus;
 using UnityEngine;
 using VContainer;
 
@@ -14,7 +15,9 @@ namespace Gameplay.BattleSystem.Core
     public abstract class BattleUnit : MonoBehaviour
     {
         [Header("Unit Configuration")]
-        [SerializeField, Required] private UnitConfig _unitConfig;
+        [SerializeField, Required] protected UnitConfig _unitConfig;
+
+        [Inject] protected WeaponDatabase _weaponDatabase;
 
         // Components
         public IHealthComponent Health { get; private set; }
@@ -26,13 +29,15 @@ namespace Gameplay.BattleSystem.Core
         public string UnitName => _unitConfig?.UnitName ?? "Unknown Unit";
         public BattleStats Stats => _unitConfig?.Stats;
         public UnitConfig UnitConfig => _unitConfig;
+        public WeaponData EquippedWeapon { get; private set; }
 
-        private void Awake()
+        public void Initialize()
         {
             InitializeComponents();
+            InitializeWeaponSystem();
         }
 
-        private void InitializeComponents()
+        protected virtual void InitializeComponents()
         {
             Health = new HealthComponent();
             Weakness = new WeaknessComponent();
@@ -45,6 +50,17 @@ namespace Gameplay.BattleSystem.Core
             Shield.Initialize(_unitConfig.MaxShield, _unitConfig.BreakDuration, _unitConfig.BreakDamageMultiplier);
             Combat.Initialize(_unitConfig.Stats);
             Turn.Initialize(_unitConfig.UnitName, Shield);
+        }
+
+        protected virtual void InitializeWeaponSystem()
+        {
+
+        }
+
+        public void SetEquippedWeapon(WeaponData weapon)
+        {
+            EquippedWeapon = weapon;
+            GameLogger.Debug(ZString.Format("{0} 무기 변경: {1}", UnitName, weapon), LogCategory.Battle);
         }
 
         #region Debugging

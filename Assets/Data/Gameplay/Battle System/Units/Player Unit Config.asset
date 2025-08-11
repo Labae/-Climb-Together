@@ -9,18 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c045dbbf55994018bf37dda4e2d0e37b, type: 3}
+  m_Script: {fileID: 11500000, guid: 91839eb8ce7d49f3ac2f02b4107fc743, type: 3}
   m_Name: Player Unit Config
   m_EditorClassIdentifier: 
   _unitName: Player
-  _unitIcon: {fileID: 4335250483284255847, guid: f1e3d86b3f93549f8a831ea30d39cc81, type: 3}
+  _unitIcon: {fileID: 7193205558387076020, guid: ea62e5a6ccc3142e9bc4aa95b121663d, type: 3}
   _description: 
   _stats:
-    _maxHealth: 100
-    _attack: 3
+    _maxHealth: 50
+    _attack: 10
     _defense: 5
     _speed: 1
   _weaknesses: 
   _maxShield: 3
   _breakDuration: 2
   _breakDamageMultiplier: 2
+  startingWeapons:
+  - {fileID: 11400000, guid: 07f71d99df1284d0199684004d08fb4d, type: 2}
+  - {fileID: 11400000, guid: 6968e076decf149039a895d10136523e, type: 2}

@@ -1,5 +1,5 @@
 ﻿using System;
-using Data.Common;
+using Data.Platformer.Common;
 using Gameplay.Common.Enums;
 using Gameplay.Platformer.Movement.Enums;
 using Gameplay.Platformer.Movement.Interface;

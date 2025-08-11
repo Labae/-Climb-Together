@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Text;
-using Data.BattleSystem.Enums;
+using Data.WeaponSystem;
+using Data.WeaponSystem.Enums;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core.Services;
@@ -167,27 +168,27 @@ namespace Gameplay.BattleSystem.Core
 
         #region Battle Actions
 
-        private void OnPlayerAttackClicked(WeaponType weaponType)
+        private void OnPlayerAttackClicked(WeaponData weapon)
         {
             var activeEnemies = _turnService.GetActiveEnemies();
             if (activeEnemies.Count == 1)
             {
-                ExecutePlayerAttack(activeEnemies[0], weaponType);
+                ExecutePlayerAttack(activeEnemies[0], weapon);
             }
             else
             {
-                _battleUI.ShowTargetSelection(activeEnemies, weaponType);
+                _battleUI.ShowTargetSelection(activeEnemies, weapon);
             }
         }
 
-        private void ExecutePlayerAttack(EnemyUnit target, WeaponType weaponType)
+        private void ExecutePlayerAttack(EnemyUnit target, WeaponData weapon)
         {
             if (!CanExecutePlayerAction())
             {
                 return;
             }
 
-            var result = _attackService.ExecuteAttack(_playerUnit, target, weaponType);
+            var result = _attackService.ExecuteAttack(_playerUnit, target, weapon);
 
             if (!result.IsSuccess)
             {
@@ -230,7 +231,7 @@ namespace Gameplay.BattleSystem.Core
                 return;
             }
 
-            var result = _attackService.ExecuteAttack(currentEnemy, _playerUnit, WeaponType.Sword);
+            var result = _attackService.ExecuteAttack(currentEnemy, _playerUnit, currentEnemy.EquippedWeapon);
             currentEnemy.Turn.OnTurnEnd();
 
             var endCondition = _conditionService.CheckBattleEndCondition(_playerUnit, _turnService);

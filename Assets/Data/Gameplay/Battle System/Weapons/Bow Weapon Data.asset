@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39ac6fcb79b44dbe83433a41ca5eabe4, type: 3}
+  m_Name: Bow Weapon Data
+  m_EditorClassIdentifier: 
+  _weaponType: 1
+  _weaponName: "\uC815\uBC00\uD55C \uD65C"
+  _weaponIcon: {fileID: 21300000, guid: 0df9baf6cc0934d9eaa460eb936a112e, type: 3}
+  _description: "\uBE60\uB974\uACE0 \uC815\uD655\uD55C \uC6D0\uAC70\uB9AC \uBB34\uAE30"
+  _flatDamageBonus: 2
+  _speedModifier: 3
+  _canIgnoreArmor: 0
+  _armorPenetration: 0.25
+  _criticalChance: 0.3
+  _criticalMultiplier: 2.5
+  shieldDamage: 1

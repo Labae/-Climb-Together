@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Text;
-using Data.BattleSystem.Enums;
+using Data.WeaponSystem;
+using Data.WeaponSystem.Enums;
 using Gameplay.BattleSystem.Units;
 using Systems.UI.Core;
 using TMPro;
@@ -20,9 +21,9 @@ namespace Gameplay.BattleSystem.UI.Services
         private readonly UIObjectPool<Button> _targetButtonPool;
         private readonly List<Button> _activeButtons = new();
 
-        private WeaponType _currentWeaponType;
+        private WeaponData _currentWeapon;
 
-        public event Action<EnemyUnit, WeaponType> OnTargetSelected;
+        public event Action<EnemyUnit, WeaponData> OnTargetSelected;
 
         public TargetSelectionService(
             Transform selectionPanel,
@@ -43,9 +44,9 @@ namespace Gameplay.BattleSystem.UI.Services
             _targetButtonPool = new UIObjectPool<Button>(buttonComponent, targetButtonParent, initialPoolSize);
         }
 
-        public void ShowTargetSelection(List<EnemyUnit> availableTargets, WeaponType weaponType)
+        public void ShowTargetSelection(List<EnemyUnit> availableTargets, WeaponData weapon)
         {
-            _currentWeaponType = weaponType;
+            _currentWeapon = weapon;
             ClearButtons();
 
             foreach (var target in availableTargets)
@@ -70,7 +71,7 @@ namespace Gameplay.BattleSystem.UI.Services
             var button = _targetButtonPool.Get();
 
             var buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
-            var isWeakness = target.Weakness.IsWeaknessHit(_currentWeaponType);
+            var isWeakness = target.Weakness.IsWeaknessHit(_currentWeapon.WeaponType);
             if (buttonText != null)
             {
                 buttonText.text = isWeakness ? ZString.Concat(target.UnitName, "(약점!)") : target.UnitName;
@@ -78,7 +79,7 @@ namespace Gameplay.BattleSystem.UI.Services
 
             button.onClick.AddListener(() =>
             {
-                OnTargetSelected?.Invoke(target, _currentWeaponType);
+                OnTargetSelected?.Invoke(target, _currentWeapon);
                 HideTargetSelection();
             });
 

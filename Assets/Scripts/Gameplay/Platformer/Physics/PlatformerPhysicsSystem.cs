@@ -1,4 +1,4 @@
-﻿using Data.Common;
+﻿using Data.Platformer.Common;
 using Data.Platformer.Settings;
 using Gameplay.Platformer.Movement;
 using Gameplay.Platformer.Movement.Enums;

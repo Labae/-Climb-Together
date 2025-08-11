@@ -9,18 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c045dbbf55994018bf37dda4e2d0e37b, type: 3}
+  m_Script: {fileID: 11500000, guid: 9686ce91cd3e407099a16a65eb3cd837, type: 3}
   m_Name: Mummy Unit Config
   m_EditorClassIdentifier: 
   _unitName: Mummy
-  _unitIcon: {fileID: 21300000, guid: 3530cb6524c724a739c2c618e9bc97ac, type: 3}
+  _unitIcon: {fileID: -6142681386867609828, guid: 8bf50ffd157b34be68215ad25b346d94, type: 3}
   _description: 
   _stats:
     _maxHealth: 20
     _attack: 5
-    _defense: 3
+    _defense: 1
     _speed: 1
-  _weaknesses: 00000000
-  _maxShield: 2
-  _breakDuration: 1
+  _weaknesses: 02000000
+  _maxShield: 3
+  _breakDuration: 2
   _breakDamageMultiplier: 2
+  _equippedWeaponType: {fileID: 11400000, guid: 07f71d99df1284d0199684004d08fb4d, type: 2}
