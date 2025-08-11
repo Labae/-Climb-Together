@@ -12,6 +12,7 @@ using Gameplay.BattleSystem.Interfaces;
 using Gameplay.BattleSystem.States;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
+using R3;
 using Systems.EventBus;
 using Systems.StateMachine;
 using Systems.StateMachine.Interfaces;
@@ -25,6 +26,10 @@ namespace Gameplay.BattleSystem.Core
         private readonly PlayerUnit _playerUnit;
         private readonly IReadOnlyList<EnemyUnit> _enemyUnits;
         private readonly BattleUI _battleUI;
+        private readonly CompositeDisposable _disposables = new();
+
+        [Inject]
+        private readonly IEventBus _eventBus;
 
         // Services
         [Inject]
@@ -75,6 +80,7 @@ namespace Gameplay.BattleSystem.Core
                 _turnService.Initialize(_enemyUnits.Where(e => e != null && e.Health.IsAlive).ToList());
                 SetupUIEvents();
                 SetupStateMachine();
+                SubscribeBattleEvents();
 
                 _battleEventService.PublishBattleStarted(_playerUnit, _enemyUnits.ToArray<BattleUnit>());
                 IsInitialized = true;
@@ -86,6 +92,15 @@ namespace Gameplay.BattleSystem.Core
                     LogCategory.Battle);
                 throw;
             }
+        }
+
+        private void SubscribeBattleEvents()
+        {
+            _eventBus.Subscribe<BattleEndedEvent>(endEvent =>
+            {
+                Winner = endEvent.Winner;
+                _stateMachine.ChangeState(BattleState.BattleEnd);
+            }).AddTo(_disposables);
         }
 
         private void SetupStateMachine()
@@ -276,6 +291,7 @@ namespace Gameplay.BattleSystem.Core
                     _battleUI.OnAttackButtonClicked -= OnPlayerAttackClicked;
                     _battleUI.OnTargetSelected -= ExecutePlayerAttack;
                 }
+                _disposables.Dispose();;
 
                 Winner = null;
                 IsInitialized = false;
