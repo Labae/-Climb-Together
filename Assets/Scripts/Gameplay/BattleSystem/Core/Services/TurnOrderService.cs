@@ -43,7 +43,7 @@ namespace Gameplay.BattleSystem.Core.Services
             _currentTurnIndex = 0;
             _roundNumber = 1;
 
-            GameLogger.Info(ZString.Format("턴 순서 초기화 완료 - 총 {0} 유닛", allUnits.Count),  LogCategory.Battle);
+            GameLogger.Info(ZString.Format("턴 순서 초기화 완료 - 총 {0} 유닛", allUnits.Count), LogCategory.Battle);
         }
 
         private void CalculateTurnOrder(List<BattleUnit> units)
@@ -62,7 +62,10 @@ namespace Gameplay.BattleSystem.Core.Services
                 var unit = sortedUnits[i];
                 var entry = new TurnOrderEntry()
                 {
-                    Unit = unit, Speed = unit.GetBehaviourSpeed(), OrderIndex = i, IsPlayer = unit is PlayerUnit,
+                    Unit = unit,
+                    Speed = unit.GetBehaviourSpeed(),
+                    OrderIndex = i,
+                    IsPlayer = unit is PlayerUnit,
                 };
                 _turnOrder.Add(entry);
             }

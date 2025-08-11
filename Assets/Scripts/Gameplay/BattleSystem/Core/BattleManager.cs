@@ -215,7 +215,7 @@ namespace Gameplay.BattleSystem.Core
             var currentEnemy = _turnService.CurrentUnit;
             if (currentEnemy == null)
             {
-                GameLogger.Warning("현재 적이 없습니다!",  LogCategory.Battle);
+                GameLogger.Warning("현재 적이 없습니다!", LogCategory.Battle);
                 FinishTurn();
                 return;
             }
