@@ -14,7 +14,7 @@ namespace Gameplay.BattleSystem.Core.Services
     public class AttackService
     {
         [Inject]
-        private readonly IEventBus _eventBus;
+        private readonly BattleEventService _battleEventService;
 
         public AttackResult ExecuteAttack(BattleUnit attacker, BattleUnit target, WeaponType weaponType)
         {
@@ -25,6 +25,8 @@ namespace Gameplay.BattleSystem.Core.Services
 
             GameLogger.Debug(ZString.Format("{0} attacking {1} with {2}", attacker.UnitName, target.UnitName, weaponType),
                 LogCategory.Battle);
+
+            _battleEventService.PublishAttackAttempted(attacker, target, weaponType);
 
             // 1. 약점 확인
             bool isWeaknessHit = target.Weakness.IsWeaknessHit(weaponType);
@@ -53,21 +55,9 @@ namespace Gameplay.BattleSystem.Core.Services
             };
 
             // 5. 이벤트 발행
-            PublishAttackEvents(result);
+            _battleEventService.PublishAttackCompleted(result);
 
             return result;
-        }
-
-        private void PublishAttackEvents(AttackResult result)
-        {
-            // 로그 출력
-            string hitType = result.IsWeaknessHit ? "약점 공격" : "일반 공격";
-            string breakStatus = result.Target.Shield.IsBroken ? "(브레이크 상태)" : "";
-            GameLogger.Debug(ZString.Format("{0}이(가) {1}에게 {2}로 {3} 데미지를 입혔습니다! ({4}){5}",
-                result.Attacker.UnitName, result.Target.UnitName, result.WeaponType, result.Damage, hitType, breakStatus), LogCategory.Battle);
-
-            // 공격 이벤트 발행
-            _eventBus.Publish(new UnitAttackedEvent(result.Attacker, result.Target));
         }
     }
 

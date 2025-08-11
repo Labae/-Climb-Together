@@ -56,6 +56,7 @@ namespace Gameplay.BattleSystem.DI
 
         private void RegisterServices(IContainerBuilder builder)
         {
+            builder.Register<BattleEventService>(Lifetime.Scoped);
             builder.Register<AttackService>(Lifetime.Scoped);
             builder.Register<TurnService>(Lifetime.Scoped);
             builder.Register<BattleConditionService>(Lifetime.Scoped);

@@ -26,9 +26,9 @@ namespace Gameplay.BattleSystem.Core
         private readonly IReadOnlyList<EnemyUnit> _enemyUnits;
         private readonly BattleUI _battleUI;
 
-        [Inject] private readonly IEventBus _eventBus;
-
         // Services
+        [Inject]
+        private readonly BattleEventService _battleEventService;
         [Inject]
         private readonly AttackService _attackService;
         [Inject]
@@ -43,9 +43,6 @@ namespace Gameplay.BattleSystem.Core
         public BattleUnit Winner { get; private set; }
         public bool IsInitialized { get; private set; }
         public bool IsDisposed { get; private set; }
-
-        public event Action<PlayerUnit, IReadOnlyList<EnemyUnit>> OnBattleStarted;
-        public event Action<BattleUnit> OnBattleEnded;
 
         public BattleManager(
             BattleUI battleUI,
@@ -78,8 +75,8 @@ namespace Gameplay.BattleSystem.Core
                 _turnService.Initialize(_enemyUnits.Where(e => e != null && e.Health.IsAlive).ToList());
                 SetupUIEvents();
                 SetupStateMachine();
-                PublishBattleStartedEvent();
 
+                _battleEventService.PublishBattleStarted(_playerUnit, _enemyUnits.ToArray<BattleUnit>());
                 IsInitialized = true;
                 GameLogger.Debug("Battle Manager is initialized", LogCategory.Battle);
             }
@@ -122,24 +119,9 @@ namespace Gameplay.BattleSystem.Core
             {
                 _battleUI.OnAttackButtonClicked += OnPlayerAttackClicked;
                 _battleUI.OnTargetSelected += ExecutePlayerAttack;
-                _playerUnit.Health.OnUnitDefeated += () => EndBattle(null, "Player defeated");
+                _playerUnit.Health.OnUnitDefeated += () =>  _battleEventService.PublishBattleEnded(null, "Player defeated");
                 GameLogger.Debug("Battle UI events connected", LogCategory.Battle);
             }
-        }
-
-        private void PublishBattleStartedEvent()
-        {
-            var battleStartedEvent = new BattleStartedEvent(_playerUnit, _enemyUnits);
-            _eventBus.Publish(battleStartedEvent);
-
-            OnBattleStarted?.Invoke(_playerUnit, _enemyUnits);
-        }
-
-        private void EndBattle(BattleUnit winner, string reason)
-        {
-            Winner = winner;
-            _stateMachine.ChangeState(BattleState.BattleEnd);
-            GameLogger.Info(ZString.Format("전투 종료: {0} ({1})", winner?.UnitName ?? "무승부", reason), LogCategory.Battle);
         }
 
         #region Turn Management
@@ -201,7 +183,7 @@ namespace Gameplay.BattleSystem.Core
             var endCondition = _conditionService.CheckBattleEndCondition(_playerUnit, _turnService);
             if (endCondition.ShouldEndBattle)
             {
-                EndBattle(endCondition.Winner, endCondition.Reason);
+                _battleEventService.PublishBattleEnded(endCondition.Winner, endCondition.Reason);
                 return;
             }
 
@@ -239,7 +221,7 @@ namespace Gameplay.BattleSystem.Core
             var endCondition = _conditionService.CheckBattleEndCondition(_playerUnit, _turnService);
             if (endCondition.ShouldEndBattle)
             {
-                EndBattle(endCondition.Winner, endCondition.Reason);
+                _battleEventService.PublishBattleEnded(endCondition.Winner, endCondition.Reason);
                 return;
             }
 
