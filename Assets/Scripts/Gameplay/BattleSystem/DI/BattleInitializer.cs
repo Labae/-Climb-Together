@@ -75,7 +75,7 @@ namespace Gameplay.BattleSystem.DI
                     }
                 }
 
-                _battleUI.SetupEnemyStatsUIs(_enemyUnits).Forget();
+                _battleUI.SetupEnemyStats(_enemyUnits).Forget();
                 GameLogger.Info(ZString.Format("Total {0} enemies set up", _enemyUnits.Count), LogCategory.Battle);
             }
             else

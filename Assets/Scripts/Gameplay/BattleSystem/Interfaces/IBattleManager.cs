@@ -17,10 +17,6 @@ namespace Gameplay.BattleSystem.Interfaces
         IReadOnlyList<EnemyUnit> EnemyUnits { get; }
         EnemyUnit CurrentEnemy { get; }
 
-        // 이벤트
-        event Action<PlayerUnit, IReadOnlyList<EnemyUnit>> OnBattleStarted;
-        event Action<BattleUnit> OnBattleEnded;
-
         void Initialize();
         void ExecuteEnemyAction();
         bool HasMoreEnemyTurns();

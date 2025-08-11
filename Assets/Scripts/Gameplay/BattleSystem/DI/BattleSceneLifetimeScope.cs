@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gameplay.BattleSystem.Core;
-using Gameplay.BattleSystem.Services;
+using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
 using NaughtyAttributes;
@@ -56,6 +56,7 @@ namespace Gameplay.BattleSystem.DI
 
         private void RegisterServices(IContainerBuilder builder)
         {
+            builder.Register<BattleEventService>(Lifetime.Scoped);
             builder.Register<AttackService>(Lifetime.Scoped);
             builder.Register<TurnService>(Lifetime.Scoped);
             builder.Register<BattleConditionService>(Lifetime.Scoped);

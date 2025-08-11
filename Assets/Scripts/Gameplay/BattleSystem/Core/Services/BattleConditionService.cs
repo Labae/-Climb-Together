@@ -1,11 +1,10 @@
 ﻿using Cysharp.Text;
 using Debugging;
 using Debugging.Enum;
-using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Units;
 
-namespace Gameplay.BattleSystem.Services
+namespace Gameplay.BattleSystem.Core.Services
 {
     // 전투 조건 확인 전담 서비스
     public class BattleConditionService

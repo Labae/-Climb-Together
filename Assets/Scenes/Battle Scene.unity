@@ -3682,7 +3682,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e003c61e7444daebfc9a9e9fb4c65bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitConfig: {fileID: 0}
+  _unitConfig: {fileID: 11400000, guid: 9ec9580de6c0c4ba0af416c0847bef8e, type: 2}
 --- !u!212 &1864356761
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4215,26 +4215,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4fad6ff1b6c4f0a85bf124e0fffb35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _swordButton: {fileID: 1161596468}
-  _bowButton: {fileID: 1539194620}
-  _fireButton: {fileID: 1398899761}
-  _targetSelectionPanel: {fileID: 1908609999}
-  _targetButtonPrefab: {fileID: 6212765512812508823, guid: 4eb0b4ecc8a6746e4bfcbf5160804a83, type: 3}
-  _targetButtonParent: {fileID: 2004766522}
-  _targetSelectionTitle: {fileID: 901295711}
-  _battleResultContainer: {fileID: 1024391305}
+  _actionButtonContainer: {fileID: 1754782974}
+  _weaponButtons:
+  - {fileID: 1161596468}
+  - {fileID: 1539194620}
+  - {fileID: 1398899761}
+  _targetSelectionPanel: {fileID: 1908610000}
+  _targetButtonsContainer: {fileID: 2004766522}
+  _targetButtonPrefab: {fileID: 8784908847323555226, guid: 4eb0b4ecc8a6746e4bfcbf5160804a83, type: 3}
+  _battleResultContainer: {fileID: 1024391306}
   _battleResultText: {fileID: 698141634}
-  _battleSubText: {fileID: 970771485}
-  _battleStatsText: {fileID: 1123513336}
-  _continueButton: {fileID: 965097229}
-  _retryButton: {fileID: 1048054347}
-  _mainMenuButton: {fileID: 97689679}
+  _battleResultSubText: {fileID: 970771485}
   _enemyStatsContainer: {fileID: 166610887}
   _enemyStatsUIPrefab: {fileID: 1665332147737052575, guid: 82b671ce3df0d4bbd99adc63d556daf7, type: 3}
-  _enableUIEntranceAnimation: 1
-  _entranceAnimationDuration: 1
-  _entranceMoveDistance: 50
-  _entranceEase: 27
 --- !u!114 &2012909200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4310,8 +4303,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1908610000}
   - {fileID: 1754782974}
+  - {fileID: 1908610000}
   - {fileID: 1024391306}
   - {fileID: 166610887}
   m_Father: {fileID: 0}
