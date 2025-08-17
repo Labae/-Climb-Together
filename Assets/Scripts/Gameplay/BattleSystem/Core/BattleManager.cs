@@ -127,6 +127,7 @@ namespace Gameplay.BattleSystem.Core
             {
                 _stateMachine.ChangeState(BattleState.EnemyTurnTransition);
             }
+
         }
 
         private void OnRoundChanged(int round)

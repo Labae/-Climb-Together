@@ -16,10 +16,10 @@ MonoBehaviour:
   _unitIcon: {fileID: 7193205558387076020, guid: ea62e5a6ccc3142e9bc4aa95b121663d, type: 3}
   _description: 
   _stats:
-    _maxHealth: 50
-    _attack: 10
+    _maxHealth: 2000
+    _attack: 29
     _defense: 5
-    _speed: 1
+    _speed: 0
   _weaknesses: 
   _maxShield: 3
   _breakDuration: 2
