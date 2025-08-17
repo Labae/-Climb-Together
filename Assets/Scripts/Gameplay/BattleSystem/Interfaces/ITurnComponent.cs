@@ -1,4 +1,6 @@
-﻿namespace Gameplay.BattleSystem.Interfaces
+﻿using Gameplay.BattleSystem.Components;
+
+namespace Gameplay.BattleSystem.Interfaces
 {
     public interface ITurnComponent
     {

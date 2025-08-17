@@ -58,11 +58,11 @@ namespace Gameplay.BattleSystem.Components
                 calculatedDamage = Mathf.RoundToInt(calculatedDamage * 1.5f);
             }
 
-            // 브레이크 상태시 추가 데미지
-            if (target.Shield.IsBroken)
-            {
-                calculatedDamage = Mathf.RoundToInt(calculatedDamage * target.Shield.BreakDamageMultiplier);
-            }
+            // // 브레이크 상태시 추가 데미지
+            // if (target.Shield.IsBroken)
+            // {
+            //     calculatedDamage = Mathf.RoundToInt(calculatedDamage * target.Shield.BreakDamageMultiplier);
+            // }
 
             // 최소 1데미지 보장
             int finalDamage = Mathf.Max(1, calculatedDamage);
@@ -90,11 +90,11 @@ namespace Gameplay.BattleSystem.Components
                 calculatedDamage = Mathf.RoundToInt(calculatedDamage * 1.5f);
             }
 
-            // 브레이크 상태시 추가 데미지
-            if (target.Shield.IsBroken)
-            {
-                calculatedDamage = Mathf.RoundToInt(calculatedDamage * target.Shield.BreakDamageMultiplier);
-            }
+            // // 브레이크 상태시 추가 데미지
+            // if (target.Shield.IsBroken)
+            // {
+            //     calculatedDamage = Mathf.RoundToInt(calculatedDamage * target.Shield.BreakDamageMultiplier);
+            // }
 
             // 최소 1데미지 보장
             int finalDamage = Mathf.Max(1, calculatedDamage);

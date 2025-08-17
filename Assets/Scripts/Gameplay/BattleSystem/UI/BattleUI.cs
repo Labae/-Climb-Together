@@ -35,12 +35,6 @@ namespace Gameplay.BattleSystem.UI
         [SerializeField] private TextMeshProUGUI _battleResultText;
         [SerializeField] private TextMeshProUGUI _battleResultSubText;
 
-        [Header("Enemy Status UI")]
-        [SerializeField]
-        private Transform _enemyStatsContainer;
-
-        [SerializeField] private GameObject _enemyStatsUIPrefab;
-
         [Header("Turn Order UI")]
         [SerializeField] private CanvasGroup _turnOrderCanvasGroup;
         [SerializeField] private TextMeshProUGUI _turnOrderHeaderText;
@@ -86,7 +80,6 @@ namespace Gameplay.BattleSystem.UI
                 new TargetSelectionService(_targetSelectionPanel, _targetButtonsContainer, _targetButtonPrefab);
             _battleResultService =
                 new BattleResultService(_battleResultContainer, _battleResultText, _battleResultSubText);
-            _enemyStatusUIService = new EnemyStatusUIService(_enemyStatsContainer, _enemyStatsUIPrefab);
 
             _turnOrderUIService = new TurnOrderUIService(
                 _turnOrderCanvasGroup,
@@ -123,9 +116,6 @@ namespace Gameplay.BattleSystem.UI
 
         public void ShowBattleResult(BattleUnit winner)
             => _battleResultService.ShowBattleResult(winner);
-
-        public async UniTask SetupEnemyStats(List<EnemyUnit> enemyUnits)
-            => await _enemyStatusUIService.SetupAsync(enemyUnits);
 
         private async UniTask OnTurnChanged()
         {

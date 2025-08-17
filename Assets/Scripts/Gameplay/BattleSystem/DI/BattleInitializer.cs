@@ -38,7 +38,6 @@ namespace Gameplay.BattleSystem.DI
             if (_battleUI != null)
             {
                 _battleUI.Initialize(_playerUnit, _container.Resolve<TurnOrderService>());
-                _battleUI.SetupEnemyStats(_enemyUnits).Forget();
                 GameLogger.Info("Battle UI Initialized.", LogCategory.Battle);
             }
             else

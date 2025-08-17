@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Cysharp.Text;
+using Data.BattleSystem.Combat;
 using Data.BattleSystem.Configs.Core;
 using Data.WeaponSystem;
 using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Components;
+using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Interfaces;
+using R3;
 using UnityEngine;
 using VContainer;
 
@@ -20,10 +23,13 @@ namespace Gameplay.BattleSystem.Core
 
         // Components
         public IHealthComponent Health { get; private set; }
-        public IWeaknessComponent Weakness { get; private set; }
         public IShieldComponent Shield { get; private set; }
+        public IWeaknessComponent Weakness { get; private set; }
         public ICombatComponent Combat { get; private set; }
         public ITurnComponent Turn { get; private set; }
+
+        public ReactiveHealthComponent ReactiveHealth { get; private set; }
+        public ReactiveShieldComponent ReactiveShield { get; private set; }
 
         public string UnitName => _unitConfig?.UnitName ?? "Unknown Unit";
         public BattleStats Stats => _unitConfig?.Stats;
@@ -39,16 +45,56 @@ namespace Gameplay.BattleSystem.Core
         protected virtual void InitializeComponents()
         {
             Health = new HealthComponent();
-            Weakness = new WeaknessComponent();
             Shield = new ShieldComponent();
+            Weakness = new WeaknessComponent();
             Combat = new CombatComponent();
             Turn = new TurnComponent();
 
+            ReactiveHealth = new ReactiveHealthComponent();
+            ReactiveShield = new ReactiveShieldComponent();
+
             Health.Initialize(_unitConfig.Stats.MaxHealth);
-            Weakness.Initialize(_unitConfig.Weaknesses);
             Shield.Initialize(_unitConfig.MaxShield, _unitConfig.BreakDuration, _unitConfig.BreakDamageMultiplier);
+            ReactiveHealth.Initialize(_unitConfig.Stats.MaxHealth);
+            ReactiveShield.Initialize(_unitConfig.MaxShield, _unitConfig.BreakDuration, _unitConfig.BreakDamageMultiplier);
+
+            Weakness.Initialize(_unitConfig.Weaknesses);
             Combat.Initialize(_unitConfig.Stats);
             Turn.Initialize(_unitConfig.UnitName, Shield);
+
+            SetupEventBridge();
+        }
+
+        private void SetupEventBridge()
+        {
+            Health.OnHealthChanged += (current, max) =>
+            {
+                var healthData = new HealthData(current, max);
+                ReactiveHealth.Health.Value = healthData;
+            };
+
+            Health.OnUnitDefeated += () =>
+            {
+                ReactiveHealth.OnUnitDefeated.OnNext(Unit.Default);
+            };
+
+            Shield.OnShieldChanged += (current, max) =>
+            {
+                var shieldData = new ShieldData(current, max);
+                ReactiveShield.Shield.Value = shieldData;
+            };
+
+            Shield.OnUnitBroken += () =>
+            {
+                ReactiveShield.CurrentState.Value = UnitState.Broken;
+                ReactiveShield.OnUnitBroken.OnNext(Unit.Default);
+            };
+
+            Shield.OnUnitRecovered += () =>
+            {
+                ReactiveShield.CurrentState.Value = UnitState.Normal;
+                ReactiveShield.OnUnitRecovered.OnNext(Unit.Default);
+            };
         }
 
         protected virtual void InitializeWeaponSystem()
