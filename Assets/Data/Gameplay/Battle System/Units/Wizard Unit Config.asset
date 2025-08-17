@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9686ce91cd3e407099a16a65eb3cd837, type: 3}
   m_Name: Wizard Unit Config
   m_EditorClassIdentifier: 
-  _unitName: Wizard
+  _unitName: "\uC704\uC790\uB4DC"
   _unitIcon: {fileID: 4859937266021203065, guid: 8b9836848e54c4a00aae0bb69d08e78b, type: 3}
   _description: 
   _stats:
-    _maxHealth: 20
+    _maxHealth: 1000
     _attack: 10
     _defense: 1
     _speed: -2

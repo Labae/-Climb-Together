@@ -1,0 +1,117 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Cysharp.Text;
+using Debugging;
+using Debugging.Enum;
+using Gameplay.BattleSystem.Core;
+using Gameplay.BattleSystem.Units;
+using R3;
+using VContainer;
+
+namespace Gameplay.BattleSystem.TurnOrder
+{
+    /// <summary>
+    /// 턴 관리 전담 서비스
+    /// </summary>
+    public class TurnService : IDisposable
+    {
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+
+        [Inject] private readonly TurnOrderService _turnOrderService;
+
+        private PlayerUnit _playerUnit;
+        private List<EnemyUnit> _enemyUnits;
+
+        public event Action<TurnOrderEntry> OnTurnChanged;
+        public event Action<int> OnRoundChanged;
+        public event Action<IReadOnlyList<TurnOrderEntry>> OnTurnOrderUpdated;
+
+        public BattleUnit CurrentUnit => _turnOrderService.CurrentTurn?.CurrentValue.Unit;
+        public bool IsPlayerTurn => CurrentUnit is PlayerUnit;
+        public bool IsEnemyTurn => CurrentUnit is EnemyUnit;
+
+        public EnemyUnit CurrentEnemy => _turnOrderService.IsEnemyTurn.CurrentValue ? CurrentUnit as EnemyUnit : null;
+        public int ActiveEnemyCount => _enemyUnits?.Count(e => e != null && e.Health.IsAlive) ?? 0;
+
+        public void Initialize(PlayerUnit playerUnit, List<EnemyUnit> enemyUnits)
+        {
+            _playerUnit = playerUnit;
+            _enemyUnits = enemyUnits;
+
+            _turnOrderService.Initialize(playerUnit, enemyUnits);
+
+            SetupEventBridges();
+
+
+            GameLogger.Info(ZString.Format("Turn Service 초기화 완료 - 플레이어: {0}, 적: {1}"
+                , _playerUnit.UnitName, _enemyUnits.Count), LogCategory.Battle);
+        }
+
+        private void SetupEventBridges()
+        {
+            _turnOrderService
+                .OnTurnTransition
+                .Subscribe(transition =>
+                {
+                    var currentTurn = _turnOrderService.CurrentTurn.CurrentValue;
+                    GameLogger.Debug(
+                        ZString.Format("턴 변경: {0} ({1})", currentTurn.Unit.UnitName,
+                            currentTurn.IsPlayer ? "플레이어" : "적"),
+                        LogCategory.Battle);
+                    OnTurnChanged?.Invoke(currentTurn);
+                })
+                .AddTo(_disposables);
+
+            _turnOrderService
+                .OnRoundStarted
+                .Subscribe(info =>
+                {
+                    GameLogger.Debug(
+                        ZString.Format("라운드 {0} 시작!", info.NewRound),
+                        LogCategory.Battle);
+                    OnRoundChanged?.Invoke(info.NewRound);
+                })
+                .AddTo(_disposables);
+
+            _turnOrderService
+                .TurnOrder
+                .Subscribe(order =>
+                {
+                    OnTurnOrderUpdated?.Invoke(order);
+                })
+                .AddTo(_disposables);
+        }
+
+        public void RefreshActiveEnemies()
+        {
+            _turnOrderService.RefreshTurnOrder();
+        }
+
+        public bool HasMoreEnemyTurns()
+        {
+            return IsEnemyTurn && _turnOrderService.HasValidTurn();
+        }
+
+        public void AdvanceToNextTurn()
+        {
+            _turnOrderService.AdvanceToNextTurn();
+        }
+
+        public bool AreAllEnemiesDefeated()
+        {
+            RefreshActiveEnemies();
+            return ActiveEnemyCount == 0;
+        }
+
+        public List<EnemyUnit> GetActiveEnemies()
+        {
+            return _enemyUnits?.Where(e => e != null && e.Health.IsAlive).ToList() ?? new List<EnemyUnit>();
+        }
+
+        public void Dispose()
+        {
+            _disposables?.Dispose();
+        }
+    }
+}

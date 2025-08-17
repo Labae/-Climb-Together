@@ -10,6 +10,7 @@ using Gameplay.BattleSystem.Enum;
 using Gameplay.BattleSystem.Events;
 using Gameplay.BattleSystem.Interfaces;
 using Gameplay.BattleSystem.States;
+using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
 using R3;
@@ -40,7 +41,7 @@ namespace Gameplay.BattleSystem.Core
         public PlayerUnit PlayerUnit => _playerUnit;
         public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
 
-        public TurnOrderEntry CurrentTurn => _turnOrderService.CurrentTurn;
+        public TurnOrderEntry CurrentTurn => _turnOrderService.CurrentTurn.CurrentValue;
         public BattleUnit CurrentUnit => _turnService.CurrentUnit;
         public bool IsPlayerTurn => _turnService.IsPlayerTurn;
         public bool IsEnemyTurn => _turnService.IsEnemyTurn;

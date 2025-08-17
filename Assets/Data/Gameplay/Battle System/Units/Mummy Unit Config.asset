@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9686ce91cd3e407099a16a65eb3cd837, type: 3}
   m_Name: Mummy Unit Config
   m_EditorClassIdentifier: 
-  _unitName: Mummy
+  _unitName: "\uBBF8\uB77C"
   _unitIcon: {fileID: -6142681386867609828, guid: 8bf50ffd157b34be68215ad25b346d94, type: 3}
   _description: 
   _stats:

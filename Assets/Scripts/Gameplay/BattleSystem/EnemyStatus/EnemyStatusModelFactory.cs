@@ -14,9 +14,7 @@ namespace Gameplay.BattleSystem.EnemyStatus
                 throw new System.ArgumentNullException(nameof(unit));
             }
 
-            var model = new EnemyStatusModel();
-            model.Initialize(unit);
-            return model;
+            return new EnemyStatusModel(unit);
         }
 
         public static EnemyStatusModel[] CreateMultiple(BattleUnit[] units)

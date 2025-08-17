@@ -1,88 +1,70 @@
-﻿using System;
-using Cysharp.Text;
+﻿using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using Debugging;
-using Gameplay.BattleSystem.UI.Views;
+using Gameplay.BattleSystem.UI.Base;
 using R3;
 
 namespace Gameplay.BattleSystem.EnemyStatus
 {
-    public class EnemyStatusController : IDisposable
+    public class EnemyStatusController : BaseController<EnemyStatusModel, EnemyStatusView>
     {
-        private readonly EnemyStatusModel _model;
-        private readonly EnemyStatusView _view;
-        private readonly CompositeDisposable _disposables = new();
-
         public EnemyStatusController(EnemyStatusModel model, EnemyStatusView view)
+         : base(model, view)
         {
-            _model = model ?? throw new ArgumentNullException(nameof(model));
-            _view = view ??  throw new ArgumentNullException(nameof(view));;
         }
 
-        public void Initialize()
+        protected override void SetupBindings()
         {
-            if (!_model.IsInitialized)
-            {
-                GameLogger.Error("Model is not initialized");
-                return;
-            }
-
             // 초기값 설정
-            _view.SetUnitName(_model.UnitName.Value);
+            View.SetUnitName(Model.UnitName.Value);
 
             // 바인딩
-            _model.HealthComponent.Health
+            Model.HealthComponent.Health
                 .Subscribe(healthData =>
                 {
-                    _view.UpdateHealthAnimate(healthData).Forget();
+                    View.UpdateHealthAnimate(healthData).Forget();
                 })
                 .AddTo(_disposables);
 
-            _model.ShieldComponent.Shield
+            Model.ShieldComponent.Shield
                 .Subscribe(shieldData =>
                 {
-                    _view.UpdateShieldAnimate(shieldData).Forget();
+                    View.UpdateShieldAnimate(shieldData).Forget();
                 })
                 .AddTo(_disposables);
 
-            _model.HealthComponent.IsLowHealth
+            Model.HealthComponent.IsLowHealth
                 .Subscribe(isLow =>
                 {
-                    _view.SetLowHealthWarning(isLow);
+                    View.SetLowHealthWarning(isLow);
                 })
                 .AddTo(_disposables);
 
-            _model.HealthComponent.OnDamageTaken
+            Model.HealthComponent.OnDamageTaken
                 .Subscribe(damageData =>
                 {
-                    _view.TriggerDamageEffect();
+                    View.TriggerDamageEffect();
 
                     if (damageData.IsCritical)
                     {
-                        _view.ShowCriticalHitEffect();
+                        View.ShowCriticalHitEffect();
                     }
                 })
                 .AddTo(_disposables);
 
-            _model.HealthComponent.OnHealed
+            Model.HealthComponent.OnHealed
                 .Subscribe(_ =>
                 {
-                    _view.ShowHealEffect();
+                    View.ShowHealEffect();
                 })
                 .AddTo(_disposables);
 
-            _model.ShieldComponent.OnUnitBroken
+            Model.ShieldComponent.OnUnitBroken
                 .Subscribe(_ =>
                 {
-                    GameLogger.Debug(ZString.Concat(_model.UnitName.Value, " is broken!"));
+                    GameLogger.Debug(ZString.Concat(Model.UnitName.Value, " is broken!"));
                 })
                 .AddTo(_disposables);
-        }
-
-        public void Dispose()
-        {
-            _model?.Dispose();
-            _disposables?.Dispose();
         }
     }
 }

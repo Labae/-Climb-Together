@@ -3,6 +3,7 @@ using System.Linq;
 using Data.WeaponSystem;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Core.Services;
+using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
 using NaughtyAttributes;
@@ -29,6 +30,8 @@ namespace Gameplay.BattleSystem.DI
         [Header("UI")]
         [SerializeField, Required]
         private BattleUI _battleUI;
+        [SerializeField, Required]
+        private TurnOrderSetup _turnOrderSetup;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -68,6 +71,11 @@ namespace Gameplay.BattleSystem.DI
             if (_battleUI != null)
             {
                 builder.RegisterInstance(_battleUI);
+            }
+
+            if (_turnOrderSetup != null)
+            {
+                builder.RegisterInstance(_turnOrderSetup);
             }
         }
 

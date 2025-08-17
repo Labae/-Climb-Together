@@ -5,6 +5,7 @@ using Debugging;
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.Interfaces;
+using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
 using VContainer;
@@ -19,6 +20,7 @@ namespace Gameplay.BattleSystem.DI
         [Inject] private readonly BattleUI _battleUI;
         [Inject] private readonly PlayerUnit _playerUnit;
         [Inject] private readonly List<EnemyUnit> _enemyUnits;  // 여러 적
+        [Inject] private readonly TurnOrderSetup _turnOrderSetup;
 
         public void Initialize()
         {
@@ -37,7 +39,8 @@ namespace Gameplay.BattleSystem.DI
 
             if (_battleUI != null)
             {
-                _battleUI.Initialize(_playerUnit, _container.Resolve<TurnOrderService>());
+                _container.InjectGameObject(_turnOrderSetup.gameObject);
+                _battleUI.Initialize(_playerUnit);
                 GameLogger.Info("Battle UI Initialized.", LogCategory.Battle);
             }
             else

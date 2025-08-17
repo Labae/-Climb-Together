@@ -1,5 +1,4 @@
 ﻿using Gameplay.BattleSystem.Core;
-using Gameplay.BattleSystem.UI.Views;
 using UnityEngine;
 
 namespace Gameplay.BattleSystem.EnemyStatus

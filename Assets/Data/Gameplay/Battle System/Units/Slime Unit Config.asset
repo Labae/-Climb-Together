@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9686ce91cd3e407099a16a65eb3cd837, type: 3}
   m_Name: Slime Unit Config
   m_EditorClassIdentifier: 
-  _unitName: Slime
+  _unitName: "\uC2AC\uB77C\uC784"
   _unitIcon: {fileID: -7193875365315995582, guid: 68d140e0c02d142369642682d6e02e2f, type: 3}
   _description: 
   _stats:

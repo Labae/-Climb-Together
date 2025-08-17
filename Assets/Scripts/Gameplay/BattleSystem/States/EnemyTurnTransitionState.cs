@@ -2,6 +2,7 @@
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;

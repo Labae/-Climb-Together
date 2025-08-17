@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using Data.WeaponSystem;
 using Gameplay.BattleSystem.Core;
-using Gameplay.BattleSystem.Core.Services;
+using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI.Services;
 using Gameplay.BattleSystem.Units;
 using TMPro;
@@ -35,42 +35,33 @@ namespace Gameplay.BattleSystem.UI
         [SerializeField] private TextMeshProUGUI _battleResultText;
         [SerializeField] private TextMeshProUGUI _battleResultSubText;
 
-        [Header("Turn Order UI")]
-        [SerializeField] private CanvasGroup _turnOrderCanvasGroup;
-        [SerializeField] private TextMeshProUGUI _turnOrderHeaderText;
-        [SerializeField] private Image _currentTurnBackground;
-        [SerializeField] private Image _currentTurnIcon;
-        [SerializeField] private TextMeshProUGUI _currentTurnName;
-        [SerializeField] private Transform _upcomingContainer;
-        [SerializeField] private TurnSlot _turnSlotPrefab;
+        [Header("TurnOrder")]
+        [SerializeField, Required]
+        private TurnOrderSetup _turnOrderSetup;
 
         // Services
         private ActionButtonService _actionButtonService;
         private TargetSelectionService _targetSelectionService;
         private BattleResultService _battleResultService;
         private EnemyStatusUIService _enemyStatusUIService;
-        private TurnOrderUIService _turnOrderUIService;
 
         // Runtime
         private PlayerUnit _playerUnit;
-        private TurnOrderService _turnOrderService;
 
         public event Action<WeaponData> OnAttackButtonClicked;
         public event Action<EnemyUnit, WeaponData> OnTargetSelected;
 
-        public void Initialize(PlayerUnit playerUnit, TurnOrderService turnOrderService)
+        public void Initialize(PlayerUnit playerUnit)
         {
             _playerUnit = playerUnit;
-            _turnOrderService = turnOrderService;
+
             InitializeServices();
             SetupServiceEvents();
-
         }
 
         private void OnDestroy()
         {
             _actionButtonService?.Dispose();
-            _turnOrderUIService?.Dispose();
         }
 
         private void InitializeServices()
@@ -81,23 +72,11 @@ namespace Gameplay.BattleSystem.UI
             _battleResultService =
                 new BattleResultService(_battleResultContainer, _battleResultText, _battleResultSubText);
 
-            _turnOrderUIService = new TurnOrderUIService(
-                _turnOrderCanvasGroup,
-                _turnOrderHeaderText,
-                _currentTurnBackground,
-                _currentTurnIcon,
-                _currentTurnName,
-                _upcomingContainer,
-                _turnSlotPrefab,
-                _turnOrderService
-            );
-
             _targetSelectionService.HideTargetSelection();
             _battleResultService.HideBattleResult();
             _actionButtonService.HideButtons();
 
             _actionButtonService.Initialize(_playerUnit.WeaponInventory);
-            _turnOrderUIService.Initialize();
         }
 
         private void SetupServiceEvents()
@@ -105,7 +84,6 @@ namespace Gameplay.BattleSystem.UI
             _actionButtonService.OnWeaponSelected += (weaponType) => OnAttackButtonClicked?.Invoke(weaponType);
             _targetSelectionService.OnTargetSelected +=
                 (enemy, weaponType) => OnTargetSelected?.Invoke(enemy, weaponType);
-            _turnOrderService.OnTurnChanged += (_) => OnTurnChanged().Forget();
         }
 
         public void ShowActionButtons() => _actionButtonService.ShowButtons();
@@ -116,13 +94,5 @@ namespace Gameplay.BattleSystem.UI
 
         public void ShowBattleResult(BattleUnit winner)
             => _battleResultService.ShowBattleResult(winner);
-
-        private async UniTask OnTurnChanged()
-        {
-            if (_turnOrderUIService != null)
-            {
-                await _turnOrderUIService.AnimateTurnTransition();
-            }
-        }
     }
 }
