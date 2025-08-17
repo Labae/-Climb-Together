@@ -2,6 +2,7 @@
 using Debugging.Enum;
 using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.UI;
 using Systems.StateMachine.Interfaces;
 using UnityEngine;
 
@@ -24,7 +25,6 @@ namespace Gameplay.BattleSystem.States
         {
             GameLogger.Debug("EnemyTurnTransition: 다음 적 턴 확인 중...", LogCategory.Battle);
             _timer = _delay;
-
         }
 
         public override void OnUpdate()

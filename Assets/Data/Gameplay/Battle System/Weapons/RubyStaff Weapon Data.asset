@@ -17,7 +17,7 @@ MonoBehaviour:
   _weaponIcon: {fileID: 21300000, guid: 9d88219331500463d9237eff0a4c7bf8, type: 3}
   _description: "\uAC15\uB825\uD558\uC9C0\uB9CC \uB290\uB9B0 \uD654\uC5FC \uB9C8\uBC95\n"
   _flatDamageBonus: 8
-  _speedModifier: -2
+  _speedBonus: 0
   _canIgnoreArmor: 1
   _armorPenetration: 0
   _criticalChance: 0.1

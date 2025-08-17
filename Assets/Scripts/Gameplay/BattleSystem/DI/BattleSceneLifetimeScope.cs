@@ -34,8 +34,8 @@ namespace Gameplay.BattleSystem.DI
         {
             RegisterData(builder);
             RegisterUnits(builder);
-            RegisterBattleUI(builder);
             RegisterServices(builder);
+            RegisterBattleUI(builder);
             RegisterBattleManager(builder);
             RegisterInitializer(builder);
         }
