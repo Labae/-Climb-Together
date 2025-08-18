@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using Core.Utilities;
 using Cysharp.Text;
+using Cysharp.Threading.Tasks;
 using Data.WeaponSystem;
 using Debugging;
 using Debugging.Enum;
+using DG.Tweening;
 using Gameplay.BattleSystem.UI.Base;
 using Systems.UI.Core;
 using TMPro;
@@ -35,6 +37,7 @@ namespace Gameplay.BattleSystem.PlayerAction
         // Components
         private UIObjectPool<Button> _buttonPool;
         private readonly Dictionary<WeaponData, WeaponButton> _activeButtons = new();
+        private Sequence _currentAnimation;
 
         // Events
         public event Action<WeaponData> OnWeaponButtonClicked;
@@ -95,10 +98,7 @@ namespace Gameplay.BattleSystem.PlayerAction
 
             if (animated)
             {
-                // TODO : Add animation
-                _canvasGroup.alpha = 1;
-                _canvasGroup.interactable = true;
-                _canvasGroup.blocksRaycasts = true;
+                ShowButtonsAnimated().Forget();
             }
             else
             {
@@ -117,10 +117,7 @@ namespace Gameplay.BattleSystem.PlayerAction
 
             if (animated)
             {
-                // TODO : Add animation
-                _canvasGroup.alpha = 0;
-                _canvasGroup.interactable = false;
-                _canvasGroup.blocksRaycasts = false;
+                HideButtonsAnimated().Forget();
             }
             else
             {
@@ -141,20 +138,125 @@ namespace Gameplay.BattleSystem.PlayerAction
             }
         }
 
+        #endregion
+
+        #region Animation Methods
+
+        private async UniTask ShowButtonsAnimated()
+        {
+            if (_canvasGroup == null)
+            {
+                return;
+            }
+
+            _currentAnimation?.Kill();
+
+            var sequence = DOTween.Sequence();
+
+            _canvasGroup.alpha = 0;
+            sequence.Append(_canvasGroup.DOFade(1f, _fadeInDuration));
+
+            int index = 0;
+            foreach (var weaponButton in _activeButtons.Values)
+            {
+                var button = weaponButton.Button;
+                var rectTransform = button.GetComponent<RectTransform>();
+
+                if (rectTransform != null)
+                {
+                    rectTransform.localScale = Vector3.zero;
+                    sequence.Insert(index * _buttonAnimDelay,
+                            rectTransform.DOScale(Vector3.one, _fadeInDuration))
+                        .SetEase(Ease.OutBack);
+                }
+
+                index++;
+            }
+
+            sequence.OnStart(() =>
+            {
+                _canvasGroup.interactable = true;
+                _canvasGroup.blocksRaycasts = true;
+            });
+
+            _currentAnimation = sequence;
+            await sequence.ToUniTask();
+        }
+
+        private async UniTask HideButtonsAnimated()
+        {
+            if (_canvasGroup == null)
+            {
+                return;
+            }
+
+            _currentAnimation?.Kill();
+
+            var sequence = DOTween.Sequence();
+
+            int index = 0;
+            foreach (var weaponButton in _activeButtons.Values)
+            {
+                var button = weaponButton.Button;
+                var rectTransform = button.GetComponent<RectTransform>();
+
+                if (rectTransform != null)
+                {
+                    rectTransform.localScale = Vector3.one;
+                    sequence.Insert(index * _buttonAnimDelay * 0.5f,
+                            rectTransform.DOScale(Vector3.zero, _fadeOutDuration))
+                        .SetEase(Ease.InBack);
+                }
+
+                index++;
+            }
+
+            sequence.Append(_canvasGroup.DOFade(0f, _fadeOutDuration));
+
+            sequence.OnStart(() =>
+            {
+                _canvasGroup.interactable = false;
+                _canvasGroup.blocksRaycasts = false;
+            });
+
+            _currentAnimation = sequence;
+            await sequence.ToUniTask();
+        }
+
         public void HighlightSelectedWeapon(WeaponData weapon)
         {
             foreach (var kvp in _activeButtons)
             {
-                if (kvp.Value.Button != null)
+                var button = kvp.Value.Button;
+                if (button == null)
                 {
-                    bool isSelected = kvp.Key == weapon;
-
-                    var colors = kvp.Value.Button.colors;
-                    colors.normalColor = isSelected ?
-                        new Color(0.7f, 1f, 0.7f, 1.0f) :
-                        Color.white;
-                    kvp.Value.Button.colors = colors;
+                    continue;
                 }
+
+                bool isSelected = kvp.Key == weapon;
+
+                var colors = kvp.Value.Button.colors;
+                colors.normalColor = isSelected ?
+                    new Color(0.7f, 1f, 0.7f, 1.0f) :
+                    Color.white;
+                kvp.Value.Button.colors = colors;
+
+                if (!isSelected)
+                {
+                    continue;
+                }
+
+                var rectTransform = button.GetComponent<RectTransform>();
+                if (rectTransform == null)
+                {
+                    continue;
+                }
+
+                var sequence = DOTween.Sequence();
+                sequence.Append(rectTransform.DOScale(1.1f, 0.2f));
+                sequence.Append(rectTransform.DOScale(1f, 0.2f));
+                sequence.Join(button.GetComponent<Image>().DOColor(new Color(1f, 1f, 0.8f), 0.2f)
+                    .SetLoops(2, LoopType.Yoyo));
             }
         }
 
@@ -186,18 +288,41 @@ namespace Gameplay.BattleSystem.PlayerAction
 
         private void OnButtonClicked(WeaponData weapon)
         {
+            AnimateButtonClickAndNotify(weapon).Forget();
+        }
+
+        private async UniTaskVoid AnimateButtonClickAndNotify(WeaponData weapon)
+        {
+            if (!_activeButtons.TryGetValue(weapon, out var weaponButton))
+            {
+                return;
+            }
+
+            var rectTransform = weaponButton.Button.GetComponent<RectTransform>();
+            if (rectTransform == null)
+            {
+                return;
+            }
+
+            rectTransform.DOKill();
+            await rectTransform.DOPunchScale(Vector3.one * -0.1f, 0.2f, 2)
+                .SetEase(Ease.OutQuad);
+
             OnWeaponButtonClicked?.Invoke(weapon);
         }
+
 
         private void ClearWeaponButtons()
         {
             foreach (var weaponButton in _activeButtons.Values)
             {
-                if (weaponButton.Button != null)
+                if (weaponButton.Button == null)
                 {
-                    weaponButton.Button.onClick.RemoveAllListeners();
-                    _buttonPool.Return(weaponButton.Button);
+                    continue;
                 }
+
+                weaponButton.Button.onClick.RemoveAllListeners();
+                _buttonPool.Return(weaponButton.Button);
             }
 
             _activeButtons.Clear();
@@ -205,6 +330,19 @@ namespace Gameplay.BattleSystem.PlayerAction
 
         protected override void HandleDestruction()
         {
+            _currentAnimation?.Kill();
+
+            foreach (var weaponButton in _activeButtons.Values)
+            {
+                if (weaponButton.Button == null)
+                {
+                    continue;
+                }
+
+                var rectTransform = weaponButton.Button.GetComponent<RectTransform>();
+                rectTransform?.DOKill();
+            }
+
             ClearWeaponButtons();
             base.HandleDestruction();
         }

@@ -27,12 +27,12 @@ namespace Gameplay.BattleSystem.PlayerAction
                 {
                     if (canPerform)
                     {
-                        View.ShowButtons(false);
+                        View.ShowButtons(true);
                         View.SetButtonsInteractable(true);
                     }
                     else
                     {
-                        View.HideButtons(false);
+                        View.HideButtons(true);
                     }
                 })
                 .AddTo(_disposables);
@@ -52,17 +52,15 @@ namespace Gameplay.BattleSystem.PlayerAction
             Model.SelectedWeapon.Value = weapon;
 
             Model.OnWeaponSelected.OnNext(weapon);
-            View.HideButtons(false);
-            GameLogger.Warning(ZString.Format("무기 선택: {0}", weapon.WeaponName), LogCategory.UI);
+            View.HideButtons(true);
+            GameLogger.Info(ZString.Format("무기 선택: {0}", weapon.WeaponName), LogCategory.UI);
         }
 
         public void CompleteAction()
         {
-            Model.SelectedWeapon.Value = null;
-
             if (Model.CanPerformAction.CurrentValue)
             {
-                View.ShowButtons(false);
+                View.ShowButtons(true);
                 View.SetButtonsInteractable(true);
             }
         }
