@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Data.WeaponSystem;
 using Gameplay.BattleSystem.Core;
 using Gameplay.BattleSystem.Enum;
+using Gameplay.BattleSystem.Units;
 
 namespace Gameplay.BattleSystem.Events
 {
@@ -126,5 +128,33 @@ namespace Gameplay.BattleSystem.Events
     public class ActionCancelledEvent : BattleEventBase
     {
         public override string EventName => nameof(ActionCancelledEvent);
+    }
+
+    public class StartTargetSelectionEvent : BattleEventBase
+    {
+        public override string EventName => nameof(StartTargetSelectionEvent);
+
+        public List<EnemyUnit> AvailableTargets { get; }
+        public WeaponData SelectedWeapon { get; }
+
+        public StartTargetSelectionEvent(List<EnemyUnit> targets, WeaponData weapon)
+        {
+            AvailableTargets = targets;
+            SelectedWeapon = weapon;
+        }
+    }
+
+    public class TargetSelectedEvent : BattleEventBase
+    {
+        public override string EventName => nameof(TargetSelectedEvent);
+
+        public EnemyUnit SelectedTarget { get; }
+        public WeaponData SelectedWeapon { get; }
+
+        public TargetSelectedEvent(EnemyUnit unit, WeaponData weapon)
+        {
+            SelectedTarget = unit;
+            SelectedWeapon = weapon;
+        }
     }
 }

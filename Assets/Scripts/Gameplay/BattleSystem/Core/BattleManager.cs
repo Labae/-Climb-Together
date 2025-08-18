@@ -105,7 +105,7 @@ namespace Gameplay.BattleSystem.Core
             _turnService.OnTurnChanged += OnTurnChanged;
             _turnService.OnRoundChanged += OnRoundChanged;
 
-            if ( _turnService.IsPlayerTurn)
+            if (_turnService.IsPlayerTurn)
             {
                 _stateMachine.ChangeState(BattleState.PlayerTurn);
             }
@@ -128,7 +128,6 @@ namespace Gameplay.BattleSystem.Core
             {
                 _stateMachine.ChangeState(BattleState.EnemyTurnTransition);
             }
-
         }
 
         private void OnRoundChanged(int round)
@@ -145,10 +144,16 @@ namespace Gameplay.BattleSystem.Core
             }).AddTo(_disposables);
 
             _eventBus.Subscribe<WeaponSelectedEvent>(evt =>
-            {
-                OnPlayerAttackClicked(evt.SelectedWeapon);
-            })
-            .AddTo(_disposables);
+                {
+                    OnPlayerAttackClicked(evt.SelectedWeapon);
+                })
+                .AddTo(_disposables);
+
+            _eventBus.Subscribe<TargetSelectedEvent>(evt =>
+                {
+                    ExecutePlayerAttack(evt.SelectedTarget, evt.SelectedWeapon);
+                })
+                .AddTo(_disposables);
         }
 
         private void SetupStateMachine()
@@ -180,7 +185,6 @@ namespace Gameplay.BattleSystem.Core
         {
             if (_battleUI != null)
             {
-                _battleUI.OnTargetSelected += ExecutePlayerAttack;
                 _playerUnit.Health.OnUnitDefeated +=
                     () => _battleEventService.PublishBattleEnded(null, "Player defeated");
                 GameLogger.Debug("Battle UI events connected", LogCategory.Battle);
@@ -198,7 +202,8 @@ namespace Gameplay.BattleSystem.Core
             }
             else
             {
-                _battleUI.ShowTargetSelection(activeEnemies, weapon);
+                var evt = new StartTargetSelectionEvent(activeEnemies, weapon);
+                _eventBus.Publish(evt);
             }
         }
 
@@ -308,11 +313,6 @@ namespace Gameplay.BattleSystem.Core
             GameLogger.Debug("BattleManager disposing...", LogCategory.Battle);
             try
             {
-                if (_battleUI != null)
-                {
-                    _battleUI.OnTargetSelected -= ExecutePlayerAttack;
-                }
-
                 _turnService.OnTurnChanged -= OnTurnChanged;
                 _turnService.OnRoundChanged -= OnRoundChanged;
 

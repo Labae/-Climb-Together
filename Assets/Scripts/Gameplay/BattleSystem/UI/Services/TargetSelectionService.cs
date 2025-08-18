@@ -89,11 +89,13 @@ namespace Gameplay.BattleSystem.UI.Services
         {
             foreach (var button in _activeButtons)
             {
-                if (button != null)
+                if (button == null)
                 {
-                    button.onClick.RemoveAllListeners();
-                    _targetButtonPool.Return(button);
+                    continue;
                 }
+
+                button.onClick.RemoveAllListeners();
+                _targetButtonPool.Return(button);
             }
 
             _activeButtons.Clear();

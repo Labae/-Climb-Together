@@ -6,6 +6,7 @@ using Debugging.Enum;
 using Gameplay.BattleSystem.Core.Services;
 using Gameplay.BattleSystem.Interfaces;
 using Gameplay.BattleSystem.PlayerAction;
+using Gameplay.BattleSystem.TargetSelection;
 using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI;
 using Gameplay.BattleSystem.Units;
@@ -23,6 +24,7 @@ namespace Gameplay.BattleSystem.DI
         [Inject] private readonly List<EnemyUnit> _enemyUnits;  // 여러 적
         [Inject] private readonly TurnOrderSetup _turnOrderSetup;
         [Inject] private readonly PlayerActionSetup _playerActionSetup;
+        [Inject] private readonly TargetSelectionSetup _targetSelectionSetup;
 
         public void Initialize()
         {
@@ -41,6 +43,7 @@ namespace Gameplay.BattleSystem.DI
 
             if (_battleUI != null)
             {
+                _container.InjectGameObject(_targetSelectionSetup.gameObject);
                 _container.InjectGameObject(_turnOrderSetup.gameObject);
                 _container.InjectGameObject(_playerActionSetup.gameObject);
                 _battleUI.Initialize(_playerUnit);
