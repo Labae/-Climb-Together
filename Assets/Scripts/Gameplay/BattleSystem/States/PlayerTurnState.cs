@@ -19,7 +19,6 @@ namespace Gameplay.BattleSystem.States
         public override void OnEnter()
         {
             GameLogger.Info("플레이어 턴!", LogCategory.Battle);
-            _battleUI.ShowActionButtons();
         }
 
         public override void OnUpdate()

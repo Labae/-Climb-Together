@@ -47,7 +47,6 @@ namespace Gameplay.BattleSystem.States
                 _timer = _minTurnDelay;
             }
 
-            _battleUI.HideActionButtons();
             _actionExecuted = false;
             GameLogger.Debug(ZString.Format("적 턴 대기시간: {0}", _timer), LogCategory.Battle);
         }

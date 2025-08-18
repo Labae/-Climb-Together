@@ -143,6 +143,12 @@ namespace Gameplay.BattleSystem.Core
                 Winner = endEvent.Winner;
                 _stateMachine.ChangeState(BattleState.BattleEnd);
             }).AddTo(_disposables);
+
+            _eventBus.Subscribe<WeaponSelectedEvent>(evt =>
+            {
+                OnPlayerAttackClicked(evt.SelectedWeapon);
+            })
+            .AddTo(_disposables);
         }
 
         private void SetupStateMachine()
@@ -174,7 +180,6 @@ namespace Gameplay.BattleSystem.Core
         {
             if (_battleUI != null)
             {
-                _battleUI.OnAttackButtonClicked += OnPlayerAttackClicked;
                 _battleUI.OnTargetSelected += ExecutePlayerAttack;
                 _playerUnit.Health.OnUnitDefeated +=
                     () => _battleEventService.PublishBattleEnded(null, "Player defeated");
@@ -211,6 +216,8 @@ namespace Gameplay.BattleSystem.Core
                 GameLogger.Warning(result.ErrorMessage, LogCategory.Battle);
                 return;
             }
+
+            _eventBus.Publish(new ActionCompletedEvent());
 
             FinishTurn();
         }
@@ -303,7 +310,6 @@ namespace Gameplay.BattleSystem.Core
             {
                 if (_battleUI != null)
                 {
-                    _battleUI.OnAttackButtonClicked -= OnPlayerAttackClicked;
                     _battleUI.OnTargetSelected -= ExecutePlayerAttack;
                 }
 

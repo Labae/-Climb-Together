@@ -9,11 +9,6 @@ namespace Gameplay.BattleSystem.UI.Base
 
         public ReactiveProperty<bool> IsInitialized { get; } = new(false);
 
-        protected virtual void OnInitialize()
-        {
-
-        }
-
         protected void SetInitialized()
         {
             IsInitialized.Value = true;

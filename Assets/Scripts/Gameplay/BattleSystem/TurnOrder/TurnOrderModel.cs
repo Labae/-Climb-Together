@@ -13,8 +13,14 @@ namespace Gameplay.BattleSystem.TurnOrder
         public ReadOnlyReactiveProperty<List<TurnOrderEntry>> TurnOrder => _turnOrderService.TurnOrder;
         public ReadOnlyReactiveProperty<int> CurrentTurnIndex => _turnOrderService.CurrentTurnIndex;
         public ReadOnlyReactiveProperty<int> RoundNumber => _turnOrderService.RoundNumber;
-        public ReadOnlyReactiveProperty<bool> IsPlayerTurn => _turnOrderService.IsPlayerTurn;
-        public ReadOnlyReactiveProperty<bool> IsEnemyTurn => _turnOrderService.IsEnemyTurn;
+
+        public ReadOnlyReactiveProperty<bool> IsPlayerTurn => _turnOrderService.CurrentTurn
+            .Select(turn => turn is { IsPlayer: false })
+            .ToReadOnlyReactiveProperty();
+
+        public ReadOnlyReactiveProperty<bool> IsEnemyTurn => _turnOrderService.CurrentTurn
+            .Select(turn => turn?.IsPlayer ?? false)
+            .ToReadOnlyReactiveProperty();
 
         // Events
         public Observable<TurnTransition> OnTurnTransition => _turnOrderService.OnTurnTransition.AsObservable();

@@ -103,4 +103,28 @@ namespace Gameplay.BattleSystem.Events
             ActiveUnit = activeUnit;
         }
     }
+
+    public class WeaponSelectedEvent : BattleEventBase
+    {
+        public override string EventName => nameof(WeaponSelectedEvent);
+
+        public WeaponData SelectedWeapon { get; }
+        public BattleUnit Attacker { get; }
+
+        public WeaponSelectedEvent(WeaponData weapon, BattleUnit attacker)
+        {
+            SelectedWeapon = weapon;
+            Attacker = attacker;
+        }
+    }
+
+    public class ActionCompletedEvent : BattleEventBase
+    {
+        public override string EventName => nameof(ActionCompletedEvent);
+    }
+
+    public class ActionCancelledEvent : BattleEventBase
+    {
+        public override string EventName => nameof(ActionCancelledEvent);
+    }
 }

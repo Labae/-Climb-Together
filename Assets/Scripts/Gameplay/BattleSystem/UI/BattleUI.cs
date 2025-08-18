@@ -3,24 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Data.WeaponSystem;
 using Gameplay.BattleSystem.Core;
+using Gameplay.BattleSystem.PlayerAction;
 using Gameplay.BattleSystem.TurnOrder;
 using Gameplay.BattleSystem.UI.Services;
 using Gameplay.BattleSystem.Units;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Gameplay.BattleSystem.UI
 {
     public class BattleUI : MonoBehaviour
     {
-        [Header("Action Buttons")]
-        [SerializeField]
-        private Transform _actionButtonContainer;
-        [SerializeField]
-        private Transform _weaponButtonParent;
-        [SerializeField] private Button _weaponButtonPrefab;
-
         [Header("Target Selection")]
         [SerializeField]
         private Transform _targetSelectionPanel;
@@ -35,12 +28,7 @@ namespace Gameplay.BattleSystem.UI
         [SerializeField] private TextMeshProUGUI _battleResultText;
         [SerializeField] private TextMeshProUGUI _battleResultSubText;
 
-        [Header("TurnOrder")]
-        [SerializeField, Required]
-        private TurnOrderSetup _turnOrderSetup;
-
         // Services
-        private ActionButtonService _actionButtonService;
         private TargetSelectionService _targetSelectionService;
         private BattleResultService _battleResultService;
         private EnemyStatusUIService _enemyStatusUIService;
@@ -48,7 +36,6 @@ namespace Gameplay.BattleSystem.UI
         // Runtime
         private PlayerUnit _playerUnit;
 
-        public event Action<WeaponData> OnAttackButtonClicked;
         public event Action<EnemyUnit, WeaponData> OnTargetSelected;
 
         public void Initialize(PlayerUnit playerUnit)
@@ -59,14 +46,8 @@ namespace Gameplay.BattleSystem.UI
             SetupServiceEvents();
         }
 
-        private void OnDestroy()
-        {
-            _actionButtonService?.Dispose();
-        }
-
         private void InitializeServices()
         {
-            _actionButtonService = new ActionButtonService(_actionButtonContainer, _weaponButtonParent, _weaponButtonPrefab);
             _targetSelectionService =
                 new TargetSelectionService(_targetSelectionPanel, _targetButtonsContainer, _targetButtonPrefab);
             _battleResultService =
@@ -74,20 +55,13 @@ namespace Gameplay.BattleSystem.UI
 
             _targetSelectionService.HideTargetSelection();
             _battleResultService.HideBattleResult();
-            _actionButtonService.HideButtons();
-
-            _actionButtonService.Initialize(_playerUnit.WeaponInventory);
         }
 
         private void SetupServiceEvents()
         {
-            _actionButtonService.OnWeaponSelected += (weaponType) => OnAttackButtonClicked?.Invoke(weaponType);
             _targetSelectionService.OnTargetSelected +=
                 (enemy, weaponType) => OnTargetSelected?.Invoke(enemy, weaponType);
         }
-
-        public void ShowActionButtons() => _actionButtonService.ShowButtons();
-        public void HideActionButtons() => _actionButtonService.HideButtons();
 
         public void ShowTargetSelection(List<EnemyUnit> enemyUnits, WeaponData weapon)
             => _targetSelectionService.ShowTargetSelection(enemyUnits, weapon);
